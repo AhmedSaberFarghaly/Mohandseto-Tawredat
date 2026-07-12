@@ -11,8 +11,8 @@ Thumbs.db
 .claude/settings.local.json
 
 # --- .NET ---
-apps/api/**/bin/
-apps/api/**/obj/
+**/bin/
+**/obj/
 *.user
 
 # --- Node / Next.js ---
