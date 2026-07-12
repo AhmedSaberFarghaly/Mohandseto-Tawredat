@@ -16,10 +16,9 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
     );
 
-    final textTheme = GoogleFonts.cairoTextTheme(base.textTheme).apply(
-      bodyColor: AppColors.gray800,
-      displayColor: AppColors.gray900,
-    );
+    final textTheme = GoogleFonts.cairoTextTheme(
+      base.textTheme,
+    ).apply(bodyColor: AppColors.gray800, displayColor: AppColors.gray900);
 
     return base.copyWith(
       textTheme: textTheme,
@@ -45,13 +44,19 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700),
+          textStyle: GoogleFonts.cairo(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.card,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.gray200),

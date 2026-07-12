@@ -13,31 +13,31 @@
 10,12,,,Design System & Scenarios,design-system,,,,,,Reference,N/A,
 11,13,,,Design System & Scenarios,design-system,,,,,,Reference,N/A,
 12,14,,,Design System & Scenarios,design-system,,,,,,Reference,N/A,
-13,15,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-14,16,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-15,17,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-16,18,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-17,19,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-18,20,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-19,21,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-20,22,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-21,23,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-22,24,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-23,25,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-24,26,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-25,27,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-26,28,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-27,29,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-28,30,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-29,31,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-30,32,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-31,33,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-32,34,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-33,35,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-34,36,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-35,37,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-36,38,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
-37,39,,,التسجيل والتحقق من الشركة | Registration & Company Verification,client,,,,,,Pending,Pending,
+13,15,تسجيل الدخول بالهاتف,Phone login,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Phone entry,POST /api/auth/otp/request,OtpCodes,flutter-auth-flow,Implemented,Automated,Responsive shared auth component
+14,16,اختيار طريقة الدخول,Login method,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Email or phone variant,POST /api/auth/login,Users;RefreshTokens,flutter-auth-flow,Implemented,Automated,Responsive shared auth component
+15,17,إدخال رمز التحقق,OTP entry,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/otp,OTP input,POST /api/auth/otp/verify,OtpCodes,flutter-auth-flow,Implemented,Automated,Final pixel QA pending
+16,18,إعادة إرسال الرمز,OTP resend,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/otp,Resend and timer,POST /api/auth/otp/request,OtpCodes,flutter-auth-flow,Implemented,Automated,Attempt and timer state
+17,19,إنشاء حساب جديد,New account,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Registration start,POST /api/auth/register-company,Users;Tenants,flutter-auth-flow,Implemented,Automated,Two-step registration
+18,20,بيانات المستخدم,User details,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,User form,POST /api/auth/register-company,Users,flutter-auth-flow,Implemented,Automated,Validation implemented
+19,21,بيانات الشركة,Company details,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Company form,POST /api/auth/register-company,Companies;Tenants,flutter-auth-flow,Implemented,Automated,Validation implemented
+20,22,بيانات الشركة التفصيلية,Extended company details,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Company form variant,POST /api/auth/register-company,Companies;Branches,flutter-auth-flow,Implemented,Automated,Responsive form
+21,23,إنشاء كلمة المرور,Create password,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Password state,POST /api/auth/register-company,Users,flutter-auth-flow,Implemented,Automated,Minimum length validation
+22,24,إدخال بيانات الشركة,Company data,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Company data step,POST /api/auth/register-company,Companies,flutter-auth-flow,Implemented,Automated,Shared registration state
+23,25,رفع مستندات الشركة,Company documents,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/documents,Documents list,POST /api/company/documents,CompanyDocuments,flutter-auth-flow,Implemented,Automated,File type and size validation on API
+24,26,إضافة عنوان الشركة,Company address,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Address state,POST /api/auth/register-company,Companies;Branches,flutter-auth-flow,Implemented,Automated,Governorate and city fields
+25,27,تجهيز مستند السجل,Commercial record guide,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/documents,Upload guide,POST /api/company/documents,CompanyDocuments,flutter-auth-flow,Implemented,Automated,Shared upload card
+26,28,الموافقة على الشروط,Terms approval,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/register,Registration confirmation,POST /api/auth/register-company,AuditLogs,flutter-auth-flow,Implemented,Automated,Submission confirmation
+27,29,تجهيز مستندات الشركة,Prepare documents,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/documents,Document requirements,POST /api/company/documents,CompanyDocuments,flutter-auth-flow,Implemented,Automated,Formats and limit shown
+28,30,جاري مراجعة الحساب,Account under review,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Under review,GET /api/company/verification-status,Tenants;CompanyDocuments,flutter-auth-flow,Implemented,Automated,Dynamic tenant status
+29,31,نجاح إنشاء الحساب,Account created,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Success transition,GET /api/company/verification-status,Tenants,flutter-auth-flow,Implemented,Automated,Approved redirects home
+30,32,رفض المستندات,Documents rejected,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Rejected documents,GET /api/company/verification-status,CompanyDocuments,flutter-auth-flow,Implemented,Automated,Re-upload route available
+31,33,إعادة رفع المستندات,Re-upload documents,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/documents,Replace document,POST /api/company/documents,CompanyDocuments,flutter-auth-flow,Implemented,Automated,Replacement implemented
+32,34,اكتمال التحقق,Verification complete,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Approved,GET /api/company/verification-status,Tenants,flutter-auth-flow,Implemented,Automated,Redirects to home
+33,35,إدخال رمز التحقق,Verification code,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/otp,OTP variant,POST /api/auth/otp/verify,OtpCodes,flutter-auth-flow,Implemented,Automated,Shared OTP component
+34,36,الحساب الموقوف,Suspended account,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Blocked status,GET /api/company/verification-status,Users;Tenants,flutter-auth-flow,Partial,Pending,Dedicated blocked copy pending
+35,37,إنهاء الجلسة,Session ended,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Session state,POST /api/auth/refresh,RefreshTokens,flutter-auth-flow,Partial,Pending,Refresh interceptor pending
+36,38,الدخول الاجتماعي,Social login,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Google and Microsoft,External adapters,ExternalIdentities,,Partial,Pending,UI ready; credentials and adapters pending
+37,39,تأكيد الحساب الاجتماعي,Social account confirmation,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Social confirmation,External adapters,ExternalIdentities,,Partial,Pending,Credentials and adapters pending
 38,40,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
 39,41,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
 40,42,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
@@ -367,19 +367,19 @@
 364,366,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,
 365,367,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,
 366,368,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,
-367,369,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-368,370,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-369,371,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-370,372,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-371,373,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-372,374,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-373,375,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-374,376,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-375,377,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-376,378,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-377,379,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-378,380,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
-379,381,,,الدخول ولوحات المعلومات | Login & Dashboards,admin,,,,,,Pending,Pending,
+367,369,دخول الإدارة,Admin login,الدخول ولوحات المعلومات | Login & Dashboards,admin,/login,Default login,POST /api/session/login,Users;Roles,admin-build,Implemented,Automated,HttpOnly BFF session
+368,370,التحقق الثنائي,Two-factor verification,الدخول ولوحات المعلومات | Login & Dashboards,admin,/login,OTP state,POST /api/auth/otp/verify,OtpCodes,,Partial,Pending,Dedicated admin OTP UI pending
+369,371,استعادة كلمة المرور,Password recovery,الدخول ولوحات المعلومات | Login & Dashboards,admin,/login,Forgot password,Auth adapter,Users,,Partial,Pending,Entry action present
+370,372,اختيار دور الدخول,Role selection,الدخول ولوحات المعلومات | Login & Dashboards,admin,/login,Role gate,POST /api/session/login,Roles;Permissions,admin-build,Implemented,Automated,Platform role gate enforced
+371,373,خطأ تسجيل الدخول,Login error,الدخول ولوحات المعلومات | Login & Dashboards,admin,/login,Error state,POST /api/session/login,Users,admin-build,Implemented,Automated,Accessible error banner
+372,374,نجاح تسجيل الدخول,Login success,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Success transition,POST /api/session/login,RefreshTokens,admin-build,Implemented,Automated,Redirect and secure cookies
+373,375,لوحة المعلومات الرئيسية,Main dashboard,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Overview,Dashboard APIs,Orders;Companies;Quotes,admin-build,Implemented,Automated,Responsive dashboard shell
+374,376,مؤشرات المبيعات,Sales indicators,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,KPI cards,Dashboard APIs,Orders;Payments,admin-build,Implemented,Automated,API wiring scheduled with orders module
+375,377,رسم المبيعات,Sales chart,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Chart,Dashboard APIs,Orders;Payments,admin-build,Implemented,Automated,Responsive SVG chart
+376,378,حالة الطلبات,Order status chart,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Donut chart,Dashboard APIs,Orders,admin-build,Implemented,Automated,Responsive CSS chart
+377,379,أحدث الطلبات,Recent orders,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Orders table,Dashboard APIs,Orders,admin-build,Implemented,Automated,Responsive table
+378,380,لوحة التحليلات,Analytics dashboard,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Analytics variant,Dashboard APIs,Orders;Companies;Products,,Partial,Pending,Additional filters pending
+379,381,تخصيص لوحة المعلومات,Dashboard customization,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Customization state,Dashboard APIs,UserSettings,,Partial,Pending,Widget customization pending
 380,382,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
 381,383,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
 382,384,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,

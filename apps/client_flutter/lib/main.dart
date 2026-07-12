@@ -13,19 +13,17 @@ class MohandsetoApp extends StatelessWidget {
   const MohandsetoApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'مهندسيتو توريدات',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      routerConfig: appRouter,
-      locale: const Locale('ar'),
-      supportedLocales: const [Locale('ar'), Locale('en')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp.router(
+    title: 'مهندسيتو توريدات',
+    debugShowCheckedModeBanner: false,
+    theme: AppTheme.light(),
+    routerConfig: appRouter,
+    locale: const Locale('ar'),
+    supportedLocales: const [Locale('ar'), Locale('en')],
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+  );
 }
