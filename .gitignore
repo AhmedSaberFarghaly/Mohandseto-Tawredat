@@ -2,6 +2,8 @@
 Mohandseto_Tawredat_Final design.pdf
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 
 # --- OS / editor ---
 .DS_Store
