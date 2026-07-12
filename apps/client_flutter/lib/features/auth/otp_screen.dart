@@ -97,7 +97,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       } else {
         ref.read(currentUserProvider.notifier).setUser(result.user);
         context.go(
-          result.user?.tenantStatus == 'Approved' ? '/home' : '/verification',
+          result.user?.tenantStatus == 'Active' ? '/home' : '/verification',
         );
       }
     } catch (error) {

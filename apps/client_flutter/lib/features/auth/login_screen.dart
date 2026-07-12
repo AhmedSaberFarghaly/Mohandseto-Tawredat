@@ -69,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   String _destination(String? status) =>
-      status == null || status == 'Approved' ? '/home' : '/verification';
+      status == null || status == 'Active' ? '/home' : '/verification';
 
   @override
   Widget build(BuildContext context) => AuthShell(

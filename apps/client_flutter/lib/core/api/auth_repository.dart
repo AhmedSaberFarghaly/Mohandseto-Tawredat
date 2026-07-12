@@ -116,6 +116,20 @@ class AuthRepository {
     await _api.dio.post('/api/company/documents', data: form);
   });
 
+  Future<void> logout() async {
+    final refreshToken = await _tokens.refresh;
+    try {
+      if (refreshToken != null) {
+        await _api.dio.post(
+          '/api/auth/logout',
+          data: {'refreshToken': refreshToken},
+        );
+      }
+    } finally {
+      await _tokens.clear();
+    }
+  }
+
   Future<void> _persist(AuthResult result) async {
     if (result.accessToken != null && result.refreshToken != null) {
       await _tokens.save(result.accessToken!, result.refreshToken!);

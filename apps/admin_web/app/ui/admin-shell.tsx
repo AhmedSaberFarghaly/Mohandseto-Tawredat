@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const groups = [
@@ -14,7 +15,13 @@ const groups = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  async function logout() {
+    await fetch("/api/session/logout", { method: "POST" });
+    router.replace("/login");
+    router.refresh();
+  }
   return (
     <div className="admin-layout">
       <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
@@ -31,7 +38,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className="sidebar-user"><span>م</span><div><b>مدير النظام</b><small>admin@mohandseto.com</small></div><button aria-label="خيارات الحساب">⋮</button></div>
+        <div className="sidebar-user"><span>م</span><div><b>مدير النظام</b><small>admin@mohandseto.com</small></div><button aria-label="تسجيل الخروج" title="تسجيل الخروج" onClick={logout}>↪</button></div>
       </aside>
       {open && <button className="sidebar-overlay" aria-label="إغلاق القائمة" onClick={() => setOpen(false)} />}
       <section className="admin-main">

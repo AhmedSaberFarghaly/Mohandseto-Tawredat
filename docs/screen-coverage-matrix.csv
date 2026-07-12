@@ -35,7 +35,7 @@
 32,34,اكتمال التحقق,Verification complete,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Approved,GET /api/company/verification-status,Tenants,flutter-auth-flow,Implemented,Automated,Redirects to home
 33,35,إدخال رمز التحقق,Verification code,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/otp,OTP variant,POST /api/auth/otp/verify,OtpCodes,flutter-auth-flow,Implemented,Automated,Shared OTP component
 34,36,الحساب الموقوف,Suspended account,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/verification,Blocked status,GET /api/company/verification-status,Users;Tenants,flutter-auth-flow,Partial,Pending,Dedicated blocked copy pending
-35,37,إنهاء الجلسة,Session ended,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Session state,POST /api/auth/refresh,RefreshTokens,flutter-auth-flow,Partial,Pending,Refresh interceptor pending
+35,37,إنهاء الجلسة,Session ended,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Session state,POST /api/auth/refresh,RefreshTokens,flutter-auth-flow,Implemented,Automated,Refresh rotation and single retry implemented
 36,38,الدخول الاجتماعي,Social login,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Google and Microsoft,External adapters,ExternalIdentities,,Partial,Pending,UI ready; credentials and adapters pending
 37,39,تأكيد الحساب الاجتماعي,Social account confirmation,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Social confirmation,External adapters,ExternalIdentities,,Partial,Pending,Credentials and adapters pending
 38,40,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,

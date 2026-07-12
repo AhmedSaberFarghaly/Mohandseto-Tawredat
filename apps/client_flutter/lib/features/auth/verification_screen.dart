@@ -39,7 +39,7 @@ class VerificationScreen extends ConsumerWidget {
             }
             final data = snapshot.data!;
             final status = data['tenantStatus'] as String? ?? 'UnderReview';
-            if (status == 'Approved') {
+            if (status == 'Active') {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) context.go('/home');
               });
