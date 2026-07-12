@@ -69,7 +69,7 @@ cd ../client_flutter && flutter analyze && flutter test
 
 ## Commit / Tag
 
-- Commit SHA: `PENDING_MILESTONE_COMMIT`
+- Implementation commit SHA: `7bcca05`
 - Tag: `v0.2.0`
 
 ## المرحلة التالية
