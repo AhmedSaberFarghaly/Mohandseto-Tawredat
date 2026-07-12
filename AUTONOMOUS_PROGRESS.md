@@ -90,3 +90,14 @@
 - E2E على قاعدة جديدة: Health + Admin login + variants + brand archive + export 250 + import 250 updated / 0 rejected.
 
 **التقدم الإجمالي التقديري الحالي: 29%**
+
+### دفعة تنفيذية — Product Content & Media (بوابة 30%)
+
+- Admin: محرر موحد بلسانات للخصائص وشرائح أسعار الكمية والصور ومستندات PDF.
+- API: رفع وحذف JPG/PNG/WebP وPDF بقيود 5/10MB، أسماء عشوائية، تحقق MIME/extension ومسارات تمنع path traversal.
+- API: تقديم الملفات العامة مع client caching وrange processing، مع تحويل المسار المخزن إلى URL مستقر في DTO.
+- Flutter: عرض الصورة الحقيقية عند توفرها مع fallback احترافي، وتنزيل PDF وحفظه عبر File Picker.
+- الجودة: 18 اختبار Backend و3 Flutter؛ Admin lint/build وFlutter analyze كلها ناجحة.
+- E2E Media: تعديل attributes/tiers، رفع صورة ومستند، تنزيل نفس bytes، ثم الحذف من DB والقرص.
+
+**التقدم الإجمالي التقديري الحالي: 30%**
