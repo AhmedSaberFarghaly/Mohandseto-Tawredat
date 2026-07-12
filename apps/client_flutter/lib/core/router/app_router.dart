@@ -12,6 +12,8 @@ import '../../features/catalog/favorites_screen.dart';
 import '../../features/catalog/product_detail_screen.dart';
 import '../../features/catalog/products_screen.dart';
 import '../../features/cart/cart_screen.dart';
+import '../../features/cart/checkout_screen.dart';
+import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/home/placeholder_screen.dart';
@@ -128,6 +130,17 @@ final appRouter = GoRouter(
       path: '/cart',
       name: 'cart',
       builder: (context, state) => const CartScreen(),
+    ),
+    GoRoute(
+      path: '/checkout',
+      name: 'checkout',
+      builder: (context, state) => const CheckoutScreen(),
+    ),
+    GoRoute(
+      path: '/checkout/success',
+      name: 'checkout-success',
+      builder: (context, state) =>
+          OrderSuccessScreen(order: state.extra! as OrderCreated),
     ),
   ],
 );

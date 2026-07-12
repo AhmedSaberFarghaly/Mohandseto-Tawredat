@@ -383,11 +383,7 @@ class CartScreen extends ConsumerWidget {
           ),
           Expanded(
             child: FilledButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('جاري تنفيذ خطوة التوصيل التالية'),
-                ),
-              ),
+              onPressed: () => context.push('/checkout'),
               child: const Text('متابعة إتمام الطلب'),
             ),
           ),

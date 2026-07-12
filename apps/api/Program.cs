@@ -59,6 +59,7 @@ builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CatalogService>();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<CheckoutService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 
 // brute-force protection on auth endpoints

@@ -53,6 +53,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<RecentSearch> RecentSearches => Set<RecentSearch>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<CheckoutSession> CheckoutSessions => Set<CheckoutSession>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<OrderStatusHistory> OrderStatusHistories => Set<OrderStatusHistory>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -78,6 +82,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<RecentSearch>().HasIndex(s => new { s.UserId, s.Query }).IsUnique();
         b.Entity<Cart>().HasIndex(c => new { c.TenantId, c.UserId, c.Status });
         b.Entity<CartItem>().HasIndex(i => new { i.CartId, i.ProductId, i.VariantId });
+        b.Entity<CheckoutSession>().HasIndex(s => new { s.TenantId, s.UserId, s.CartId, s.Status });
+        b.Entity<Order>().HasIndex(o => o.Number).IsUnique();
+        b.Entity<Order>().HasIndex(o => new { o.TenantId, o.UserId, o.CreatedAt });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -113,6 +120,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<RecentSearch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CartItem>().HasQueryFilter(e => !e.IsDeleted && !e.Cart.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CheckoutSession>().HasQueryFilter(e => !e.IsDeleted && !e.Cart.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Order>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderItem>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderStatusHistory>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
