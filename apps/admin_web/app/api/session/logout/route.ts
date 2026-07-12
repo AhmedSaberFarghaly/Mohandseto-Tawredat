@@ -16,6 +16,6 @@ export async function POST() {
   }
   const result = NextResponse.json({ loggedOut: true });
   result.cookies.delete("admin_access");
-  result.cookies.delete("admin_refresh");
+  result.cookies.set("admin_refresh", "", { path: "/api", maxAge: 0 });
   return result;
 }

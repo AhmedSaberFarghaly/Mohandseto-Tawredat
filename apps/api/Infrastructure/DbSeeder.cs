@@ -135,5 +135,8 @@ public static class DbSeeder
             await db.SaveChangesAsync();
             logger.LogInformation("Seeded platform super admin: {Email}", adminEmail);
         }
+
+        // 4) catalog reference/demo data (idempotent)
+        await CatalogSeeder.SeedAsync(db, logger);
     }
 }

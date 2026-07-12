@@ -66,6 +66,8 @@ public class Product : BaseEntity
     public ICollection<ProductImage> Images { get; set; } = [];
     public ICollection<QuantityPriceTier> PriceTiers { get; set; } = [];
     public ICollection<ProductAttributeValue> Attributes { get; set; } = [];
+    public ICollection<ProductVariant> Variants { get; set; } = [];
+    public ICollection<ProductDocument> Documents { get; set; } = [];
 
     public StockStatus GetStockStatus() =>
         StockQty <= 0 ? StockStatus.OutOfStock
@@ -100,6 +102,28 @@ public class ProductAttributeValue : BaseEntity
     public int SortOrder { get; set; }
 }
 
+public class ProductVariant : BaseEntity
+{
+    public Guid ProductId { get; set; }
+    public Product Product { get; set; } = null!;
+    public string Sku { get; set; } = string.Empty;
+    public string NameAr { get; set; } = string.Empty;
+    public string NameEn { get; set; } = string.Empty;
+    public string? OptionsJson { get; set; }
+    public decimal PriceAdjustment { get; set; }
+    public int StockQty { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class ProductDocument : BaseEntity
+{
+    public Guid ProductId { get; set; }
+    public Product Product { get; set; } = null!;
+    public string NameAr { get; set; } = string.Empty;
+    public string Path { get; set; } = string.Empty;
+    public string ContentType { get; set; } = "application/pdf";
+}
+
 /// <summary>Company-specific contract price for a product (overrides base/tier prices).</summary>
 public class CompanyProductPrice : TenantEntity
 {
@@ -123,4 +147,11 @@ public class RecentlyViewed : TenantEntity
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
     public DateTime ViewedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class CompareItem : TenantEntity
+{
+    public Guid UserId { get; set; }
+    public Guid ProductId { get; set; }
+    public Product Product { get; set; } = null!;
 }

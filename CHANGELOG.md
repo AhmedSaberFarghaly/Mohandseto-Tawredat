@@ -3,6 +3,29 @@
 All notable changes to Mohandseto Tawredat are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Versioning per milestone (v0.1.0 → v1.0.0).
 
+## [Unreleased] — Milestone 3 in progress
+
+### Added
+- Catalog API with categories, brands, products, search, filters, sorting, pagination, details, variants, quantity tiers, contract pricing, favorites, compare, and recently viewed.
+- Idempotent catalog seed: 12 main categories, 40 subcategories, 10 brands, 6 units, and 250 products.
+- Flutter home, category hierarchy, product listing, filters, favorites, and product details.
+- Admin product management with secure BFF proxy, create, edit, archive, search, and pagination.
+- `CatalogExpansion` migration and catalog service tests.
+
+## [0.2.0] — 2026-07-12 — Milestone 2: Identity and Company Verification (20%)
+
+### Added
+- OTP login, email/password login, company registration, document verification, JWT access/refresh rotation, logout, and tenant status flows.
+- Secure Flutter token storage with automatic single-retry refresh behavior.
+- Flutter screens for login, OTP, company registration, documents, and review states.
+- Admin login BFF with HttpOnly cookies, role gate, responsive sidebar, dashboard KPIs, charts, and recent orders.
+- Seeded platform roles and permissions plus super-admin development account.
+- 9 service-level Auth tests and Flutter navigation coverage.
+
+### Security
+- OTP request/attempt limits, auth rate limiting, refresh-token reuse detection, tenant-isolated documents, file type and size validation.
+- SQLite runtime journals removed from source control.
+
 ## [0.1.0] — 2026-07-12 — Milestone 1: Foundation (10%)
 
 ### Added

@@ -19,7 +19,7 @@ export async function POST() {
   if (!response.ok) {
     const result = NextResponse.json({ message: "انتهت الجلسة" }, { status: 401 });
     result.cookies.delete("admin_access");
-    result.cookies.delete("admin_refresh");
+    result.cookies.set("admin_refresh", "", { path: "/api", maxAge: 0 });
     return result;
   }
 
@@ -36,7 +36,7 @@ export async function POST() {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/api/session",
+    path: "/api",
     maxAge: 30 * 24 * 60 * 60,
   });
   return result;

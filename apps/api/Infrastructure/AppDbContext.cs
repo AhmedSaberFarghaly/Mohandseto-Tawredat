@@ -44,9 +44,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<QuantityPriceTier> QuantityPriceTiers => Set<QuantityPriceTier>();
     public DbSet<ProductAttributeValue> ProductAttributeValues => Set<ProductAttributeValue>();
+    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+    public DbSet<ProductDocument> ProductDocuments => Set<ProductDocument>();
     public DbSet<CompanyProductPrice> CompanyProductPrices => Set<CompanyProductPrice>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
     public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
+    public DbSet<CompareItem> CompareItems => Set<CompareItem>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -67,6 +70,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Favorite>().HasIndex(f => new { f.UserId, f.ProductId }).IsUnique();
         b.Entity<CompanyProductPrice>().HasIndex(p => new { p.TenantId, p.ProductId, p.ValidFrom });
         b.Entity<QuantityPriceTier>().HasIndex(t => new { t.ProductId, t.MinQty }).IsUnique();
+        b.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
+        b.Entity<CompareItem>().HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -83,6 +88,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Brand>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<ProductImage>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<QuantityPriceTier>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<ProductAttributeValue>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<ProductVariant>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<ProductDocument>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
 
         // dependents of User share its soft-delete filter to avoid filter-mismatch anomalies
         b.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
@@ -93,6 +103,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyProductPrice>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<Favorite>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<RecentlyViewed>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompareItem>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

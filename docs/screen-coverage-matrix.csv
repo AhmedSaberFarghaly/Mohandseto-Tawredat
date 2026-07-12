@@ -38,44 +38,44 @@
 35,37,إنهاء الجلسة,Session ended,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Session state,POST /api/auth/refresh,RefreshTokens,flutter-auth-flow,Implemented,Automated,Refresh rotation and single retry implemented
 36,38,الدخول الاجتماعي,Social login,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Google and Microsoft,External adapters,ExternalIdentities,,Partial,Pending,UI ready; credentials and adapters pending
 37,39,تأكيد الحساب الاجتماعي,Social account confirmation,التسجيل والتحقق من الشركة | Registration & Company Verification,client,/login,Social confirmation,External adapters,ExternalIdentities,,Partial,Pending,Credentials and adapters pending
-38,40,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-39,41,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-40,42,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-41,43,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-42,44,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-43,45,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-44,46,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-45,47,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-46,48,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-47,49,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-48,50,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-49,51,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-50,52,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-51,53,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-52,54,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-53,55,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-54,56,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-55,57,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-56,58,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-57,59,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-58,60,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-59,61,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-60,62,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-61,63,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-62,64,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-63,65,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-64,66,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-65,67,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-66,68,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-67,69,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-68,70,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-69,71,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-70,72,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-71,73,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-72,74,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-73,75,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-74,76,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
-75,77,,,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,,,,,,Pending,Pending,
+38,40,الرئيسية المخصصة,Personalized home,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Default home,GET /api/catalog/categories;products,Categories;Products,flutter-catalog,Implemented,Automated,Responsive API-backed home
+39,41,الرئيسية مع العروض,Home with offers,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Hero and featured,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Offer banner and featured feed
+40,42,أقسام الرئيسية,Home categories,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Category carousel,GET /api/catalog/categories,Categories,flutter-catalog,Implemented,Automated,12 main categories
+41,43,العروض والخصومات,Offers and discounts,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Offer state,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,API filters available
+42,44,المفضلة,Favorites,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/favorites,Favorites list,GET /api/catalog/favorites,Favorites;Products,flutter-catalog,Implemented,Automated,Tenant-scoped favorites
+43,45,اختيار حساب الشركة,Company selector,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Company selector,Company profile API,Companies;Branches,,Partial,Pending,UI present; dynamic company endpoint pending
+44,46,اختيار الفرع,Branch selector,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Branch selector,Company branches API,CompanyBranches,,Partial,Pending,UI present; endpoint pending
+45,47,تفاصيل الفرع,Branch details,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Branch details,Company branches API,CompanyBranches,,Partial,Pending,Planned with company module
+46,48,تبديل الشركة,Switch company,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Company switcher,Company profile API,Companies,,Partial,Pending,Single tenant session currently
+47,49,إدارة العنوان,Address management,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/home,Address state,Address API,CompanyBranches,,Partial,Pending,Planned with checkout
+48,50,الملف الشخصي المختصر,Compact profile,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/account,Profile state,GET /api/auth/me,Users,,Partial,Pending,Route and shell ready
+49,51,فلاتر المنتجات,Product filters,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Filter sheet,GET /api/catalog/products,Products;Brands,flutter-catalog,Implemented,Automated,Price and stock filters
+50,52,ترتيب المنتجات,Product sorting,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Sort sheet,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Six sort modes
+51,53,البحث عن منتج,Product search,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Search input,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Debounced search
+52,54,اقتراحات البحث,Search suggestions,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Suggestions,GET /api/catalog/search/suggestions,Products,api-catalog,Partial,Automated,Backend complete; inline overlay pending
+53,55,نتائج البحث,Search results,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Results grid/list,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Pagination and count
+54,56,لا توجد نتائج,No results,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Empty state,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Dedicated empty state
+55,57,سجل البحث,Search history,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Recent searches,Local cache,RecentlyViewed,,Partial,Pending,Recently viewed API complete; search terms cache pending
+56,58,المنتجات المميزة,Featured products,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Featured feed,GET /api/catalog/products?featured=true,Products,flutter-catalog,Implemented,Automated,Featured filter
+57,59,الأقسام الرئيسية,Main categories,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/categories,Category list,GET /api/catalog/categories,Categories,flutter-catalog,Implemented,Automated,Expandable hierarchy
+58,60,الأقسام الفرعية,Subcategories,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/categories,Subcategory list,GET /api/catalog/categories,Categories,flutter-catalog,Implemented,Automated,40 subcategories
+59,61,منتجات العروض,Offer products,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Discounted list,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Compare-at prices rendered
+60,62,أسعار الجملة,Wholesale pricing,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Quantity pricing,GET /api/catalog/products/{id},QuantityPriceTiers,api-catalog,Implemented,Automated,Three tiers per seeded product
+61,63,منتج غير متوفر,Out of stock,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Out-of-stock state,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Filter and disabled purchase state
+62,64,منتجات شوهدت مؤخرًا,Recently viewed,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Recently viewed,GET /api/catalog/recently-viewed,RecentlyViewed;Products,api-catalog,Partial,Automated,Backend complete; dedicated rail pending
+63,65,قائمة المنتجات,Product listing,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Grid view,GET /api/catalog/products,Products,flutter-catalog,Implemented,Automated,Responsive grid
+64,66,مقارنة المنتجات,Product comparison,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products,Compare selection,POST /api/catalog/compare/{id}/toggle,CompareItems;Products,api-catalog,Partial,Automated,Backend max-four rule complete; comparison table pending
+65,67,تفاصيل المنتج,Product details,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Default detail,GET /api/catalog/products/{id},Products;ProductImages,flutter-catalog,Implemented,Automated,API-backed detail
+66,68,السعر الخاص بالشركة,Company contract price,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Contract price,GET /api/catalog/products/{id},CompanyProductPrices,api-catalog,Implemented,Automated,Tenant effective pricing
+67,69,منتجات مشابهة,Related products,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Related rail,GET /api/catalog/products/{id},Products,flutter-catalog,Implemented,Automated,Same-category related feed
+68,70,بدائل المنتج,Product variants,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Variant selector,GET /api/catalog/products/{id},ProductVariants,flutter-catalog,Implemented,Automated,Variant price and stock
+69,71,شرائح أسعار الكمية,Quantity tiers,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Tier selector,GET /api/catalog/products/{id},QuantityPriceTiers,flutter-catalog,Implemented,Automated,Dynamic total by quantity
+70,72,مواصفات المنتج,Product specifications,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Attributes,GET /api/catalog/products/{id},ProductAttributeValues,flutter-catalog,Implemented,Automated,Expandable specifications
+71,73,الضمان والتوصيل,Warranty and delivery,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Warranty state,GET /api/catalog/products/{id},Products,flutter-catalog,Implemented,Automated,Delivery estimate rendered
+72,74,اختيارات المنتج,Product options,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Option state,GET /api/catalog/products/{id},ProductVariants,flutter-catalog,Implemented,Automated,Choice chips
+73,75,تأكيد اختيار المنتج,Product selection confirmation,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Selected quantity,GET /api/catalog/products/{id},Products,flutter-catalog,Implemented,Automated,Quantity and total states
+74,76,مستندات المنتج,Product documents,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Documents,GET /api/catalog/products/{id},ProductDocuments,api-catalog,Partial,Automated,Backend metadata complete; download UI pending
+75,77,إضافة المنتج للسلة,Add product to cart,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Add action,Cart API,CartItems,,Partial,Pending,Visual action ready; cart is milestone 4
 76,78,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 77,79,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 78,80,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
@@ -424,24 +424,24 @@
 421,423,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
 422,424,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
 423,425,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-424,426,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-425,427,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-426,428,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-427,429,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-428,430,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-429,431,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-430,432,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-431,433,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-432,434,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-433,435,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-434,436,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-435,437,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-436,438,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-437,439,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-438,440,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-439,441,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-440,442,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-441,443,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
+424,426,قائمة المنتجات,Products list,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Products table,GET /api/admin/catalog/products,Products,admin-build,Implemented,Automated,Search pagination and stock states
+425,427,إضافة منتج,Create product,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Create modal,POST /api/admin/catalog/products,Products,admin-build,Implemented,Automated,Validated BFF mutation
+426,428,تعديل منتج,Edit product,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Edit modal,PUT /api/admin/catalog/products/{id},Products,admin-build,Implemented,Automated,Loads current values
+427,429,بيانات المنتج,Product data,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Product fields,GET /api/admin/catalog/products/{id},Products,admin-build,Implemented,Automated,Arabic and English metadata
+428,430,أرشفة المنتج,Archive product,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Archive confirmation,DELETE /api/admin/catalog/products/{id},Products,admin-build,Implemented,Automated,Status archive with confirmation
+429,431,بحث المنتجات,Product search,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Search state,GET /api/admin/catalog/products,Products,admin-build,Implemented,Automated,Server pagination and search
+430,432,قائمة الأقسام,Categories list,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Category lookup,GET /api/admin/catalog/categories,Categories,api-catalog,Partial,Automated,Backend hierarchy complete; dedicated page pending
+431,433,إضافة قسم,Create category,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Create category,POST /api/admin/catalog/categories,Categories,api-catalog,Partial,Automated,Backend complete; UI pending
+432,434,تعديل قسم,Edit category,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Edit category,PUT /api/admin/catalog/categories/{id},Categories,api-catalog,Partial,Automated,Backend complete; UI pending
+433,435,العلامات التجارية,Brands,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Brand lookup,GET /api/admin/catalog/lookups,Brands,api-catalog,Partial,Automated,10 brands seeded; CRUD page pending
+434,436,خصائص المنتجات,Product attributes,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Attributes,GET /api/catalog/products/{id},ProductAttributeValues,api-catalog,Partial,Automated,Domain and seed complete; editor pending
+435,437,متغيرات المنتج,Product variants,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Variants,GET /api/catalog/products/{id},ProductVariants,api-catalog,Partial,Automated,Domain API and seed complete; editor pending
+436,438,وحدات البيع,Units of measure,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Unit selector,GET /api/admin/catalog/lookups,UnitOfMeasure,admin-build,Implemented,Automated,Six units seeded
+437,439,صور المنتج,Product images,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Image metadata,Product media API,ProductImages,api-catalog,Partial,Automated,Metadata and placeholders complete; upload pending
+438,440,مستندات المنتج,Product documents,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Documents metadata,Product media API,ProductDocuments,api-catalog,Partial,Automated,Domain metadata complete; upload pending
+439,441,شرائح أسعار الكمية,Quantity price tiers,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Price tiers,PUT /api/admin/catalog/products/{id}/price-tiers,QuantityPriceTiers,api-catalog,Implemented,Automated,Replacement validation and seed complete
+440,442,أسعار الشركات,Company pricing,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Contract prices,Catalog pricing API,CompanyProductPrices,api-catalog,Partial,Automated,Effective pricing complete; admin assignment UI pending
+441,443,الوصف والترجمة,Descriptions and translations,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Localized metadata,PUT /api/admin/catalog/products/{id},Products,admin-build,Implemented,Automated,Arabic and English fields
 442,444,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
 443,445,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
 444,446,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,

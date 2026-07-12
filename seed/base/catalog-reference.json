@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "source": "CatalogSeeder.cs",
+  "description": "مرجع بيانات الكتالوج الأساسية. ينشئ الـseeder البيانات الفعلية بشكل idempotent.",
+  "counts": {
+    "mainCategories": 12,
+    "subcategories": 40,
+    "brands": 10,
+    "units": 6,
+    "products": 250
+  },
+  "mainCategorySlugs": [
+    "office-supplies",
+    "writing",
+    "paper",
+    "printing",
+    "cleaning",
+    "packaging",
+    "safety",
+    "electrical",
+    "tools",
+    "hospitality",
+    "technology",
+    "furniture"
+  ],
+  "brandSlugs": [
+    "deli",
+    "rotring",
+    "double-a",
+    "hp",
+    "canon",
+    "fine",
+    "fresh",
+    "tornado",
+    "bosch",
+    "mohandseto"
+  ]
+}

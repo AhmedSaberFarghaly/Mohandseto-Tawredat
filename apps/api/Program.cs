@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Mohandseto.Api.Application.Auth;
 using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Application.Catalog;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -55,6 +56,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<CatalogService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 
 // brute-force protection on auth endpoints
