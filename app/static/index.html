@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mohandseto Tawredat</title>
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; margin: 0; background: #f5f7fb; color: #1f2937; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    h1, h2 { margin-top: 0; }
+    button { background: #2563eb; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+    input, textarea { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; border: 1px solid #d1d5db; border-radius: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>مهندسيتو توريدات</h1>
+      <p>النظام يعمل الآن على قاعدة بيانات فعلية مع CRUD للمنتجات والشركات.</p>
+    </div>
+
+    <div class="card">
+      <h2>إضافة منتج</h2>
+      <div class="grid">
+        <div><label>الاسم</label><input id="productName" /></div>
+        <div><label>الكود</label><input id="productCode" /></div>
+        <div><label>السعر</label><input id="productPrice" type="number" /></div>
+        <div><label>الفئة</label><input id="productCategory" /></div>
+      </div>
+      <label>الوصف</label><textarea id="productDescription"></textarea>
+      <button onclick="addProduct()">حفظ المنتج</button>
+      <div id="productMsg"></div>
+      <table>
+        <thead><tr><th>الاسم</th><th>الكود</th><th>السعر</th><th>الفئة</th></tr></thead>
+        <tbody id="productsTable"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>إضافة شركة</h2>
+      <div class="grid">
+        <div><label>اسم الشركة</label><input id="companyName" /></div>
+        <div><label>البريد</label><input id="companyEmail" /></div>
+        <div><label>الهاتف</label><input id="companyPhone" /></div>
+      </div>
+      <label>العنوان</label><textarea id="companyAddress"></textarea>
+      <button onclick="addCompany()">حفظ الشركة</button>
+      <div id="companyMsg"></div>
+      <table>
+        <thead><tr><th>اسم الشركة</th><th>البريد</th><th>الهاتف</th><th>العنوان</th></tr></thead>
+        <tbody id="companiesTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      const products = await fetch('/api/products').then(r => r.json());
+      const companies = await fetch('/api/companies').then(r => r.json());
+      document.getElementById('productsTable').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>${p.code}</td><td>${p.price}</td><td>${p.category}</td></tr>`).join('');
+      document.getElementById('companiesTable').innerHTML = companies.map(c => `<tr><td>${c.name}</td><td>${c.email}</td><td>${c.phone}</td><td>${c.address}</td></tr>`).join('');
+    }
+
+    async function addProduct() {
+      const payload = {
+        name: document.getElementById('productName').value,
+        code: document.getElementById('productCode').value,
+        price: Number(document.getElementById('productPrice').value || 0),
+        category: document.getElementById('productCategory').value,
+        description: document.getElementById('productDescription').value,
+        is_active: true
+      };
+      const res = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      document.getElementById('productMsg').innerText = res.ok ? 'تمت الإضافة بنجاح' : data.detail || 'فشل';
+      loadData();
+    }
+
+    async function addCompany() {
+      const payload = {
+        name: document.getElementById('companyName').value,
+        email: document.getElementById('companyEmail').value,
+        phone: document.getElementById('companyPhone').value,
+        address: document.getElementById('companyAddress').value,
+        is_active: true
+      };
+      const res = await fetch('/api/companies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      document.getElementById('companyMsg').innerText = res.ok ? 'تمت الإضافة بنجاح' : data.detail || 'فشل';
+      loadData();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

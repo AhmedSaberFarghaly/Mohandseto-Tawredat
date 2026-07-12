@@ -1,0 +1,40 @@
+# --- Local-only assets (kept out of repo) ---
+Mohandseto_Tawredat_Final design.pdf
+*.db
+*.db-journal
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/settings.local.json
+
+# --- .NET ---
+apps/api/**/bin/
+apps/api/**/obj/
+*.user
+
+# --- Node / Next.js ---
+node_modules/
+apps/admin_web/.next/
+apps/admin_web/out/
+*.tsbuildinfo
+npm-debug.log*
+
+# --- Flutter / Dart ---
+apps/client_flutter/.dart_tool/
+apps/client_flutter/build/
+apps/client_flutter/.flutter-plugins*
+apps/client_flutter/.packages
+apps/client_flutter/android/.gradle/
+apps/client_flutter/ios/Pods/
+
+# --- Python (legacy prototype) ---
+__pycache__/
+*.pyc
+
+# --- env/secrets ---
+.env
+.env.*
+!.env.example
