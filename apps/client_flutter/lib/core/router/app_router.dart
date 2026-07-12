@@ -11,6 +11,7 @@ import '../../features/catalog/compare_screen.dart';
 import '../../features/catalog/favorites_screen.dart';
 import '../../features/catalog/product_detail_screen.dart';
 import '../../features/catalog/products_screen.dart';
+import '../../features/cart/cart_screen.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/home/placeholder_screen.dart';
@@ -122,6 +123,11 @@ final appRouter = GoRouter(
       path: '/compare',
       name: 'compare',
       builder: (context, state) => const CompareScreen(),
+    ),
+    GoRoute(
+      path: '/cart',
+      name: 'cart',
+      builder: (context, state) => const CartScreen(),
     ),
   ],
 );

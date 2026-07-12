@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api/catalog_repository.dart';
+import '../../core/api/cart_repository.dart';
 import '../../core/theme/app_tokens.dart';
 import '../catalog/catalog_widgets.dart';
 
@@ -15,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
     final featured = ref.watch(
       productFeedProvider(const CatalogQuery(featured: true, pageSize: 10)),
     );
+    final cartCount = ref.watch(cartProvider).value?.itemCount ?? 0;
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(categoriesProvider);
@@ -70,10 +72,11 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {},
-                icon: const Badge(
-                  label: Text('0'),
-                  child: Icon(Icons.shopping_cart_outlined),
+                onPressed: () => context.push('/cart'),
+                icon: Badge(
+                  isLabelVisible: cartCount > 0,
+                  label: Text('$cartCount'),
+                  child: const Icon(Icons.shopping_cart_outlined),
                 ),
               ),
               const SizedBox(width: 5),

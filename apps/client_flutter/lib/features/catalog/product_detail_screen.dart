@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/api/catalog_repository.dart';
 import '../../core/api/api_client.dart';
+import '../../core/api/cart_repository.dart';
 import '../../core/theme/app_tokens.dart';
 import 'catalog_widgets.dart';
 
@@ -69,13 +70,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       child: FilledButton.icon(
                         onPressed: detail.value!.summary.stockQty <= 0
                             ? null
-                            : () => ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'سيتم ربط الإضافة بالسلة في مرحلة Checkout',
-                                  ),
-                                ),
-                              ),
+                            : () => _addToCart(detail.value!),
                         icon: const Icon(Icons.shopping_cart_outlined),
                         label: Text(
                           detail.value!.summary.stockQty <= 0
@@ -460,6 +455,22 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         messenger.showSnackBar(
           const SnackBar(content: Text('تعذر تنزيل المستند، حاول مرة أخرى')),
         );
+      }
+    }
+  }
+
+  Future<void> _addToCart(ProductDetail detail) async {
+    try {
+      await ref
+          .read(cartRepositoryProvider)
+          .add(detail.summary.id, _quantity, variantId: _variantId);
+      ref.invalidate(cartProvider);
+      if (mounted) context.push('/cart');
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$error')));
       }
     }
   }

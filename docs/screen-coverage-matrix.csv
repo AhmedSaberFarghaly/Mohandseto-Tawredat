@@ -75,7 +75,7 @@
 72,74,اختيارات المنتج,Product options,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Option state,GET /api/catalog/products/{id},ProductVariants,flutter-catalog,Implemented,Automated,Choice chips
 73,75,تأكيد اختيار المنتج,Product selection confirmation,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Selected quantity,GET /api/catalog/products/{id},Products,flutter-catalog,Implemented,Automated,Quantity and total states
 74,76,مستندات المنتج,Product documents,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Documents,GET /api/catalog/products/{id}; GET /api/catalog/media/documents/{id},ProductDocuments,flutter-catalog,Implemented,Automated,PDF list download and device save flow
-75,77,إضافة المنتج للسلة,Add product to cart,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Add action,Cart API,CartItems,,Partial,Pending,Visual action ready; cart is milestone 4
+75,77,إضافة المنتج للسلة,Add product to cart,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Add action,POST /api/cart/items,CartItems,flutter-cart,Implemented,Automated,Variant quantity stock and tenant validation
 76,78,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 77,79,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 78,80,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
@@ -107,9 +107,9 @@
 104,106,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 105,107,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
 106,108,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-107,109,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-108,110,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-109,111,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
+107,109,سلة المشتريات,Shopping cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Active cart,GET /api/cart,Carts;CartItems,flutter-cart,Implemented,Automated,Items quantity savings tax shipping and total summary
+108,110,سلة منتجات عادية ومطبوعة,Mixed regular and printed cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Mixed items,GET /api/cart,Carts;CartItems;ProductVariants,flutter-cart,Partial,Automated,Regular and variant items work; printed customization enters next M4 batch
+109,111,تعديل الكميات,Edit quantities,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Quantity controls,PUT /api/cart/items/{id},CartItems,flutter-cart,Implemented,Automated,Min max stock and live tier repricing
 110,112,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 111,113,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 112,114,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
@@ -125,7 +125,7 @@
 122,124,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 123,125,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 124,126,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-125,127,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
+125,127,السلة الفارغة,Empty cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Empty state,GET /api/cart,Carts;CartItems,flutter-cart,Implemented,Automated,Browse categories CTA plus saved-items handling
 126,128,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 127,129,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
 128,130,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,

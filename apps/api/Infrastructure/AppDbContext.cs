@@ -51,6 +51,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
     public DbSet<CompareItem> CompareItems => Set<CompareItem>();
     public DbSet<RecentSearch> RecentSearches => Set<RecentSearch>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -74,6 +76,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
         b.Entity<CompareItem>().HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
         b.Entity<RecentSearch>().HasIndex(s => new { s.UserId, s.Query }).IsUnique();
+        b.Entity<Cart>().HasIndex(c => new { c.TenantId, c.UserId, c.Status });
+        b.Entity<CartItem>().HasIndex(i => new { i.CartId, i.ProductId, i.VariantId });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -107,6 +111,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<RecentlyViewed>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompareItem>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<RecentSearch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CartItem>().HasQueryFilter(e => !e.IsDeleted && !e.Cart.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
