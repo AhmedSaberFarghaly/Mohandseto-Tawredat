@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/api/catalog_repository.dart';
+import '../../core/api/api_client.dart';
 import '../../core/theme/app_tokens.dart';
 
 IconData categoryIcon(String? name) => switch (name) {
@@ -57,13 +58,7 @@ class ProductVisual extends StatelessWidget {
               ),
             ),
           ),
-          Center(
-            child: Icon(
-              _productIcon(product.categoryName),
-              size: large ? 112 : 62,
-              color: AppColors.primary.withValues(alpha: .83),
-            ),
-          ),
+          Positioned.fill(child: _visualContent()),
           if (product.isPrintable)
             Positioned(
               top: 9,
@@ -84,6 +79,32 @@ class ProductVisual extends StatelessWidget {
       ),
     );
   }
+
+  Widget _visualContent() {
+    final path = product.imageUrl;
+    final canLoad = path != null && !path.startsWith('asset://');
+    if (!canLoad) return _fallbackIcon();
+    final url = path.startsWith('http') ? path : '$apiBaseUrl$path';
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      child: Image.network(
+        url,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => _fallbackIcon(),
+        loadingBuilder: (context, child, progress) => progress == null
+            ? child
+            : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+    );
+  }
+
+  Widget _fallbackIcon() => Center(
+    child: Icon(
+      _productIcon(product.categoryName),
+      size: large ? 112 : 62,
+      color: AppColors.primary.withValues(alpha: .83),
+    ),
+  );
 
   IconData _productIcon(String category) {
     if (category.contains('ورق') || category.contains('دفاتر')) {

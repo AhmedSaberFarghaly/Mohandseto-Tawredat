@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.FileProviders;
 using Mohandseto.Api.Application.Catalog;
 using Mohandseto.Api.Controllers;
 using Mohandseto.Api.Domain.Entities;
@@ -18,6 +20,15 @@ public sealed class CatalogFlowTests : IDisposable
     private readonly CatalogService _catalog;
 
     private sealed class TestTenantProvider : ITenantProvider { public Guid? TenantId { get; set; } }
+    private sealed class TestEnvironment(string root) : IWebHostEnvironment
+    {
+        public string ApplicationName { get; set; } = "Mohandseto.Api.Tests";
+        public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
+        public string WebRootPath { get; set; } = root;
+        public string EnvironmentName { get; set; } = "Testing";
+        public string ContentRootPath { get; set; } = root;
+        public IFileProvider ContentRootFileProvider { get; set; } = new PhysicalFileProvider(root);
+    }
 
     public CatalogFlowTests()
     {
@@ -170,5 +181,38 @@ public sealed class CatalogFlowTests : IDisposable
             new UpsertBrandDto("علامة محدثة", "Updated Brand", "test-brand", null, true), default));
         Assert.IsType<NoContentResult>(await controller.ArchiveBrand(id, default));
         Assert.False((await _db.Brands.IgnoreQueryFilters().SingleAsync(b => b.Id == id)).IsActive);
+    }
+
+    [Fact]
+    public async Task Admin_can_manage_product_content_and_safe_media_files()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"mohandseto-media-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(root);
+        try
+        {
+            var product = await _db.Products.FirstAsync();
+            var controller = new AdminCatalogController(_db, _catalog, new TestEnvironment(root));
+            var attributes = new[] { new AttributeDto("الخامة", "ستانلس", 0), new AttributeDto("المنشأ", "مصر", 1) };
+            Assert.IsType<OkObjectResult>(await controller.ReplaceAttributes(product.Id, attributes, default));
+            Assert.Equal(2, await _db.ProductAttributeValues.CountAsync(a => a.ProductId == product.Id));
+
+            var bytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=");
+            await using var stream = new MemoryStream(bytes);
+            IFormFile upload = new FormFile(stream, 0, stream.Length, "file", "pixel.png")
+            {
+                Headers = new HeaderDictionary(), ContentType = "image/png",
+            };
+            var uploaded = Assert.IsType<OkObjectResult>(await controller.UploadImage(product.Id, upload, "صورة اختبار", true, default));
+            var id = (Guid)uploaded.Value!.GetType().GetProperty("Id")!.GetValue(uploaded.Value)!;
+            var image = await _db.ProductImages.SingleAsync(i => i.Id == id);
+            Assert.True(File.Exists(Path.Combine(root, image.Path.Replace('/', Path.DirectorySeparatorChar))));
+
+            Assert.IsType<NoContentResult>(await controller.DeleteImage(product.Id, id, default));
+            Assert.False(File.Exists(Path.Combine(root, image.Path.Replace('/', Path.DirectorySeparatorChar))));
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+        }
     }
 }

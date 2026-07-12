@@ -13,8 +13,13 @@ namespace Mohandseto.Api.Controllers;
 [ApiController]
 [Route("api/admin/catalog")]
 [Authorize(Roles = "super_admin,products_manager,system_admin")]
-public sealed class AdminCatalogController(AppDbContext db, CatalogService catalog) : ControllerBase
+public sealed class AdminCatalogController(AppDbContext db, CatalogService catalog, IWebHostEnvironment? env = null) : ControllerBase
 {
+    private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+    private static readonly string[] ImageContentTypes = ["image/jpeg", "image/png", "image/webp"];
+    private const long MaxImageBytes = 5 * 1024 * 1024;
+    private const long MaxDocumentBytes = 10 * 1024 * 1024;
+    private string ContentRoot => env?.ContentRootPath ?? AppContext.BaseDirectory;
     [HttpGet("products")]
     public Task<PagedResult<ProductCardDto>> Products([FromQuery] ProductQuery query, CancellationToken ct) =>
         catalog.ProductsAsync(query, null, ct);
@@ -156,6 +161,93 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
             .Select(t => new QuantityPriceTier { ProductId = id, MinQty = t.MinQty, UnitPrice = t.UnitPrice }));
         await db.SaveChangesAsync(ct);
         return Ok(tiers.OrderBy(t => t.MinQty));
+    }
+
+    [HttpGet("products/{id:guid}/content")]
+    public async Task<IActionResult> ProductContent(Guid id, CancellationToken ct)
+    {
+        if (!await db.Products.AnyAsync(p => p.Id == id, ct)) throw ApiException.NotFound("المنتج غير موجود");
+        return Ok(new
+        {
+            attributes = await db.ProductAttributeValues.AsNoTracking().Where(a => a.ProductId == id).OrderBy(a => a.SortOrder)
+                .Select(a => new { a.NameAr, a.ValueAr, a.SortOrder }).ToListAsync(ct),
+            priceTiers = await db.QuantityPriceTiers.AsNoTracking().Where(t => t.ProductId == id).OrderBy(t => t.MinQty)
+                .Select(t => new { t.MinQty, t.UnitPrice }).ToListAsync(ct),
+            images = await db.ProductImages.AsNoTracking().Where(i => i.ProductId == id).OrderByDescending(i => i.IsPrimary).ThenBy(i => i.SortOrder)
+                .Select(i => new { i.Id, i.Path, i.AltAr, i.IsPrimary, i.SortOrder }).ToListAsync(ct),
+            documents = await db.ProductDocuments.AsNoTracking().Where(d => d.ProductId == id).OrderBy(d => d.NameAr)
+                .Select(d => new { d.Id, d.NameAr, d.Path, d.ContentType }).ToListAsync(ct),
+        });
+    }
+
+    [HttpPut("products/{id:guid}/attributes")]
+    public async Task<IActionResult> ReplaceAttributes(Guid id, IReadOnlyList<AttributeDto> attributes, CancellationToken ct)
+    {
+        if (!await db.Products.AnyAsync(p => p.Id == id, ct)) throw ApiException.NotFound("المنتج غير موجود");
+        if (attributes.Any(a => string.IsNullOrWhiteSpace(a.NameAr) || string.IsNullOrWhiteSpace(a.ValueAr)))
+            throw ApiException.BadRequest("اسم الخاصية وقيمتها مطلوبان");
+        var existing = await db.ProductAttributeValues.Where(a => a.ProductId == id).ToListAsync(ct);
+        db.ProductAttributeValues.RemoveRange(existing);
+        db.ProductAttributeValues.AddRange(attributes.Select((a, index) => new ProductAttributeValue
+        {
+            ProductId = id, NameAr = a.NameAr.Trim(), ValueAr = a.ValueAr.Trim(), SortOrder = index,
+        }));
+        await db.SaveChangesAsync(ct);
+        return Ok(new { count = attributes.Count });
+    }
+
+    [HttpPost("products/{id:guid}/images")]
+    [RequestSizeLimit(MaxImageBytes + 1024)]
+    public async Task<IActionResult> UploadImage(Guid id, [FromForm] IFormFile file, [FromForm] string? altAr, [FromForm] bool isPrimary, CancellationToken ct)
+    {
+        if (!await db.Products.AnyAsync(p => p.Id == id, ct)) throw ApiException.NotFound("المنتج غير موجود");
+        ValidateFile(file, MaxImageBytes, ImageExtensions, ImageContentTypes, "الصورة");
+        var storedPath = await StoreFileAsync(id, "images", file, ct);
+        if (isPrimary)
+        {
+            var currentPrimary = await db.ProductImages.Where(i => i.ProductId == id && i.IsPrimary).ToListAsync(ct);
+            currentPrimary.ForEach(i => i.IsPrimary = false);
+        }
+        var image = new ProductImage
+        {
+            ProductId = id, Path = storedPath, AltAr = altAr?.Trim(), IsPrimary = isPrimary,
+            SortOrder = await db.ProductImages.CountAsync(i => i.ProductId == id, ct),
+        };
+        db.ProductImages.Add(image); await db.SaveChangesAsync(ct);
+        return Ok(new { image.Id, image.Path, image.AltAr, image.IsPrimary, image.SortOrder });
+    }
+
+    [HttpDelete("products/{productId:guid}/images/{imageId:guid}")]
+    public async Task<IActionResult> DeleteImage(Guid productId, Guid imageId, CancellationToken ct)
+    {
+        var image = await db.ProductImages.FirstOrDefaultAsync(i => i.Id == imageId && i.ProductId == productId, ct)
+            ?? throw ApiException.NotFound("الصورة غير موجودة");
+        DeleteStoredFile(image.Path); db.ProductImages.Remove(image); await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
+    [HttpPost("products/{id:guid}/documents")]
+    [RequestSizeLimit(MaxDocumentBytes + 1024)]
+    public async Task<IActionResult> UploadDocument(Guid id, [FromForm] IFormFile file, [FromForm] string nameAr, CancellationToken ct)
+    {
+        if (!await db.Products.AnyAsync(p => p.Id == id, ct)) throw ApiException.NotFound("المنتج غير موجود");
+        if (string.IsNullOrWhiteSpace(nameAr)) throw ApiException.BadRequest("اسم المستند مطلوب");
+        ValidateFile(file, MaxDocumentBytes, [".pdf"], ["application/pdf"], "المستند");
+        var document = new ProductDocument
+        {
+            ProductId = id, NameAr = nameAr.Trim(), Path = await StoreFileAsync(id, "documents", file, ct), ContentType = file.ContentType,
+        };
+        db.ProductDocuments.Add(document); await db.SaveChangesAsync(ct);
+        return Ok(new { document.Id, document.NameAr, document.Path, document.ContentType });
+    }
+
+    [HttpDelete("products/{productId:guid}/documents/{documentId:guid}")]
+    public async Task<IActionResult> DeleteDocument(Guid productId, Guid documentId, CancellationToken ct)
+    {
+        var document = await db.ProductDocuments.FirstOrDefaultAsync(d => d.Id == documentId && d.ProductId == productId, ct)
+            ?? throw ApiException.NotFound("المستند غير موجود");
+        DeleteStoredFile(document.Path); db.ProductDocuments.Remove(document); await db.SaveChangesAsync(ct);
+        return NoContent();
     }
 
     [HttpGet("categories")]
@@ -353,5 +445,39 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
         }
         values.Add(value.ToString());
         return values;
+    }
+
+    private static void ValidateFile(IFormFile file, long maxBytes, IReadOnlyCollection<string> extensions, IReadOnlyCollection<string> contentTypes, string label)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (file.Length is 0 || file.Length > maxBytes) throw ApiException.BadRequest($"حجم {label} غير صالح");
+        if (!extensions.Contains(extension) || !contentTypes.Contains(file.ContentType)) throw ApiException.BadRequest($"صيغة {label} غير مدعومة");
+    }
+
+    private async Task<string> StoreFileAsync(Guid productId, string folder, IFormFile file, CancellationToken ct)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var relative = Path.Combine("storage", "catalog", productId.ToString(), folder, $"{Guid.NewGuid():N}{extension}");
+        var fullPath = SafeStoragePath(relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+        await using var stream = System.IO.File.Create(fullPath);
+        await file.CopyToAsync(stream, ct);
+        return relative.Replace('\\', '/');
+    }
+
+    private void DeleteStoredFile(string path)
+    {
+        if (!path.StartsWith("storage/catalog/", StringComparison.OrdinalIgnoreCase)) return;
+        var fullPath = SafeStoragePath(path);
+        if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+    }
+
+    private string SafeStoragePath(string relative)
+    {
+        var storageRoot = Path.GetFullPath(Path.Combine(ContentRoot, "storage", "catalog"));
+        var fullPath = Path.GetFullPath(Path.Combine(ContentRoot, relative.Replace('/', Path.DirectorySeparatorChar)));
+        if (!fullPath.StartsWith(storageRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            throw ApiException.BadRequest("مسار تخزين غير صالح");
+        return fullPath;
     }
 }

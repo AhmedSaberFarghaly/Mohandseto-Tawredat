@@ -1,13 +1,16 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Catalog;
+using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Controllers;
 
 [ApiController]
 [Route("api/catalog")]
-public sealed class CatalogController(CatalogService catalog) : ControllerBase
+public sealed class CatalogController(CatalogService catalog, AppDbContext db, IWebHostEnvironment? env = null) : ControllerBase
 {
     private Guid? UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub"), out var id) ? id : null;
 
@@ -73,5 +76,34 @@ public sealed class CatalogController(CatalogService catalog) : ControllerBase
     {
         await catalog.ClearRecentSearchesAsync(UserId!.Value, ct);
         return NoContent();
+    }
+
+    [HttpGet("media/{kind}/{id:guid}")]
+    [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
+    public async Task<IActionResult> Media(string kind, Guid id, CancellationToken ct)
+    {
+        string? path; string contentType;
+        if (kind.Equals("images", StringComparison.OrdinalIgnoreCase))
+        {
+            var image = await db.ProductImages.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id, ct)
+                ?? throw ApiException.NotFound("الصورة غير موجودة");
+            path = image.Path;
+            contentType = Path.GetExtension(path).ToLowerInvariant() switch { ".png" => "image/png", ".webp" => "image/webp", _ => "image/jpeg" };
+        }
+        else if (kind.Equals("documents", StringComparison.OrdinalIgnoreCase))
+        {
+            var document = await db.ProductDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id, ct)
+                ?? throw ApiException.NotFound("المستند غير موجود");
+            path = document.Path; contentType = document.ContentType;
+        }
+        else throw ApiException.NotFound();
+
+        if (!path.StartsWith("storage/catalog/", StringComparison.OrdinalIgnoreCase)) throw ApiException.NotFound("الملف غير متاح");
+        var root = env?.ContentRootPath ?? AppContext.BaseDirectory;
+        var storageRoot = Path.GetFullPath(Path.Combine(root, "storage", "catalog"));
+        var fullPath = Path.GetFullPath(Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar)));
+        if (!fullPath.StartsWith(storageRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(fullPath))
+            throw ApiException.NotFound("الملف غير متاح");
+        return PhysicalFile(fullPath, contentType, enableRangeProcessing: true);
     }
 }

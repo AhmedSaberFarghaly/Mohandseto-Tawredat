@@ -67,6 +67,7 @@ class CatalogProduct {
     required this.hasContractPrice,
     required this.stockStatus,
     required this.stockQty,
+    required this.imageUrl,
     required this.rating,
     required this.ratingCount,
     required this.minOrderQty,
@@ -89,6 +90,7 @@ class CatalogProduct {
     hasContractPrice: json['hasContractPrice'] as bool,
     stockStatus: json['stockStatus'] as String,
     stockQty: json['stockQty'] as int,
+    imageUrl: json['imageUrl'] as String?,
     rating: (json['rating'] as num).toDouble(),
     ratingCount: json['ratingCount'] as int,
     minOrderQty: json['minOrderQty'] as int,
@@ -110,6 +112,7 @@ class CatalogProduct {
   final bool hasContractPrice;
   final String stockStatus;
   final int stockQty;
+  final String? imageUrl;
   final double rating;
   final int ratingCount;
   final int minOrderQty;

@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/api/catalog_repository.dart';
+import '../../core/api/api_client.dart';
 import '../../core/theme/app_tokens.dart';
 import 'catalog_widgets.dart';
 
@@ -355,13 +360,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               Icons.download_rounded,
                               color: AppColors.primary,
                             ),
-                            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'المستند التجريبي مسجل وسيُربط بالتخزين عند توفير الملف الأصلي',
-                                ),
-                              ),
-                            ),
+                            onTap: () => _downloadDocument(document),
                           ),
                         )
                         .toList(),
@@ -429,6 +428,40 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _downloadDocument(CatalogDocument document) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final response = await ref
+          .read(apiClientProvider)
+          .dio
+          .get<List<int>>(
+            document.url,
+            options: Options(responseType: ResponseType.bytes),
+          );
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) throw StateError('empty document');
+      final safeName = document.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '-');
+      final saved = await FilePicker.saveFile(
+        dialogTitle: 'حفظ مستند المنتج',
+        fileName: '$safeName.pdf',
+        type: FileType.custom,
+        allowedExtensions: const ['pdf'],
+        bytes: Uint8List.fromList(bytes),
+      );
+      if (saved != null && mounted) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('تم حفظ المستند بنجاح')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('تعذر تنزيل المستند، حاول مرة أخرى')),
+        );
+      }
+    }
   }
 
   double _tierPrice(ProductDetail detail, double base) {

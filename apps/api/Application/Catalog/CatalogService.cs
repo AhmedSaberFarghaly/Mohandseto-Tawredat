@@ -117,11 +117,11 @@ public sealed class CatalogService(AppDbContext db, ITenantProvider tenantProvid
         return new(
             MapCard(product, price, isFavorite), product.DescriptionAr, product.DescriptionEn,
             product.TaxRatePercent, product.MaxOrderQty, product.WarrantyAr, product.DeliveryEstimateDays,
-            product.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.Path, i.AltAr, i.IsPrimary, i.SortOrder)).ToList(),
+            product.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, MediaUrl("images", i.Id, i.Path), i.AltAr, i.IsPrimary, i.SortOrder)).ToList(),
             product.PriceTiers.OrderBy(t => t.MinQty).Select(t => new PriceTierDto(t.MinQty, t.UnitPrice)).ToList(),
             product.Attributes.OrderBy(a => a.SortOrder).Select(a => new AttributeDto(a.NameAr, a.ValueAr, a.SortOrder)).ToList(),
             product.Variants.OrderBy(v => v.NameAr).Select(v => new VariantDto(v.Id, v.Sku, v.NameAr, v.NameEn, v.OptionsJson, (price ?? product.BasePrice) + v.PriceAdjustment, v.StockQty, v.IsActive)).ToList(),
-            product.Documents.Select(d => new ProductDocumentDto(d.Id, d.NameAr, d.Path, d.ContentType)).ToList(),
+            product.Documents.Select(d => new ProductDocumentDto(d.Id, d.NameAr, MediaUrl("documents", d.Id, d.Path), d.ContentType)).ToList(),
             related.Select(p => MapCard(p, ContractPrice(relatedPrices, p.Id), false)).ToList());
     }
 
@@ -246,10 +246,13 @@ public sealed class CatalogService(AppDbContext db, ITenantProvider tenantProvid
         var primary = p.Images.OrderByDescending(i => i.IsPrimary).ThenBy(i => i.SortOrder).FirstOrDefault();
         return new(p.Id, p.Sku, p.NameAr, p.NameEn, p.Slug, p.Category.NameAr, p.Brand?.NameAr,
             contractPrice ?? p.BasePrice, p.CompareAtPrice, contractPrice is not null, p.GetStockStatus().ToString(),
-            p.StockQty, primary?.Path, p.RatingAvg, p.RatingCount, p.MinOrderQty, p.Unit.NameAr,
+            p.StockQty, primary is null ? null : MediaUrl("images", primary.Id, primary.Path), p.RatingAvg, p.RatingCount, p.MinOrderQty, p.Unit.NameAr,
             p.IsPrintable, p.IsFeatured, isFavorite);
     }
 
     private static decimal? ContractPrice(IReadOnlyDictionary<Guid, decimal> prices, Guid productId) =>
         prices.TryGetValue(productId, out var price) ? price : null;
+
+    private static string MediaUrl(string kind, Guid id, string path) =>
+        path.StartsWith("storage/catalog/", StringComparison.OrdinalIgnoreCase) ? $"/api/catalog/media/{kind}/{id}" : path;
 }

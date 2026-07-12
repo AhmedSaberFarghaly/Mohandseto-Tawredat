@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { ProductContentEditor } from "./product-content-editor";
 
 type Product = {
   id: string; sku: string; nameAr: string; nameEn: string; categoryName: string;
@@ -39,6 +40,7 @@ export function ProductManager() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [contentProduct, setContentProduct] = useState<Product | null>(null);
 
   const requestProducts = useCallback(async (signal?: AbortSignal) => {
     const response = await fetch(`/api/admin/catalog/products?page=${page}&pageSize=20&q=${encodeURIComponent(query)}`, { signal });
@@ -187,7 +189,7 @@ export function ProductManager() {
               <td><b>{product.price.toLocaleString("ar-EG")} ج.م</b></td>
               <td><span className={`stock-chip ${product.stockStatus === "OutOfStock" ? "out" : product.stockStatus === "LowStock" ? "low" : ""}`}>{product.stockQty} متاح</span></td>
               <td>{product.isPrintable ? <span className="type-chip">مطبوع</span> : "قياسي"}</td>
-              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="المتغيرات" onClick={() => openVariants(product)}>◆</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
+              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="المحتوى والملفات" onClick={() => setContentProduct(product)}>▣</button><button title="المتغيرات" onClick={() => openVariants(product)}>◆</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
             </tr>)}
           </tbody></table></div>
         )}
@@ -245,6 +247,7 @@ export function ProductManager() {
           <footer className="variant-footer"><button type="button" className="secondary-button" onClick={() => setVariantProduct(null)}>إلغاء</button><button className="primary-button" disabled={saving || variants.some((variant) => !variant.sku.trim() || !variant.nameAr.trim())} onClick={saveVariants}>{saving ? "جاري الحفظ..." : "حفظ المتغيرات"}</button></footer>
         </section>
       </div>}
+      {contentProduct && <ProductContentEditor product={contentProduct} onClose={() => setContentProduct(null)} onError={setError} />}
     </>
   );
 }
