@@ -45,6 +45,7 @@ public sealed record AttributeDto(string NameAr, string ValueAr, int SortOrder);
 public sealed record VariantDto(Guid Id, string Sku, string NameAr, string NameEn, string? OptionsJson, decimal Price, int StockQty, bool IsActive);
 public sealed record ProductImageDto(Guid Id, string Url, string? AltAr, bool IsPrimary, int SortOrder);
 public sealed record ProductDocumentDto(Guid Id, string NameAr, string Url, string ContentType);
+public sealed record CompareProductDto(ProductCardDto Summary, IReadOnlyDictionary<string, string> Attributes);
 
 public sealed record ProductDetailDto(
     ProductCardDto Summary,
@@ -77,6 +78,8 @@ public sealed class ProductQuery
 }
 
 public sealed record UpsertCategoryDto(Guid? ParentId, string NameAr, string NameEn, string Slug, string? IconName, string? ImagePath, int SortOrder, bool IsActive);
+public sealed record UpsertBrandDto(string NameAr, string NameEn, string Slug, string? LogoPath, bool IsActive);
+public sealed record UpsertVariantDto(Guid? Id, string Sku, string NameAr, string NameEn, string? OptionsJson, decimal PriceAdjustment, int StockQty, bool IsActive);
 
 public sealed record UpsertProductDto(
     string Sku,

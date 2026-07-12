@@ -11,6 +11,10 @@ type ProductPage = { items: Product[]; page: number; total: number; totalPages: 
 type Category = { id: string; nameAr: string; children: Category[] };
 type Lookup = { id: string; nameAr: string; code?: string };
 type ProductForm = Record<string, string | number | boolean | null> & { id?: string };
+type Variant = {
+  id?: string; sku: string; nameAr: string; nameEn: string; optionsJson: string;
+  priceAdjustment: number; stockQty: number; isActive: boolean;
+};
 
 const empty: ProductForm = {
   sku: "", nameAr: "", nameEn: "", slug: "", descriptionAr: "", descriptionEn: "",
@@ -31,6 +35,10 @@ export function ProductManager() {
   const [brands, setBrands] = useState<Lookup[]>([]);
   const [units, setUnits] = useState<Lookup[]>([]);
   const [saving, setSaving] = useState(false);
+  const [variantProduct, setVariantProduct] = useState<Product | null>(null);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const requestProducts = useCallback(async (signal?: AbortSignal) => {
     const response = await fetch(`/api/admin/catalog/products?page=${page}&pageSize=20&q=${encodeURIComponent(query)}`, { signal });
@@ -102,6 +110,59 @@ export function ProductManager() {
     if (!response.ok) setError("تعذر أرشفة المنتج"); else await reload();
   }
 
+  async function openVariants(product: Product) {
+    setError("");
+    const response = await fetch(`/api/admin/catalog/products/${product.id}/variants`);
+    if (!response.ok) { setError("تعذر تحميل متغيرات المنتج"); return; }
+    setVariants(await response.json());
+    setVariantProduct(product);
+  }
+
+  function updateVariant(index: number, patch: Partial<Variant>) {
+    setVariants((current) => current.map((variant, itemIndex) => itemIndex === index ? { ...variant, ...patch } : variant));
+  }
+
+  async function saveVariants() {
+    if (!variantProduct) return;
+    setSaving(true); setError("");
+    const response = await fetch(`/api/admin/catalog/products/${variantProduct.id}/variants`, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(variants),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      setError(body.title || body.message || "تعذر حفظ المتغيرات"); setSaving(false); return;
+    }
+    setSaving(false); setVariantProduct(null);
+  }
+
+  async function exportCatalog() {
+    setExporting(true); setError("");
+    try {
+      const response = await fetch(`/api/admin/catalog/products/export?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error("تعذر تصدير الكتالوج");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url; anchor.download = `mohandseto-products-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "تعذر تصدير الكتالوج"); }
+    finally { setExporting(false); }
+  }
+
+  async function importCatalog(file?: File) {
+    if (!file) return;
+    setImporting(true); setError("");
+    const form = new FormData(); form.append("file", file);
+    try {
+      const response = await fetch("/api/admin/catalog/products/import", { method: "POST", body: form });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.title || body.message || "تعذر استيراد الكتالوج");
+      window.alert(`اكتمل الاستيراد: ${body.created} جديد، ${body.updated} محدث، ${body.rejected} مرفوض`);
+      await reload();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "تعذر استيراد الكتالوج"); }
+    finally { setImporting(false); }
+  }
+
   const flatCategories = categories.flatMap((parent) => [parent, ...parent.children]);
   return (
     <>
@@ -112,7 +173,9 @@ export function ProductManager() {
       {error && <div className="admin-alert" role="alert">{error}<button onClick={() => setError("")}>×</button></div>}
       <section className="panel catalog-toolbar">
         <div className="search-box"><span>⌕</span><input value={query} onChange={(event) => { setLoading(true); setQuery(event.target.value); setPage(1); }} placeholder="ابحث بالاسم أو كود المنتج..." /></div>
-        <button className="secondary-button">تصفية</button><button className="secondary-button">تصدير Excel</button>
+        <button className="secondary-button" onClick={() => { setQuery(""); setPage(1); }}>مسح التصفية</button>
+        <label className="secondary-button file-button">{importing ? "جاري الاستيراد..." : "استيراد CSV"}<input type="file" accept=".csv,text/csv" disabled={importing} onChange={(event) => { void importCatalog(event.target.files?.[0]); event.target.value = ""; }} /></label>
+        <button className="secondary-button" disabled={exporting} onClick={exportCatalog}>{exporting ? "جاري التصدير..." : "تصدير Excel (CSV)"}</button>
         <span className="catalog-count">{data?.total ?? 0} منتج</span>
       </section>
       <section className="panel products-admin-panel">
@@ -124,7 +187,7 @@ export function ProductManager() {
               <td><b>{product.price.toLocaleString("ar-EG")} ج.م</b></td>
               <td><span className={`stock-chip ${product.stockStatus === "OutOfStock" ? "out" : product.stockStatus === "LowStock" ? "low" : ""}`}>{product.stockQty} متاح</span></td>
               <td>{product.isPrintable ? <span className="type-chip">مطبوع</span> : "قياسي"}</td>
-              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
+              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="المتغيرات" onClick={() => openVariants(product)}>◆</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
             </tr>)}
           </tbody></table></div>
         )}
@@ -158,6 +221,28 @@ export function ProductManager() {
             </div>
             <footer><button type="button" className="secondary-button" onClick={() => setEditor(null)}>إلغاء</button><button className="primary-button" disabled={saving}>{saving ? "جاري الحفظ..." : "حفظ المنتج"}</button></footer>
           </form>
+        </section>
+      </div>}
+      {variantProduct && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setVariantProduct(null); }}>
+        <section className="product-editor variant-editor" role="dialog" aria-modal="true" aria-labelledby="variants-title">
+          <header><div><h2 id="variants-title">متغيرات {variantProduct.nameAr}</h2><p>الأكواد والخصائص وفروق الأسعار والمخزون لكل اختيار</p></div><button onClick={() => setVariantProduct(null)}>×</button></header>
+          <div className="variant-editor-body">
+            <div className="variant-list">
+              {variants.map((variant, index) => <article className="variant-row" key={variant.id ?? `new-${index}`}>
+                <label>SKU<input dir="ltr" value={variant.sku} onChange={(event) => updateVariant(index, { sku: event.target.value })} required /></label>
+                <label>الاسم بالعربية<input value={variant.nameAr} onChange={(event) => updateVariant(index, { nameAr: event.target.value })} required /></label>
+                <label>الاسم بالإنجليزية<input dir="ltr" value={variant.nameEn} onChange={(event) => updateVariant(index, { nameEn: event.target.value })} /></label>
+                <label>الخيارات JSON<input dir="ltr" value={variant.optionsJson ?? ""} onChange={(event) => updateVariant(index, { optionsJson: event.target.value })} placeholder={'{"color":"أزرق"}'} /></label>
+                <label>فرق السعر<input type="number" step="0.01" value={variant.priceAdjustment} onChange={(event) => updateVariant(index, { priceAdjustment: Number(event.target.value) })} /></label>
+                <label>المخزون<input type="number" min="0" value={variant.stockQty} onChange={(event) => updateVariant(index, { stockQty: Number(event.target.value) })} /></label>
+                <label className="variant-active"><input type="checkbox" checked={variant.isActive} onChange={(event) => updateVariant(index, { isActive: event.target.checked })} /> نشط</label>
+                <button className="variant-remove" type="button" onClick={() => setVariants((current) => current.filter((_, itemIndex) => itemIndex !== index))}>حذف</button>
+              </article>)}
+              {variants.length === 0 && <div className="admin-empty compact">لا توجد متغيرات لهذا المنتج</div>}
+            </div>
+            <button className="secondary-button add-variant" type="button" onClick={() => setVariants((current) => [...current, { sku: `${variantProduct.sku}-`, nameAr: "", nameEn: "", optionsJson: "{}", priceAdjustment: 0, stockQty: 0, isActive: true }])}>+ إضافة متغير</button>
+          </div>
+          <footer className="variant-footer"><button type="button" className="secondary-button" onClick={() => setVariantProduct(null)}>إلغاء</button><button className="primary-button" disabled={saving || variants.some((variant) => !variant.sku.trim() || !variant.nameAr.trim())} onClick={saveVariants}>{saving ? "جاري الحفظ..." : "حفظ المتغيرات"}</button></footer>
         </section>
       </div>}
     </>

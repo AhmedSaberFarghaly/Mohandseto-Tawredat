@@ -84,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
             sliver: SliverList.list(
               children: [
                 InkWell(
-                  onTap: () => context.push('/products'),
+                  onTap: () => context.push('/search'),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Container(
                     height: 48,

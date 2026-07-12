@@ -75,6 +75,9 @@ public sealed class CatalogService(AppDbContext db, ITenantProvider tenantProvid
             _ => query.OrderByDescending(p => p.IsFeatured).ThenBy(p => p.NameAr),
         };
 
+        if (userId is { } searchUser && !string.IsNullOrWhiteSpace(request.Q))
+            await RecordSearchAsync(searchUser, request.Q.Trim(), ct);
+
         var total = await query.CountAsync(ct);
         var products = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
         var ids = products.Select(p => p.Id).ToList();
@@ -184,6 +187,38 @@ public sealed class CatalogService(AppDbContext db, ITenantProvider tenantProvid
             .Select(p => MapCard(p, ContractPrice(prices, p.Id), false)).ToList();
     }
 
+    public async Task<IReadOnlyList<string>> RecentSearchesAsync(Guid userId, CancellationToken ct = default) =>
+        await db.RecentSearches.AsNoTracking().Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.SearchedAt).Select(s => s.Query).Take(10).ToListAsync(ct);
+
+    public async Task ClearRecentSearchesAsync(Guid userId, CancellationToken ct = default)
+    {
+        var searches = await db.RecentSearches.Where(s => s.UserId == userId).ToListAsync(ct);
+        db.RecentSearches.RemoveRange(searches);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<CompareProductDto>> CompareAsync(Guid userId, CancellationToken ct = default)
+    {
+        var ids = await db.CompareItems.AsNoTracking().Where(c => c.UserId == userId)
+            .OrderBy(c => c.CreatedAt).Select(c => c.ProductId).ToListAsync(ct);
+        if (ids.Count == 0) return [];
+        var products = await db.Products.AsNoTracking().Include(p => p.Category).Include(p => p.Brand)
+            .Include(p => p.Unit).Include(p => p.Images).Include(p => p.Attributes)
+            .Where(p => p.Status == ProductStatus.Active && ids.Contains(p.Id)).ToListAsync(ct);
+        var prices = await ContractPricesAsync(ids, ct);
+        return products.OrderBy(p => ids.IndexOf(p.Id)).Select(p => new CompareProductDto(
+            MapCard(p, ContractPrice(prices, p.Id), false),
+            p.Attributes.OrderBy(a => a.SortOrder).ToDictionary(a => a.NameAr, a => a.ValueAr))).ToList();
+    }
+
+    public async Task ClearCompareAsync(Guid userId, CancellationToken ct = default)
+    {
+        var items = await db.CompareItems.Where(c => c.UserId == userId).ToListAsync(ct);
+        db.CompareItems.RemoveRange(items);
+        await db.SaveChangesAsync(ct);
+    }
+
     private async Task<Dictionary<Guid, decimal>> ContractPricesAsync(IReadOnlyCollection<Guid> productIds, CancellationToken ct)
     {
         if (tenantProvider.TenantId is null || productIds.Count == 0) return [];
@@ -193,6 +228,17 @@ public sealed class CatalogService(AppDbContext db, ITenantProvider tenantProvid
             .GroupBy(p => p.ProductId)
             .Select(g => g.OrderByDescending(x => x.ValidFrom).First())
             .ToDictionaryAsync(p => p.ProductId, p => p.ContractPrice, ct);
+    }
+
+    private async Task RecordSearchAsync(Guid userId, string query, CancellationToken ct)
+    {
+        if (tenantProvider.TenantId is not { } tenantId || query.Length < 2) return;
+        query = query.Length > 100 ? query[..100] : query;
+        var existing = await db.RecentSearches.FirstOrDefaultAsync(s => s.UserId == userId && s.Query == query, ct);
+        if (existing is null)
+            db.RecentSearches.Add(new RecentSearch { TenantId = tenantId, UserId = userId, Query = query });
+        else existing.SearchedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(ct);
     }
 
     private static ProductCardDto MapCard(Product p, decimal? contractPrice, bool isFavorite)

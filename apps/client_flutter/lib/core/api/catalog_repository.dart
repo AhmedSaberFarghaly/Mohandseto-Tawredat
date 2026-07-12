@@ -178,6 +178,38 @@ class ProductVariant {
   final int stockQty;
 }
 
+class CatalogDocument {
+  const CatalogDocument({
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.contentType,
+  });
+  factory CatalogDocument.fromJson(Map<String, dynamic> json) =>
+      CatalogDocument(
+        id: json['id'] as String,
+        name: json['nameAr'] as String,
+        url: json['url'] as String,
+        contentType: json['contentType'] as String,
+      );
+  final String id;
+  final String name;
+  final String url;
+  final String contentType;
+}
+
+class CompareProduct {
+  const CompareProduct({required this.summary, required this.attributes});
+  factory CompareProduct.fromJson(Map<String, dynamic> json) => CompareProduct(
+    summary: CatalogProduct.fromJson(json['summary'] as Map<String, dynamic>),
+    attributes: (json['attributes'] as Map<String, dynamic>).map(
+      (key, value) => MapEntry(key, value as String),
+    ),
+  );
+  final CatalogProduct summary;
+  final Map<String, String> attributes;
+}
+
 class ProductDetail {
   const ProductDetail({
     required this.summary,
@@ -187,6 +219,7 @@ class ProductDetail {
     required this.priceTiers,
     required this.attributes,
     required this.variants,
+    required this.documents,
     required this.related,
   });
   factory ProductDetail.fromJson(Map<String, dynamic> json) => ProductDetail(
@@ -203,6 +236,9 @@ class ProductDetail {
     variants: (json['variants'] as List)
         .map((item) => ProductVariant.fromJson(item as Map<String, dynamic>))
         .toList(),
+    documents: (json['documents'] as List)
+        .map((item) => CatalogDocument.fromJson(item as Map<String, dynamic>))
+        .toList(),
     related: (json['relatedProducts'] as List)
         .map((item) => CatalogProduct.fromJson(item as Map<String, dynamic>))
         .toList(),
@@ -214,6 +250,7 @@ class ProductDetail {
   final List<PriceTier> priceTiers;
   final List<ProductAttribute> attributes;
   final List<ProductVariant> variants;
+  final List<CatalogDocument> documents;
   final List<CatalogProduct> related;
 }
 
@@ -334,6 +371,30 @@ class CatalogRepository {
     return response.data['isFavorite'] as bool;
   }
 
+  Future<bool> toggleCompare(String productId) async {
+    final response = await _api.dio.post(
+      '/api/catalog/compare/$productId/toggle',
+    );
+    return response.data['isCompared'] as bool;
+  }
+
+  Future<List<CompareProduct>> compare() async {
+    final response = await _api.dio.get('/api/catalog/compare');
+    return (response.data as List)
+        .map((item) => CompareProduct.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> clearCompare() => _api.dio.delete('/api/catalog/compare');
+
+  Future<List<String>> recentSearches() async {
+    final response = await _api.dio.get('/api/catalog/search/recent');
+    return (response.data as List).cast<String>();
+  }
+
+  Future<void> clearRecentSearches() =>
+      _api.dio.delete('/api/catalog/search/recent');
+
   Future<List<CatalogProduct>> favorites() async {
     final response = await _api.dio.get('/api/catalog/favorites');
     return (response.data as List)
@@ -373,4 +434,10 @@ final favoritesProvider = FutureProvider(
 );
 final recentlyViewedProvider = FutureProvider(
   (ref) => ref.watch(catalogRepositoryProvider).recentlyViewed(),
+);
+final compareProvider = FutureProvider(
+  (ref) => ref.watch(catalogRepositoryProvider).compare(),
+);
+final recentSearchesProvider = FutureProvider(
+  (ref) => ref.watch(catalogRepositoryProvider).recentSearches(),
 );

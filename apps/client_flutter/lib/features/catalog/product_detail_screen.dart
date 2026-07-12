@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/api/catalog_repository.dart';
@@ -26,6 +27,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       appBar: AppBar(
         title: const Text('تفاصيل المنتج'),
         actions: [
+          IconButton(
+            tooltip: 'إضافة للمقارنة',
+            onPressed: _toggleCompare,
+            icon: const Icon(Icons.compare_arrows_rounded),
+          ),
           IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
           IconButton(
             onPressed: () => _toggleFavorite(),
@@ -75,8 +81,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     const SizedBox(width: 10),
                     OutlinedButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.request_quote_outlined),
+                      onPressed: _toggleCompare,
+                      child: const Icon(Icons.compare_arrows_rounded),
                     ),
                   ],
                 ),
@@ -315,6 +321,52 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   style: const TextStyle(color: AppColors.gray600, height: 1.7),
                 ),
               ),
+              if (detail.documents.isNotEmpty)
+                _ExpandableSection(
+                  title: 'مستندات المنتج',
+                  child: Column(
+                    children: detail.documents
+                        .map(
+                          (document) => ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.errorTint,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.picture_as_pdf_outlined,
+                                color: AppColors.error,
+                              ),
+                            ),
+                            title: Text(document.name),
+                            subtitle: const Text(
+                              'PDF - ورقة مواصفات فنية',
+                              style: TextStyle(
+                                color: AppColors.gray500,
+                                fontSize: 9,
+                              ),
+                            ),
+                            trailing: const Icon(
+                              Icons.download_rounded,
+                              color: AppColors.primary,
+                            ),
+                            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'المستند التجريبي مسجل وسيُربط بالتخزين عند توفير الملف الأصلي',
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
               _ExpandableSection(
                 title: 'المواصفات الفنية',
                 child: Column(
@@ -396,6 +448,40 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           );
       ref.invalidate(productDetailProvider(widget.idOrSlug));
       ref.invalidate(productFeedProvider);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    }
+  }
+
+  Future<void> _toggleCompare() async {
+    final product = ref.read(productDetailProvider(widget.idOrSlug)).value;
+    if (product == null) return;
+    try {
+      final added = await ref
+          .read(catalogRepositoryProvider)
+          .toggleCompare(product.summary.id);
+      ref.invalidate(compareProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              added
+                  ? 'تمت إضافة المنتج للمقارنة'
+                  : 'تمت إزالة المنتج من المقارنة',
+            ),
+            action: added
+                ? SnackBarAction(
+                    label: 'عرض المقارنة',
+                    onPressed: () => context.push('/compare'),
+                  )
+                : null,
+          ),
+        );
+      }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(

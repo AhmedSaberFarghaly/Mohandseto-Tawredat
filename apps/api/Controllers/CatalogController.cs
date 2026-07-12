@@ -48,4 +48,30 @@ public sealed class CatalogController(CatalogService catalog) : ControllerBase
     [HttpPost("compare/{productId:guid}/toggle")]
     public async Task<IActionResult> ToggleCompare(Guid productId, CancellationToken ct) =>
         Ok(new { isCompared = await catalog.ToggleCompareAsync(productId, UserId!.Value, ct) });
+
+    [Authorize]
+    [HttpGet("compare")]
+    public Task<IReadOnlyList<CompareProductDto>> Compare(CancellationToken ct) =>
+        catalog.CompareAsync(UserId!.Value, ct);
+
+    [Authorize]
+    [HttpDelete("compare")]
+    public async Task<IActionResult> ClearCompare(CancellationToken ct)
+    {
+        await catalog.ClearCompareAsync(UserId!.Value, ct);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("search/recent")]
+    public Task<IReadOnlyList<string>> RecentSearches(CancellationToken ct) =>
+        catalog.RecentSearchesAsync(UserId!.Value, ct);
+
+    [Authorize]
+    [HttpDelete("search/recent")]
+    public async Task<IActionResult> ClearRecentSearches(CancellationToken ct)
+    {
+        await catalog.ClearRecentSearchesAsync(UserId!.Value, ct);
+        return NoContent();
+    }
 }

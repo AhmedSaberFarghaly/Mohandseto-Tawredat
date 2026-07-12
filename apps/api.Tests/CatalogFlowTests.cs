@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Mohandseto.Api.Application.Catalog;
+using Mohandseto.Api.Controllers;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
@@ -95,5 +98,77 @@ public sealed class CatalogFlowTests : IDisposable
         result = await _catalog.ProductsAsync(new ProductQuery { Q = product.Sku }, userId);
         Assert.True(Assert.Single(result.Items).IsFavorite);
         Assert.False(await _catalog.ToggleFavoriteAsync(product.Id, userId));
+    }
+
+    [Fact]
+    public async Task Compare_and_recent_searches_are_limited_and_tenant_scoped()
+    {
+        _tenant.TenantId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var products = await _db.Products.OrderBy(p => p.Sku).Take(5).ToListAsync();
+
+        await _catalog.ProductsAsync(new ProductQuery { Q = products[0].Sku }, userId);
+        Assert.Contains(products[0].Sku, await _catalog.RecentSearchesAsync(userId));
+
+        foreach (var product in products.Take(4))
+            Assert.True(await _catalog.ToggleCompareAsync(product.Id, userId));
+        Assert.Equal(4, (await _catalog.CompareAsync(userId)).Count);
+        var error = await Assert.ThrowsAsync<Mohandseto.Api.Application.Common.ApiException>(
+            () => _catalog.ToggleCompareAsync(products[4].Id, userId));
+        Assert.Equal(400, error.StatusCode);
+
+        await _catalog.ClearCompareAsync(userId);
+        Assert.Empty(await _catalog.CompareAsync(userId));
+        await _catalog.ClearRecentSearchesAsync(userId);
+        Assert.Empty(await _catalog.RecentSearchesAsync(userId));
+    }
+
+    [Fact]
+    public async Task Admin_can_replace_product_variants()
+    {
+        var product = await _db.Products.FirstAsync();
+        var controller = new AdminCatalogController(_db, _catalog);
+        var variants = new[]
+        {
+            new UpsertVariantDto(null, $"{product.Sku}-BLUE", "أزرق", "Blue", "{\"color\":\"blue\"}", 12.5m, 7, true),
+            new UpsertVariantDto(null, $"{product.Sku}-RED", "أحمر", "Red", "{\"color\":\"red\"}", 9m, 4, true),
+        };
+
+        Assert.IsType<OkObjectResult>(await controller.ReplaceVariants(product.Id, variants, default));
+        var stored = await _db.ProductVariants.Where(v => v.ProductId == product.Id).OrderBy(v => v.Sku).ToListAsync();
+        Assert.Equal(2, stored.Count);
+        Assert.Equal(12.5m, stored[0].PriceAdjustment);
+        Assert.Equal(11, stored.Sum(v => v.StockQty));
+    }
+
+    [Fact]
+    public async Task Admin_export_can_be_imported_as_an_update_roundtrip()
+    {
+        var controller = new AdminCatalogController(_db, _catalog);
+        var export = Assert.IsType<FileContentResult>(await controller.ExportProducts(null, default));
+        Assert.Equal("text/csv; charset=utf-8", export.ContentType);
+        Assert.Contains("categorySlug", System.Text.Encoding.UTF8.GetString(export.FileContents));
+
+        await using var stream = new MemoryStream(export.FileContents);
+        IFormFile upload = new FormFile(stream, 0, stream.Length, "file", "products.csv")
+        {
+            Headers = new HeaderDictionary(), ContentType = "text/csv",
+        };
+        Assert.IsType<OkObjectResult>(await controller.ImportProducts(upload, default));
+        Assert.Equal(250, await _db.Products.CountAsync());
+    }
+
+    [Fact]
+    public async Task Admin_can_create_update_and_archive_brand()
+    {
+        var controller = new AdminCatalogController(_db, _catalog);
+        var create = Assert.IsType<CreatedResult>(await controller.CreateBrand(
+            new UpsertBrandDto("علامة الاختبار", "Test Brand", "test-brand", null, true), default));
+        var id = (Guid)create.Value!.GetType().GetProperty("Id")!.GetValue(create.Value)!;
+
+        Assert.IsType<OkObjectResult>(await controller.UpdateBrand(id,
+            new UpsertBrandDto("علامة محدثة", "Updated Brand", "test-brand", null, true), default));
+        Assert.IsType<NoContentResult>(await controller.ArchiveBrand(id, default));
+        Assert.False((await _db.Brands.IgnoreQueryFilters().SingleAsync(b => b.Id == id)).IsActive);
     }
 }

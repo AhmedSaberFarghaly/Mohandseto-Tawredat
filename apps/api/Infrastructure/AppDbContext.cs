@@ -50,6 +50,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<Favorite> Favorites => Set<Favorite>();
     public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
     public DbSet<CompareItem> CompareItems => Set<CompareItem>();
+    public DbSet<RecentSearch> RecentSearches => Set<RecentSearch>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -72,6 +73,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<QuantityPriceTier>().HasIndex(t => new { t.ProductId, t.MinQty }).IsUnique();
         b.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
         b.Entity<CompareItem>().HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
+        b.Entity<RecentSearch>().HasIndex(s => new { s.UserId, s.Query }).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -104,6 +106,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Favorite>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<RecentlyViewed>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompareItem>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<RecentSearch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

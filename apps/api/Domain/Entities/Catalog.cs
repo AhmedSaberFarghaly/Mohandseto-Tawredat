@@ -155,3 +155,10 @@ public class CompareItem : TenantEntity
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
 }
+
+public class RecentSearch : TenantEntity
+{
+    public Guid UserId { get; set; }
+    public string Query { get; set; } = string.Empty;
+    public DateTime SearchedAt { get; set; } = DateTime.UtcNow;
+}

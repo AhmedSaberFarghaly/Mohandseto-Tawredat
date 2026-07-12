@@ -6,6 +6,8 @@ import '../../features/auth/otp_screen.dart';
 import '../../features/auth/registration_screen.dart';
 import '../../features/auth/verification_screen.dart';
 import '../../features/catalog/categories_screen.dart';
+import '../../features/catalog/catalog_search_screen.dart';
+import '../../features/catalog/compare_screen.dart';
 import '../../features/catalog/favorites_screen.dart';
 import '../../features/catalog/product_detail_screen.dart';
 import '../../features/catalog/products_screen.dart';
@@ -110,6 +112,16 @@ final appRouter = GoRouter(
       name: 'product-detail',
       builder: (context, state) =>
           ProductDetailScreen(idOrSlug: state.pathParameters['idOrSlug']!),
+    ),
+    GoRoute(
+      path: '/search',
+      name: 'catalog-search',
+      builder: (context, state) => const CatalogSearchScreen(),
+    ),
+    GoRoute(
+      path: '/compare',
+      name: 'compare',
+      builder: (context, state) => const CompareScreen(),
     ),
   ],
 );

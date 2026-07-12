@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/api/catalog_repository.dart';
 import '../../core/theme/app_tokens.dart';
@@ -62,7 +63,21 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   Widget build(BuildContext context) {
     final products = ref.watch(productFeedProvider(_query));
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title ?? 'المنتجات')),
+      appBar: AppBar(
+        title: Text(widget.title ?? 'المنتجات'),
+        actions: [
+          IconButton(
+            tooltip: 'بحث',
+            onPressed: () => context.push('/search'),
+            icon: const Icon(Icons.search_rounded),
+          ),
+          IconButton(
+            tooltip: 'مقارنة',
+            onPressed: () => context.push('/compare'),
+            icon: const Icon(Icons.compare_arrows_rounded),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
