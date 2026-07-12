@@ -1,7 +1,10 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Mohandseto.Api.Application.Auth;
+using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -48,11 +51,46 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
 builder.Services.AddProblemDetails();
 
+// application services
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<OtpService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
+
+// brute-force protection on auth endpoints
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.AddPolicy("auth", ctx => RateLimitPartition.GetFixedWindowLimiter(
+        ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+});
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
-app.UseExceptionHandler();
+
+// map ApiException -> ProblemDetails with Arabic message; hide stack traces
+app.UseExceptionHandler(handler => handler.Run(async ctx =>
+{
+    var feature = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    var (status, title, code) = feature?.Error is ApiException apiEx
+        ? (apiEx.StatusCode, apiEx.Message, apiEx.Code)
+        : (500, "حدث خطأ غير متوقع، حاول مرة أخرى", (string?)null);
+    if (status == 500 && feature?.Error is not null)
+        app.Logger.LogError(feature.Error, "Unhandled exception");
+    ctx.Response.StatusCode = status;
+    await ctx.Response.WriteAsJsonAsync(new
+    {
+        type = "about:blank",
+        title,
+        status,
+        code,
+        traceId = ctx.TraceIdentifier,
+    });
+}));
 app.UseStatusCodePages();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
@@ -68,12 +106,13 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.MapGet("/", () => Results.Ok(new { name = "Mohandseto Tawredat API", version = "0.1.0", status = "ok" }));
 
-// apply migrations automatically in development
+// apply migrations + seed base data automatically in development
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    await DbSeeder.SeedAsync(db, app.Configuration, app.Logger);
 }
 
 app.Run();

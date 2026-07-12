@@ -84,6 +84,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Brand>().HasQueryFilter(e => !e.IsDeleted);
 
+        // dependents of User share its soft-delete filter to avoid filter-mismatch anomalies
+        b.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
+        b.Entity<UserRole>().HasQueryFilter(e => !e.User.IsDeleted);
+
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyDocument>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyProductPrice>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
