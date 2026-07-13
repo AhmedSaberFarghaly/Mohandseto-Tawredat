@@ -23,6 +23,9 @@ public class CartItem : TenantEntity
     public int Quantity { get; set; }
     public bool IsSavedForLater { get; set; }
     public string? CustomizationJson { get; set; }
+    public Guid? CustomProductRequestId { get; set; }
+    public decimal? CustomUnitPrice { get; set; }
+    public decimal? CustomLineTotal { get; set; }
 }
 
 public enum CheckoutStatus { Draft, Ready, Submitted, Expired }

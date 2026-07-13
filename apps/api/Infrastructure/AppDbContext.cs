@@ -57,6 +57,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderStatusHistory> OrderStatusHistories => Set<OrderStatusHistory>();
+    public DbSet<CustomProductTemplate> CustomProductTemplates => Set<CustomProductTemplate>();
+    public DbSet<CustomizationOption> CustomizationOptions => Set<CustomizationOption>();
+    public DbSet<PrintMethod> PrintMethods => Set<PrintMethod>();
+    public DbSet<CustomMaterial> Materials => Set<CustomMaterial>();
+    public DbSet<CustomColor> Colors => Set<CustomColor>();
+    public DbSet<CustomSize> Sizes => Set<CustomSize>();
+    public DbSet<CustomProductRequest> CustomProductRequests => Set<CustomProductRequest>();
+    public DbSet<CustomRequestItem> CustomRequestItems => Set<CustomRequestItem>();
+    public DbSet<LogoAsset> LogoAssets => Set<LogoAsset>();
+    public DbSet<DesignBrief> DesignBriefs => Set<DesignBrief>();
+    public DbSet<DesignVersion> DesignVersions => Set<DesignVersion>();
+    public DbSet<DesignMockup> DesignMockups => Set<DesignMockup>();
+    public DbSet<DesignComment> DesignComments => Set<DesignComment>();
+    public DbSet<DesignApproval> DesignApprovals => Set<DesignApproval>();
+    public DbSet<ProductionJob> ProductionJobs => Set<ProductionJob>();
+    public DbSet<ProductionStage> ProductionStages => Set<ProductionStage>();
+    public DbSet<ProductionSample> ProductionSamples => Set<ProductionSample>();
+    public DbSet<QualityCheck> QualityChecks => Set<QualityCheck>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -85,6 +103,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CheckoutSession>().HasIndex(s => new { s.TenantId, s.UserId, s.CartId, s.Status });
         b.Entity<Order>().HasIndex(o => o.Number).IsUnique();
         b.Entity<Order>().HasIndex(o => new { o.TenantId, o.UserId, o.CreatedAt });
+        b.Entity<CustomProductTemplate>().HasIndex(t => t.ProductId).IsUnique();
+        b.Entity<CustomizationOption>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
+        b.Entity<PrintMethod>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
+        b.Entity<CustomMaterial>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
+        b.Entity<CustomColor>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
+        b.Entity<CustomSize>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
+        b.Entity<CustomProductRequest>().HasIndex(r => r.Number).IsUnique();
+        b.Entity<CustomProductRequest>().HasIndex(r => new { r.TenantId, r.UserId, r.CreatedAt });
+        b.Entity<DesignBrief>().HasIndex(x => x.RequestId).IsUnique();
+        b.Entity<DesignVersion>().HasIndex(x => new { x.RequestId, x.VersionNumber }).IsUnique();
+        b.Entity<ProductionJob>().HasIndex(x => x.RequestId).IsUnique();
+        b.Entity<ProductionJob>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<ProductionSample>().HasIndex(x => new { x.ProductionJobId, x.VersionNumber }).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -106,6 +137,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ProductAttributeValue>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
         b.Entity<ProductVariant>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
         b.Entity<ProductDocument>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<CustomProductTemplate>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<CustomizationOption>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
+        b.Entity<PrintMethod>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
+        b.Entity<CustomMaterial>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
+        b.Entity<CustomColor>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
+        b.Entity<CustomSize>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
 
         // dependents of User share its soft-delete filter to avoid filter-mismatch anomalies
         b.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
@@ -124,6 +161,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Order>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderItem>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderStatusHistory>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CustomProductRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CustomRequestItem>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<LogoAsset>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DesignBrief>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DesignVersion>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DesignMockup>().HasQueryFilter(e => !e.IsDeleted && !e.Version.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DesignComment>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DesignApproval>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && !e.Version.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ProductionJob>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ProductionStage>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ProductionSample>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<QualityCheck>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

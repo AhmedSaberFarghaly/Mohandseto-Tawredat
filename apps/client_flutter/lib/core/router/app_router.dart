@@ -13,6 +13,9 @@ import '../../features/catalog/product_detail_screen.dart';
 import '../../features/catalog/products_screen.dart';
 import '../../features/cart/cart_screen.dart';
 import '../../features/cart/checkout_screen.dart';
+import '../../features/customization/custom_product_wizard_screen.dart';
+import '../../features/customization/custom_products_screen.dart';
+import '../../features/customization/custom_requests_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -141,6 +144,32 @@ final appRouter = GoRouter(
       name: 'checkout-success',
       builder: (context, state) =>
           OrderSuccessScreen(order: state.extra! as OrderCreated),
+    ),
+    GoRoute(
+      path: '/custom-products',
+      name: 'custom-products',
+      builder: (context, state) => CustomProductsScreen(
+        productId: state.uri.queryParameters['productId'],
+      ),
+    ),
+    GoRoute(
+      path: '/custom-products/:templateId',
+      name: 'custom-product-wizard',
+      builder: (context, state) => CustomProductWizardScreen(
+        templateId: state.pathParameters['templateId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/custom-requests',
+      name: 'custom-requests',
+      builder: (context, state) => const CustomRequestsScreen(),
+    ),
+    GoRoute(
+      path: '/custom-requests/:requestId',
+      name: 'custom-request-detail',
+      builder: (context, state) => CustomRequestDetailScreen(
+        requestId: state.pathParameters['requestId']!,
+      ),
     ),
   ],
 );

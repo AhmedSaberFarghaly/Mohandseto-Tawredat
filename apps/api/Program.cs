@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Mohandseto.Api.Application.Auth;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Application.Catalog;
+using Mohandseto.Api.Application.Customization;
 using Mohandseto.Api.Application.Shopping;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
@@ -60,6 +61,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CatalogService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<CheckoutService>();
+builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 
 // brute-force protection on auth endpoints

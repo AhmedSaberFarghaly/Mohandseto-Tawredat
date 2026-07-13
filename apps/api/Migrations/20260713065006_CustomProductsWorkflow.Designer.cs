@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mohandseto.Api.Infrastructure;
 
@@ -10,9 +11,11 @@ using Mohandseto.Api.Infrastructure;
 namespace Mohandseto.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713065006_CustomProductsWorkflow")]
+    partial class CustomProductsWorkflow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -163,17 +166,6 @@ namespace Mohandseto.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("CustomLineTotal")
-                        .HasPrecision(18)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("CustomProductRequestId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("CustomUnitPrice")
-                        .HasPrecision(18)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CustomizationJson")
@@ -817,9 +809,6 @@ namespace Mohandseto.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime?>("QuoteExpiresAt")
                         .HasColumnType("TEXT");
 
@@ -952,18 +941,7 @@ namespace Mohandseto.Api.Migrations
                     b.Property<Guid?>("OptionId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PrintColorCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("PrintHeightCm")
-                        .HasPrecision(18)
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid?>("PrintMethodId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("PrintWidthCm")
-                        .HasPrecision(18)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Quantity")
@@ -2237,80 +2215,6 @@ namespace Mohandseto.Api.Migrations
                     b.ToTable("ProductionJobs");
                 });
 
-            modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionSample", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DecidedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DecidedBy")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Decision")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DecisionNote")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ProductionJobId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("RowVersion")
-                        .HasColumnType("BLOB");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("StoredPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("VersionNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductionJobId", "VersionNumber")
-                        .IsUnique();
-
-                    b.ToTable("ProductionSamples");
-                });
-
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionStage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3246,17 +3150,6 @@ namespace Mohandseto.Api.Migrations
                     b.Navigation("Request");
                 });
 
-            modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionSample", b =>
-                {
-                    b.HasOne("Mohandseto.Api.Domain.Entities.ProductionJob", "ProductionJob")
-                        .WithMany("Samples")
-                        .HasForeignKey("ProductionJobId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductionJob");
-                });
-
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionStage", b =>
                 {
                     b.HasOne("Mohandseto.Api.Domain.Entities.ProductionJob", "ProductionJob")
@@ -3425,8 +3318,6 @@ namespace Mohandseto.Api.Migrations
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionJob", b =>
                 {
                     b.Navigation("QualityChecks");
-
-                    b.Navigation("Samples");
 
                     b.Navigation("Stages");
                 });

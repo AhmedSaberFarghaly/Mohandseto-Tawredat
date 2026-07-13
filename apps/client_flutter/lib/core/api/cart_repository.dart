@@ -20,6 +20,7 @@ class CartItemModel {
     required this.stockStatus,
     required this.imageUrl,
     required this.saved,
+    required this.customProductRequestId,
   });
   factory CartItemModel.fromJson(Map<String, dynamic> json) => CartItemModel(
     id: json['id'] as String,
@@ -38,12 +39,14 @@ class CartItemModel {
     stockStatus: json['stockStatus'] as String,
     imageUrl: json['imageUrl'] as String?,
     saved: json['isSavedForLater'] as bool,
+    customProductRequestId: json['customProductRequestId'] as String?,
   );
   final String id, productId, slug, sku, name, unitName, stockStatus;
   final String? variantName, imageUrl;
   final int quantity, minOrderQty, availableQty;
   final double unitPrice, lineTotal, savings;
   final bool saved;
+  final String? customProductRequestId;
 }
 
 class CartModel {

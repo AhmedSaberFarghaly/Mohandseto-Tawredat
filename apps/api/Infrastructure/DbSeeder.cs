@@ -138,5 +138,6 @@ public static class DbSeeder
 
         // 4) catalog reference/demo data (idempotent)
         await CatalogSeeder.SeedAsync(db, logger);
+        await CustomizationSeeder.SeedAsync(db, logger);
     }
 }

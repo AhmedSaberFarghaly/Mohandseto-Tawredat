@@ -76,37 +76,37 @@
 73,75,تأكيد اختيار المنتج,Product selection confirmation,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Selected quantity,GET /api/catalog/products/{id},Products,flutter-catalog,Implemented,Automated,Quantity and total states
 74,76,مستندات المنتج,Product documents,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Documents,GET /api/catalog/products/{id}; GET /api/catalog/media/documents/{id},ProductDocuments,flutter-catalog,Implemented,Automated,PDF list download and device save flow
 75,77,إضافة المنتج للسلة,Add product to cart,"الرئيسية والأقسام والمنتجات | Home, Categories & Products",client,/products/:idOrSlug,Add action,POST /api/cart/items,CartItems,flutter-cart,Implemented,Automated,Variant quantity stock and tenant validation
-76,78,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-77,79,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-78,80,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-79,81,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-80,82,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-81,83,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-82,84,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-83,85,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-84,86,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-85,87,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-86,88,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-87,89,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-88,90,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-89,91,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-90,92,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-91,93,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-92,94,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-93,95,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-94,96,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-95,97,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-96,98,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-97,99,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-98,100,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-99,101,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-100,102,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-101,103,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-102,104,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-103,105,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-104,106,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-105,107,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
-106,108,,,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,,,,,,Pending,Pending,
+76,78,المنتجات المطبوعة,Printed products,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products,Catalog,GET /api/custom-products/templates,CustomProductTemplates;Products,custom-products-e2e,Implemented,Automated,30 seeded templates with responsive cards
+77,79,اختيار نوع المنتج المطبوع,Choose printed product type,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products,Product selection,GET /api/custom-products/templates,CustomProductTemplates,custom-products-e2e,Implemented,Automated,Template selection and product deep link
+78,80,تفاصيل منتج قابل للطباعة,Printable product details,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Product details,GET /api/custom-products/templates/{id},CustomProductTemplates;Products,custom-products-e2e,Implemented,Automated,Product setup fee minimum and lead time
+79,81,اختيار الكمية,Quantity selection,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Quantity,GET /api/custom-products/templates/{id},CustomRequestItems,custom-products-e2e,Implemented,Automated,Minimum quantity and method validation
+80,82,عرض أسعار الكميات,Quantity price preview,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Estimate,POST /api/custom-products/requests,CustomProductRequests;CustomRequestItems,custom-products-e2e,Implemented,Automated,Server-calculated estimate including setup and options
+81,83,تحديد مكان الطباعة,Print placement selection,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Placement,GET /api/custom-products/templates/{id},CustomizationOptions,custom-products-e2e,Implemented,Automated,Tenant request stores selected placement
+82,84,اختيار لون المنتج,Product color selection,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Product color,GET /api/custom-products/templates/{id},Colors,custom-products-e2e,Implemented,Automated,Color swatches and price adjustments
+83,85,اختيار ألوان الطباعة,Print color selection,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Print colors,POST /api/custom-products/requests,CustomRequestItems,custom-products-e2e,Implemented,Automated,One to eight print colors affect server pricing
+84,86,رفع شعار الشركة,Upload company logo,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Logo upload,POST /api/custom-products/requests,LogoAssets,custom-products-e2e,Implemented,Automated,Secure multipart upload with MIME and size validation
+85,87,اختيار شعار محفوظ مسبقًا,Select saved logo,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Saved logos,GET /api/custom-products/logos,LogoAssets,custom-products-e2e,Implemented,Automated,Tenant-isolated reusable logo library
+86,88,رفع ملف شعار احترافي,Professional logo file upload,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,File formats,POST /api/custom-products/requests,LogoAssets,custom-products-e2e,Implemented,Automated,PNG JPG WebP SVG PDF and AI accepted
+87,89,إدخال النص المطلوب طباعته,Enter printable text,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Custom text,POST /api/custom-products/requests,CustomRequestItems,custom-products-e2e,Implemented,Automated,Length-limited text persisted in request snapshot
+88,90,تحديد أبعاد الطباعة,Print dimensions,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Print dimensions,POST /api/custom-products/requests,CustomRequestItems,custom-products-e2e,Implemented,Automated,Width and height validated server-side
+89,91,إضافة تعليمات للمصمم,Designer instructions,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Design brief,PUT /api/custom-products/requests/{id}/design-brief,DesignBriefs,custom-products-e2e,Implemented,Automated,Objective audience colors text and notes
+90,92,معاينة أولية للتصميم,Initial mockup preview,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Preview,GET /api/custom-products/mockups/{id},DesignVersions;DesignMockups,custom-products-e2e,Implemented,Automated,Authenticated byte preview with zoom
+91,93,طلب تصميم من فريق مهندسيتو,Request design service,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-products/:templateId,Design service,POST /api/custom-products/requests,DesignBriefs;CustomProductRequests,custom-products-e2e,Implemented,Automated,Design source is mandatory and explicit
+92,94,انتظار إعداد التصميم,Design preparation wait,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,DesignInProgress,GET /api/custom-products/requests/{id},CustomProductRequests,custom-products-e2e,Implemented,Automated,Status and progress persisted by workflow
+93,95,استلام التصميم للمراجعة,Receive design for review,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,AwaitingDesignApproval,GET /api/custom-products/requests/{id},DesignVersions;DesignMockups,custom-products-e2e,Implemented,Automated,Latest version is presented for decision
+94,96,تكبير ومراجعة التصميم,Zoom design review,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Interactive preview,GET /api/custom-products/mockups/{id},DesignMockups,custom-products-e2e,Implemented,Automated,Interactive authenticated preview
+95,97,طلب تعديل على التصميم,Request design change,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,RevisionRequested,POST /api/custom-products/requests/{id}/design-decision,DesignApprovals,custom-products-e2e,Implemented,Automated,Only latest version accepts a decision
+96,98,كتابة ملاحظات التعديل,Revision comments,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Comments,POST /api/custom-products/requests/{id}/comments,DesignComments,custom-products-e2e,Implemented,Automated,Tenant-scoped customer conversation
+97,99,استلام نسخة معدلة,Receive revised version,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Version history,GET /api/custom-products/requests/{id},DesignVersions,custom-products-e2e,Implemented,Automated,Ordered immutable design version history
+98,100,الموافقة النهائية على التصميم,Final design approval,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Approved,POST /api/custom-products/requests/{id}/design-decision,DesignApprovals,custom-products-e2e,Implemented,Automated,Approval gates cart eligibility
+99,101,رفض التصميم,Reject design,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Rejected,POST /api/custom-products/requests/{id}/design-decision,DesignApprovals,custom-products-e2e,Implemented,Automated,Reason is required by client interaction
+100,102,توثيق الموافقة باسم المسؤول,Approval audit,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Approval record,POST /api/custom-products/requests/{id}/design-decision,DesignApprovals;Users,custom-products-e2e,Implemented,Automated,User timestamp version and note are persisted
+101,103,إضافة المنتج المطبوع للسلة,Add customized product to cart,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Add to cart,POST /api/custom-products/requests/{id}/add-to-cart,CartItems;CustomProductRequests,custom-products-e2e,Implemented,Automated,Quoted price and fixed quantity flow into checkout
+102,104,متابعة حالة الطباعة,Print status tracking,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Production timeline,GET /api/custom-products/requests/{id},ProductionJobs;ProductionStages,custom-products-e2e,Implemented,Automated,Production begins only after submitted checkout
+103,105,حالة تجهيز العينة,Sample preparation status,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Sample preview,GET /api/custom-products/samples/{id},ProductionSamples,custom-products-e2e,Implemented,Automated,Versioned secured pre-production samples
+104,106,الموافقة على العينة,Sample approval,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Sample decision,POST /api/custom-products/requests/{id}/samples/{sampleId}/decision,ProductionSamples,custom-products-e2e,Implemented,Automated,Approve revise or reject latest sample
+105,107,بدء الإنتاج,Production start,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,InProduction,GET /api/custom-products/requests/{id},ProductionJobs;ProductionStages,custom-products-e2e,Implemented,Automated,Checkout and sample approval gate production
+106,108,اكتمال الطباعة والتغليف,Print and packaging completion,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Ready,GET /api/custom-products/requests/{id},ProductionStages;QualityChecks,custom-products-e2e,Implemented,Automated,Six-stage timeline ends in ready state
 107,109,سلة المشتريات,Shopping cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Active cart,GET /api/cart,Carts;CartItems,flutter-cart,Implemented,Automated,Items quantity savings tax shipping and total summary
 108,110,سلة منتجات عادية ومطبوعة,Mixed regular and printed cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Mixed items,GET /api/cart,Carts;CartItems;ProductVariants,flutter-cart,Partial,Automated,Regular and variant items work; printed customization enters next M4 batch
 109,111,تعديل الكميات,Edit quantities,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Quantity controls,PUT /api/cart/items/{id},CartItems,flutter-cart,Implemented,Automated,Min max stock and live tier repricing

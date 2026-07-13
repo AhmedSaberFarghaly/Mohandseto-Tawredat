@@ -68,12 +68,22 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   children: [
                     Expanded(
                       child: FilledButton.icon(
-                        onPressed: detail.value!.summary.stockQty <= 0
+                        onPressed: detail.value!.summary.isPrintable
+                            ? () => context.push(
+                                '/custom-products?productId=${detail.value!.summary.id}',
+                              )
+                            : detail.value!.summary.stockQty <= 0
                             ? null
                             : () => _addToCart(detail.value!),
-                        icon: const Icon(Icons.shopping_cart_outlined),
+                        icon: Icon(
+                          detail.value!.summary.isPrintable
+                              ? Icons.print_outlined
+                              : Icons.shopping_cart_outlined,
+                        ),
                         label: Text(
-                          detail.value!.summary.stockQty <= 0
+                          detail.value!.summary.isPrintable
+                              ? 'تخصيص وطباعة'
+                              : detail.value!.summary.stockQty <= 0
                               ? 'غير متوفر حاليًا'
                               : 'إضافة للسلة',
                         ),
@@ -81,8 +91,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                     const SizedBox(width: 10),
                     OutlinedButton(
-                      onPressed: _toggleCompare,
-                      child: const Icon(Icons.compare_arrows_rounded),
+                      onPressed:
+                          detail.value!.summary.isPrintable &&
+                              detail.value!.summary.stockQty > 0
+                          ? () => _addToCart(detail.value!)
+                          : _toggleCompare,
+                      child: Icon(
+                        detail.value!.summary.isPrintable
+                            ? Icons.shopping_cart_outlined
+                            : Icons.compare_arrows_rounded,
+                      ),
                     ),
                   ],
                 ),

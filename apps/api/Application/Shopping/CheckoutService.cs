@@ -2,10 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
+using Mohandseto.Api.Application.Customization;
 
 namespace Mohandseto.Api.Application.Shopping;
 
-public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts)
+public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts, CustomizationService? customization = null)
 {
     public async Task<CheckoutOptionsDto> OptionsAsync(Guid userId, CancellationToken ct = default)
     {
@@ -94,6 +95,11 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         order.History.Add(new OrderStatusHistory { TenantId = tenantId, Status = order.Status, ChangedBy = userId,
             Note = order.RequiresApproval ? "أرسل الطلب للموافقة الداخلية" : "تم تأكيد الطلب" });
         db.Orders.Add(order); session.Status = CheckoutStatus.Submitted; session.Cart.Status = CartStatus.Converted;
+        var customRequestIds = session.Cart.Items.Where(i => !i.IsSavedForLater && i.CustomProductRequestId != null)
+            .Select(i => i.CustomProductRequestId!.Value).ToList();
+        if (customRequestIds.Count > 0)
+            await (customization ?? throw new InvalidOperationException("CustomizationService is required for custom checkout"))
+                .StartForOrderAsync(customRequestIds, order.Id, order.RequiresApproval, ct);
         await db.SaveChangesAsync(ct);
         return new(order.Id, order.Number, order.Status.ToString(), order.RequiresApproval, order.Total, order.RequiredDate);
     }

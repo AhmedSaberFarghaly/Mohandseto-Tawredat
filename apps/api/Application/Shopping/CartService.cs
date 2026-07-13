@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
@@ -47,11 +48,36 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
     }
 
+    public async Task<CartDto> AddCustomRequestAsync(Guid userId, Guid requestId, CancellationToken ct = default)
+    {
+        var tenantId = TenantId();
+        var request = await db.CustomProductRequests.Include(r => r.Template).ThenInclude(t => t.Product).Include(r => r.Items)
+            .FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId, ct)
+            ?? throw ApiException.NotFound("طلب التخصيص غير موجود");
+        if (request.Status != CustomRequestStatus.DesignApproved || request.QuotedTotal is null)
+            throw ApiException.Conflict("يجب اعتماد التصميم وعرض السعر قبل الإضافة للسلة");
+        if (request.QuoteExpiresAt <= DateTime.UtcNow) throw ApiException.Conflict("انتهت صلاحية عرض السعر");
+        var source = request.Items.Single();
+        var cart = await db.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct);
+        if (cart is null) { cart = new Cart { TenantId = tenantId, UserId = userId }; db.Carts.Add(cart); }
+        if (cart.Items.Any(i => i.CustomProductRequestId == request.Id)) throw ApiException.Conflict("المنتج المخصص موجود في السلة بالفعل");
+        db.CartItems.Add(new CartItem { TenantId = tenantId, CartId = cart.Id, ProductId = request.Template.ProductId, Quantity = source.Quantity,
+            CustomProductRequestId = request.Id, CustomUnitPrice = request.QuotedTotal.Value / source.Quantity,
+            CustomLineTotal = request.QuotedTotal.Value,
+            CustomizationJson = JsonSerializer.Serialize(new { customProductRequestId = request.Id, request.Number,
+                source.OptionId, source.PrintMethodId, source.MaterialId, source.ColorId, source.SizeId,
+                source.PrintWidthCm, source.PrintHeightCm, source.PrintColorCount, source.CustomText }) });
+        request.Status = CustomRequestStatus.AwaitingCheckout;
+        await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
     public async Task<CartDto> UpdateAsync(Guid userId, Guid itemId, int quantity, CancellationToken ct = default)
     {
         var item = await db.CartItems.Include(i => i.Cart).Include(i => i.Product).Include(i => i.Variant)
             .FirstOrDefaultAsync(i => i.Id == itemId && i.Cart.UserId == userId && i.Cart.Status == CartStatus.Active, ct)
             ?? throw ApiException.NotFound("عنصر السلة غير موجود");
+        if (item.CustomProductRequestId is not null) throw ApiException.Conflict("كمية المنتج المخصص ثابتة حسب عرض السعر");
         if (quantity < item.Product.MinOrderQty) throw ApiException.BadRequest($"أقل كمية للطلب هي {item.Product.MinOrderQty}");
         var available = item.Variant?.StockQty ?? item.Product.StockQty;
         if (quantity > available) throw ApiException.Conflict("الكمية المطلوبة غير متاحة");
@@ -63,6 +89,11 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
     public async Task<CartDto> RemoveAsync(Guid userId, Guid itemId, CancellationToken ct = default)
     {
         var item = await OwnedItemAsync(userId, itemId, ct);
+        if (item.CustomProductRequestId is { } requestId)
+        {
+            var request = await db.CustomProductRequests.FirstOrDefaultAsync(r => r.Id == requestId && r.UserId == userId, ct);
+            if (request?.Status == CustomRequestStatus.AwaitingCheckout) request.Status = CustomRequestStatus.DesignApproved;
+        }
         db.CartItems.Remove(item); await db.SaveChangesAsync(ct);
         return await GetAsync(userId, ct);
     }
@@ -106,10 +137,11 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
             var product = item.Product;
             var basePrice = contractPrices.TryGetValue(product.Id, out var contract) ? contract : product.BasePrice;
             var tier = product.PriceTiers.Where(t => t.MinQty <= item.Quantity).OrderByDescending(t => t.MinQty).FirstOrDefault();
-            var unitPrice = contractPrices.ContainsKey(product.Id) ? basePrice : tier?.UnitPrice ?? basePrice;
-            unitPrice += item.Variant?.PriceAdjustment ?? 0;
-            var before = (product.BasePrice + (item.Variant?.PriceAdjustment ?? 0)) * item.Quantity;
-            var line = unitPrice * item.Quantity;
+            var unitPrice = item.CustomLineTotal is { } customTotal ? customTotal / item.Quantity
+                : item.CustomUnitPrice ?? (contractPrices.ContainsKey(product.Id) ? basePrice : tier?.UnitPrice ?? basePrice);
+            if (item.CustomUnitPrice is null) unitPrice += item.Variant?.PriceAdjustment ?? 0;
+            var line = item.CustomLineTotal ?? unitPrice * item.Quantity;
+            var before = item.CustomUnitPrice is not null ? line : (product.BasePrice + (item.Variant?.PriceAdjustment ?? 0)) * item.Quantity;
             var primary = product.Images.OrderByDescending(i => i.IsPrimary).ThenBy(i => i.SortOrder).FirstOrDefault();
             var image = primary is { Path: var path } && path.StartsWith("storage/catalog/", StringComparison.OrdinalIgnoreCase)
                 ? $"/api/catalog/media/images/{primary.Id}" : primary?.Path;
@@ -117,7 +149,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
             return new(item.Id, product.Id, product.Slug, item.Variant?.Sku ?? product.Sku, product.NameAr, item.Variant?.NameAr,
                 item.Quantity, product.MinOrderQty, available, unitPrice, line, Math.Max(0, before - line), product.Unit.NameAr,
                 available <= 0 ? StockStatus.OutOfStock.ToString() : available <= product.LowStockThreshold ? StockStatus.LowStock.ToString() : StockStatus.InStock.ToString(),
-                image, item.IsSavedForLater);
+                image, item.IsSavedForLater, item.CustomProductRequestId);
         }
         var mapped = cart.Items.Select(Map).ToList();
         var active = mapped.Where(i => !i.IsSavedForLater).ToList();

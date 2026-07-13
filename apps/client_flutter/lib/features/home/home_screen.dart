@@ -122,6 +122,10 @@ class HomeScreen extends ConsumerWidget {
                 _HeroBanner(
                   onTap: () => context.push('/products?featured=true'),
                 ),
+                const SizedBox(height: 12),
+                _CustomPrintingBanner(
+                  onTap: () => context.push('/custom-products'),
+                ),
                 const SizedBox(height: 22),
                 _SectionHeader(
                   title: 'تسوق حسب القسم',
@@ -344,6 +348,53 @@ class _HeroBanner extends StatelessWidget {
               size: 58,
               color: Colors.white,
             ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _CustomPrintingBanner extends StatelessWidget {
+  const _CustomPrintingBanner({required this.onTap});
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(AppRadius.lg),
+    child: Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4E6),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: const Color(0xFFFFD7A1)),
+      ),
+      child: const Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: Color(0xFFFF9D34),
+            child: Icon(Icons.print_rounded, color: Colors.white),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'طباعة وتخصيص للشركات',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  'ارفع شعارك واعتمد التصميم قبل الإنتاج',
+                  style: TextStyle(color: AppColors.gray600, fontSize: 10),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Color(0xFFFF9D34),
+            size: 16,
           ),
         ],
       ),

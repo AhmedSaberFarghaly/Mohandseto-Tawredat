@@ -156,7 +156,11 @@ class CartScreen extends ConsumerWidget {
           child: Column(
             children: [
               InkWell(
-                onTap: () => context.push('/products/${item.slug}'),
+                onTap: () => context.push(
+                  item.customProductRequestId == null
+                      ? '/products/${item.slug}'
+                      : '/custom-requests/${item.customProductRequestId}',
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -167,8 +171,10 @@ class CartScreen extends ConsumerWidget {
                         color: AppColors.primaryTint,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      child: const Icon(
-                        Icons.inventory_2_outlined,
+                      child: Icon(
+                        item.customProductRequestId == null
+                            ? Icons.inventory_2_outlined
+                            : Icons.print_outlined,
                         color: AppColors.primary,
                       ),
                     ),
@@ -189,6 +195,15 @@ class CartScreen extends ConsumerWidget {
                               style: const TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 10,
+                              ),
+                            ),
+                          if (item.customProductRequestId != null)
+                            const Text(
+                              'منتج مخصص — السعر والكمية حسب العرض',
+                              style: TextStyle(
+                                color: AppColors.success,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           Text(
@@ -214,8 +229,13 @@ class CartScreen extends ConsumerWidget {
               const Divider(height: 20),
               Row(
                 children: [
-                  if (!item.saved)
+                  if (!item.saved && item.customProductRequestId == null)
                     _quantity(context, ref, item)
+                  else if (!item.saved)
+                    Text(
+                      '${item.quantity} قطعة',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    )
                   else
                     const Spacer(),
                   TextButton(
