@@ -17,7 +17,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
     public async Task<CartDto> AddAsync(Guid userId, AddCartItemDto dto, CancellationToken ct = default)
     {
         var tenantId = TenantId();
-        var product = await db.Products.Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == dto.ProductId && p.Status == ProductStatus.Active, ct)
+        var product = await db.Products.Include(p => p.Variants).Include(p => p.PriceTiers).FirstOrDefaultAsync(p => p.Id == dto.ProductId && p.Status == ProductStatus.Active, ct)
             ?? throw ApiException.NotFound("المنتج غير موجود");
         ProductVariant? variant = null;
         if (dto.VariantId is { } variantId)
@@ -37,13 +37,17 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         }
         var item = cart.Items.FirstOrDefault(i => i.ProductId == dto.ProductId && i.VariantId == dto.VariantId && !i.IsSavedForLater && i.CustomizationJson == dto.CustomizationJson);
         if (item is null)
-            cart.Items.Add(new CartItem { TenantId = tenantId, ProductId = dto.ProductId, VariantId = dto.VariantId, Quantity = quantity, CustomizationJson = dto.CustomizationJson });
+        {
+            item = new CartItem { TenantId = tenantId, ProductId = dto.ProductId, VariantId = dto.VariantId, Quantity = quantity, CustomizationJson = dto.CustomizationJson };
+            cart.Items.Add(item);
+        }
         else
         {
             var combined = item.Quantity + quantity;
             if (combined > available) throw ApiException.Conflict("إجمالي الكمية يتجاوز المخزون المتاح");
             item.Quantity = combined;
         }
+        item.PriceAtAdded = await CurrentUnitPriceAsync(product, variant, item.Quantity, ct);
         await db.SaveChangesAsync(ct);
         return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
     }
@@ -63,7 +67,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         if (cart.Items.Any(i => i.CustomProductRequestId == request.Id)) throw ApiException.Conflict("المنتج المخصص موجود في السلة بالفعل");
         db.CartItems.Add(new CartItem { TenantId = tenantId, CartId = cart.Id, ProductId = request.Template.ProductId, Quantity = source.Quantity,
             CustomProductRequestId = request.Id, CustomUnitPrice = request.QuotedTotal.Value / source.Quantity,
-            CustomLineTotal = request.QuotedTotal.Value,
+            CustomLineTotal = request.QuotedTotal.Value, PriceAtAdded = request.QuotedTotal.Value / source.Quantity,
             CustomizationJson = JsonSerializer.Serialize(new { customProductRequestId = request.Id, request.Number,
                 source.OptionId, source.PrintMethodId, source.MaterialId, source.ColorId, source.SizeId,
                 source.PrintWidthCm, source.PrintHeightCm, source.PrintColorCount, source.CustomText }) });
@@ -74,7 +78,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
 
     public async Task<CartDto> UpdateAsync(Guid userId, Guid itemId, int quantity, CancellationToken ct = default)
     {
-        var item = await db.CartItems.Include(i => i.Cart).Include(i => i.Product).Include(i => i.Variant)
+        var item = await db.CartItems.Include(i => i.Cart).Include(i => i.Product).ThenInclude(p => p.PriceTiers).Include(i => i.Variant)
             .FirstOrDefaultAsync(i => i.Id == itemId && i.Cart.UserId == userId && i.Cart.Status == CartStatus.Active, ct)
             ?? throw ApiException.NotFound("عنصر السلة غير موجود");
         if (item.CustomProductRequestId is not null) throw ApiException.Conflict("كمية المنتج المخصص ثابتة حسب عرض السعر");
@@ -82,7 +86,9 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         var available = item.Variant?.StockQty ?? item.Product.StockQty;
         if (quantity > available) throw ApiException.Conflict("الكمية المطلوبة غير متاحة");
         if (item.Product.MaxOrderQty is { } max && quantity > max) throw ApiException.BadRequest($"أقصى كمية للطلب هي {max}");
-        item.Quantity = quantity; await db.SaveChangesAsync(ct);
+        item.Quantity = quantity;
+        item.PriceAtAdded = await CurrentUnitPriceAsync(item.Product, item.Variant, quantity, ct);
+        await db.SaveChangesAsync(ct);
         return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
     }
 
@@ -103,6 +109,93 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         var item = await OwnedItemAsync(userId, itemId, ct);
         item.IsSavedForLater = saved; await db.SaveChangesAsync(ct);
         return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<CartDto> SetItemNoteAsync(Guid userId, Guid itemId, string? note, CancellationToken ct = default)
+    {
+        var item = await OwnedItemAsync(userId, itemId, ct);
+        item.CustomerNote = Clean(note, 500); await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<CartDto> SetOrderNoteAsync(Guid userId, string? note, CancellationToken ct = default)
+    {
+        var cart = await db.Carts.FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct)
+            ?? throw ApiException.NotFound("السلة غير موجودة");
+        cart.OrderNote = Clean(note, 1500); await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<CartDto> ApplyCouponAsync(Guid userId, string code, CancellationToken ct = default)
+    {
+        var cart = await db.Carts.Include(c => c.Items).ThenInclude(i => i.Product).ThenInclude(p => p.PriceTiers)
+            .Include(c => c.Items).ThenInclude(i => i.Variant)
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct)
+            ?? throw ApiException.NotFound("السلة غير موجودة");
+        var normalized = code.Trim().ToUpperInvariant(); var now = DateTime.UtcNow;
+        var coupon = await db.Coupons.FirstOrDefaultAsync(c => c.Code == normalized && c.IsActive, ct)
+            ?? throw ApiException.BadRequest("كود الخصم غير صالح");
+        if (coupon.StartsAt > now || coupon.ExpiresAt < now || coupon.UsageLimit is { } limit && coupon.UsedCount >= limit)
+            throw ApiException.Conflict("كود الخصم غير متاح حاليًا");
+        decimal subtotal = 0;
+        foreach (var item in cart.Items.Where(i => !i.IsSavedForLater))
+            subtotal += item.CustomLineTotal ?? await CurrentUnitPriceAsync(item.Product, item.Variant, item.Quantity, ct) * item.Quantity;
+        if (subtotal < coupon.MinimumSubtotal)
+            throw ApiException.Conflict($"الحد الأدنى لاستخدام الكود هو {coupon.MinimumSubtotal:0.##} ج.م");
+        cart.CouponCode = normalized; await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<CartDto> RemoveCouponAsync(Guid userId, CancellationToken ct = default)
+    {
+        var cart = await db.Carts.FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct)
+            ?? throw ApiException.NotFound("السلة غير موجودة");
+        cart.CouponCode = null; await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<SavedCartDto> SaveCartAsync(Guid userId, string? name, CancellationToken ct = default)
+    {
+        var cart = await db.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct)
+            ?? throw ApiException.NotFound("السلة غير موجودة");
+        if (!cart.Items.Any(i => !i.IsSavedForLater)) throw ApiException.BadRequest("لا توجد أصناف لحفظها");
+        cart.Status = CartStatus.Saved; cart.SavedAt = DateTime.UtcNow;
+        cart.Name = Clean(name, 100) ?? $"سلة {cart.SavedAt:dd/MM/yyyy HH:mm}";
+        await db.SaveChangesAsync(ct);
+        return new(cart.Id, cart.Name, cart.SavedAt.Value, cart.Items.Count(i => !i.IsSavedForLater),
+            cart.Items.Where(i => !i.IsSavedForLater).Sum(i => i.CustomLineTotal ?? (i.PriceAtAdded ?? 0) * i.Quantity));
+    }
+
+    public Task<List<SavedCartDto>> SavedCartsAsync(Guid userId, CancellationToken ct = default) => db.Carts.AsNoTracking()
+        .Where(c => c.UserId == userId && c.Status == CartStatus.Saved).OrderByDescending(c => c.SavedAt)
+        .Select(c => new SavedCartDto(c.Id, c.Name ?? "سلة محفوظة", c.SavedAt ?? c.UpdatedAt ?? c.CreatedAt,
+            c.Items.Count(i => !i.IsSavedForLater), c.Items.Where(i => !i.IsSavedForLater)
+                .Sum(i => i.CustomLineTotal ?? (i.PriceAtAdded ?? 0) * i.Quantity))).ToListAsync(ct);
+
+    public async Task<CartDto> RestoreCartAsync(Guid userId, Guid id, CancellationToken ct = default)
+    {
+        var saved = await db.Carts.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId && c.Status == CartStatus.Saved, ct)
+            ?? throw ApiException.NotFound("السلة المحفوظة غير موجودة");
+        var active = await db.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct);
+        if (active is not null)
+        {
+            active.Status = active.Items.Count == 0 ? CartStatus.Abandoned : CartStatus.Saved;
+            active.SavedAt = active.Status == CartStatus.Saved ? DateTime.UtcNow : null;
+            active.Name ??= active.Status == CartStatus.Saved ? $"سلة تلقائية {DateTime.UtcNow:dd/MM/yyyy HH:mm}" : null;
+        }
+        saved.Status = CartStatus.Active; saved.SavedAt = null; await db.SaveChangesAsync(ct);
+        return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
+    }
+
+    public async Task<CartDto> AcknowledgePricesAsync(Guid userId, CancellationToken ct = default)
+    {
+        var cart = await db.Carts.Include(c => c.Items).ThenInclude(i => i.Product).ThenInclude(p => p.PriceTiers)
+            .Include(c => c.Items).ThenInclude(i => i.Variant)
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Status == CartStatus.Active, ct)
+            ?? throw ApiException.NotFound("السلة غير موجودة");
+        foreach (var item in cart.Items)
+            item.PriceAtAdded = item.CustomUnitPrice ?? await CurrentUnitPriceAsync(item.Product, item.Variant, item.Quantity, ct);
+        await db.SaveChangesAsync(ct); return await MapAsync((await LoadCartAsync(userId, ct))!, ct);
     }
 
     public async Task ClearAsync(Guid userId, CancellationToken ct = default)
@@ -146,22 +239,49 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
             var image = primary is { Path: var path } && path.StartsWith("storage/catalog/", StringComparison.OrdinalIgnoreCase)
                 ? $"/api/catalog/media/images/{primary.Id}" : primary?.Path;
             var available = item.Variant?.StockQty ?? product.StockQty;
+            var previous = item.PriceAtAdded; var changed = previous is not null && Math.Abs(previous.Value - unitPrice) > .01m;
             return new(item.Id, product.Id, product.Slug, item.Variant?.Sku ?? product.Sku, product.NameAr, item.Variant?.NameAr,
                 item.Quantity, product.MinOrderQty, available, unitPrice, line, Math.Max(0, before - line), product.Unit.NameAr,
                 available <= 0 ? StockStatus.OutOfStock.ToString() : available <= product.LowStockThreshold ? StockStatus.LowStock.ToString() : StockStatus.InStock.ToString(),
-                image, item.IsSavedForLater, item.CustomProductRequestId);
+                image, item.IsSavedForLater, item.CustomProductRequestId, item.CustomerNote, previous, changed, item.Quantity > available);
         }
         var mapped = cart.Items.Select(Map).ToList();
         var active = mapped.Where(i => !i.IsSavedForLater).ToList();
         var beforeSavings = active.Sum(i => i.LineTotal + i.Savings);
-        var savings = active.Sum(i => i.Savings); var subtotal = active.Sum(i => i.LineTotal);
-        var shipping = subtotal == 0 || subtotal >= 2000 ? 0 : 150;
+        var productSavings = active.Sum(i => i.Savings); var productSubtotal = active.Sum(i => i.LineTotal);
+        var couponDiscount = await CouponDiscountAsync(cart.CouponCode, productSubtotal, ct);
+        var savings = productSavings + couponDiscount; var subtotal = Math.Max(0, productSubtotal - couponDiscount);
+        var shipping = productSubtotal == 0 || productSubtotal >= 2000 ? 0 : 150;
         var total = subtotal + shipping;
         var tax = active.Sum(i => i.LineTotal * cart.Items.First(x => x.Id == i.Id).Product.TaxRatePercent / (100 + cart.Items.First(x => x.Id == i.Id).Product.TaxRatePercent));
+        if (productSubtotal > 0 && couponDiscount > 0) tax *= subtotal / productSubtotal;
         return new(cart.Id, active, mapped.Where(i => i.IsSavedForLater).ToList(), active.Count, active.Sum(i => i.Quantity),
-            beforeSavings, savings, subtotal, decimal.Round(tax, 2), shipping, total, subtotal >= 2000);
+            beforeSavings, savings, subtotal, decimal.Round(tax, 2), shipping, total, productSubtotal >= 2000,
+            cart.CouponCode, couponDiscount, cart.OrderNote, active.Any(i => i.PriceChanged), active.Any(i => i.HasAvailabilityIssue));
+    }
+
+    private async Task<decimal> CurrentUnitPriceAsync(Product product, ProductVariant? variant, int quantity, CancellationToken ct)
+    {
+        var contract = await db.CompanyProductPrices.AsNoTracking().Where(p => p.ProductId == product.Id &&
+            (p.ValidFrom == null || p.ValidFrom <= DateTime.UtcNow) && (p.ValidTo == null || p.ValidTo >= DateTime.UtcNow))
+            .OrderByDescending(p => p.ValidFrom).Select(p => (decimal?)p.ContractPrice).FirstOrDefaultAsync(ct);
+        var tier = product.PriceTiers.Where(t => t.MinQty <= quantity).OrderByDescending(t => t.MinQty).FirstOrDefault();
+        return (contract ?? tier?.UnitPrice ?? product.BasePrice) + (variant?.PriceAdjustment ?? 0);
+    }
+
+    private async Task<decimal> CouponDiscountAsync(string? code, decimal subtotal, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return 0;
+        var now = DateTime.UtcNow;
+        var coupon = await db.Coupons.AsNoTracking().FirstOrDefaultAsync(c => c.Code == code && c.IsActive &&
+            (c.StartsAt == null || c.StartsAt <= now) && (c.ExpiresAt == null || c.ExpiresAt >= now) &&
+            (c.UsageLimit == null || c.UsedCount < c.UsageLimit) && subtotal >= c.MinimumSubtotal, ct);
+        if (coupon is null) return 0;
+        var discount = coupon.DiscountType == CouponDiscountType.Percentage ? subtotal * coupon.DiscountValue / 100 : coupon.DiscountValue;
+        return Math.Min(subtotal, coupon.MaximumDiscount is { } max ? Math.Min(discount, max) : discount);
     }
 
     private Guid TenantId() => tenantProvider.TenantId ?? throw ApiException.Forbidden("الحساب غير مرتبط بشركة");
-    private static CartDto Empty() => new(null, [], [], 0, 0, 0, 0, 0, 0, 0, 0, false);
+    private static string? Clean(string? value, int max) => string.IsNullOrWhiteSpace(value) ? null : value.Trim()[..Math.Min(value.Trim().Length, max)];
+    private static CartDto Empty() => new(null, [], [], 0, 0, 0, 0, 0, 0, 0, 0, false, null, 0, null, false, false);
 }

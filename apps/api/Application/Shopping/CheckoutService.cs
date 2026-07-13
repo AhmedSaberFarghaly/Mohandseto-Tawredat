@@ -178,7 +178,7 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             session.ReceiverName, session.ReceiverPhone, session.RequiredDate.Value, session.TimeSlot ?? string.Empty,
             session.ShippingMethod.ToString(), session.PaymentMethod.Value.ToString(), session.PurchaseOrderNumber,
             center.Code, center.NameAr, project?.NameAr, session.RequestingDepartment, session.OrderNote, session.AllowSplitDelivery,
-            attachment is null ? null : Attachment(attachment), cart.Subtotal, cart.Savings, cart.TaxIncluded, shipping,
+            attachment is null ? null : Attachment(attachment), cart.Subtotal, cart.Savings, cart.CouponCode, cart.CouponDiscount, cart.TaxIncluded, shipping,
             total, available, exceeded, requiresApproval);
     }
 
@@ -202,19 +202,25 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             RequestingDepartment = session.RequestingDepartment, OrderNote = session.OrderNote, AllowSplitDelivery = session.AllowSplitDelivery,
             PaymentAttemptId = session.PaymentAttemptId, CreditPortion = session.CreditPortion, CardPortion = session.CardPortion,
             RequiresApproval = review.RequiresApproval, Status = review.RequiresApproval ? OrderStatus.PendingApproval : OrderStatus.Confirmed,
-            Subtotal = review.Subtotal, Savings = review.Savings, TaxIncluded = review.TaxIncluded, Shipping = review.Shipping, Total = review.Total,
+            Subtotal = review.Subtotal, Savings = review.Savings, CouponCode = review.CouponCode,
+            CouponDiscount = review.CouponDiscount, TaxIncluded = review.TaxIncluded, Shipping = review.Shipping, Total = review.Total,
         };
         foreach (var item in review.Items)
         {
             var source = itemData[item.Id];
             order.Items.Add(new OrderItem { TenantId = tenantId, ProductId = item.ProductId, VariantId = source.VariantId, Sku = item.Sku,
                 NameAr = item.NameAr, VariantName = item.VariantName, Quantity = item.Quantity, UnitPrice = item.UnitPrice,
-                LineTotal = item.LineTotal, CustomizationJson = source.CustomizationJson });
+                LineTotal = item.LineTotal, CustomizationJson = source.CustomizationJson, CustomerNote = source.CustomerNote });
         }
         order.History.Add(new OrderStatusHistory { TenantId = tenantId, Status = order.Status, ChangedBy = userId,
             Note = order.RequiresApproval ? "أرسل الطلب للموافقة الداخلية" : "تم تأكيد الطلب" });
         db.Orders.Add(order); session.Status = CheckoutStatus.Submitted; session.Cart.Status = CartStatus.Converted;
         if (order.RequiresApproval) center.ReservedAmount += order.Total; else center.UsedAmount += order.Total;
+        if (!string.IsNullOrWhiteSpace(order.CouponCode))
+        {
+            var coupon = await db.Coupons.FirstOrDefaultAsync(c => c.Code == order.CouponCode, ct);
+            if (coupon is not null) coupon.UsedCount++;
+        }
         var attachments = await db.CheckoutAttachments.Where(a => a.CheckoutSessionId == session.Id).ToListAsync(ct);
         foreach (var attachment in attachments) attachment.OrderId = order.Id;
         var customRequestIds = session.Cart.Items.Where(i => !i.IsSavedForLater && i.CustomProductRequestId != null)
@@ -230,6 +236,8 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
     {
         var cart = await carts.GetAsync(userId, ct);
         if (cart.Id is null || cart.Items.Count == 0) throw ApiException.BadRequest("السلة فارغة");
+        if (cart.HasPriceChanges) throw ApiException.Conflict("تغير سعر صنف أو أكثر؛ راجع الأسعار وأكّدها أولًا");
+        if (cart.HasAvailabilityIssues) throw ApiException.Conflict("بعض الكميات لم تعد متاحة؛ عدّل السلة أولًا");
         return cart;
     }
     private async Task<CheckoutSession> SessionAsync(Guid userId, Guid cartId, CancellationToken ct)

@@ -26,6 +26,22 @@ public sealed class CartController(CartService cart) : ControllerBase
     public Task<CartDto> SaveForLater(Guid itemId, CancellationToken ct) => cart.SetSavedAsync(UserId, itemId, true, ct);
     [HttpPost("items/{itemId:guid}/restore")]
     public Task<CartDto> Restore(Guid itemId, CancellationToken ct) => cart.SetSavedAsync(UserId, itemId, false, ct);
+    [HttpPut("items/{itemId:guid}/note")]
+    public Task<CartDto> ItemNote(Guid itemId, UpdateCartItemNoteDto dto, CancellationToken ct) => cart.SetItemNoteAsync(UserId, itemId, dto.Note, ct);
+    [HttpPut("order-note")]
+    public Task<CartDto> OrderNote(UpdateCartItemNoteDto dto, CancellationToken ct) => cart.SetOrderNoteAsync(UserId, dto.Note, ct);
+    [HttpPost("coupon")]
+    public Task<CartDto> ApplyCoupon(ApplyCouponDto dto, CancellationToken ct) => cart.ApplyCouponAsync(UserId, dto.Code, ct);
+    [HttpDelete("coupon")]
+    public Task<CartDto> RemoveCoupon(CancellationToken ct) => cart.RemoveCouponAsync(UserId, ct);
+    [HttpPost("save")]
+    public Task<SavedCartDto> SaveCart(SaveCartDto dto, CancellationToken ct) => cart.SaveCartAsync(UserId, dto.Name, ct);
+    [HttpGet("saved")]
+    public Task<List<SavedCartDto>> SavedCarts(CancellationToken ct) => cart.SavedCartsAsync(UserId, ct);
+    [HttpPost("saved/{id:guid}/restore")]
+    public Task<CartDto> RestoreCart(Guid id, CancellationToken ct) => cart.RestoreCartAsync(UserId, id, ct);
+    [HttpPost("acknowledge-prices")]
+    public Task<CartDto> AcknowledgePrices(CancellationToken ct) => cart.AcknowledgePricesAsync(UserId, ct);
     [HttpDelete]
     public async Task<IActionResult> Clear(CancellationToken ct) { await cart.ClearAsync(UserId, ct); return NoContent(); }
 }

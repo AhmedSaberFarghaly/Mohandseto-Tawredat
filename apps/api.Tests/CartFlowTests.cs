@@ -81,6 +81,42 @@ public sealed class CartFlowTests : IDisposable
     }
 
     [Fact]
+    public async Task Cart_supports_coupon_notes_price_acknowledgement_and_saved_cart_restore()
+    {
+        var tenantId = Guid.NewGuid(); _tenant.TenantId = tenantId; var userId = Guid.NewGuid();
+        var coupon = new Coupon { TenantId = tenantId, Code = "SAVE10", NameAr = "خصم اختبار",
+            DiscountType = CouponDiscountType.Percentage, DiscountValue = 10, MinimumSubtotal = 1, MaximumDiscount = 500 };
+        _db.Coupons.Add(coupon); await _db.SaveChangesAsync();
+        var product = await _db.Products.Include(p => p.PriceTiers).FirstAsync(p => p.StockQty >= Math.Max(10, p.MinOrderQty));
+        var quantity = Math.Max(10, product.MinOrderQty);
+        var cart = await _cart.AddAsync(userId, new AddCartItemDto(product.Id, null, quantity, null));
+        var item = Assert.Single(cart.Items);
+        cart = await _cart.SetItemNoteAsync(userId, item.Id, "تغليف كل عشر قطع معًا");
+        Assert.Equal("تغليف كل عشر قطع معًا", cart.Items.Single().CustomerNote);
+        cart = await _cart.ApplyCouponAsync(userId, " save10 ");
+        Assert.Equal("SAVE10", cart.CouponCode); Assert.True(cart.CouponDiscount > 0);
+        Assert.Equal(cart.Subtotal + cart.Shipping, cart.Total);
+
+        product.BasePrice += 20;
+        foreach (var tier in product.PriceTiers) tier.UnitPrice += 20;
+        await _db.SaveChangesAsync();
+        cart = await _cart.GetAsync(userId);
+        Assert.True(cart.HasPriceChanges); Assert.True(cart.Items.Single().PriceChanged);
+        cart = await _cart.AcknowledgePricesAsync(userId);
+        Assert.False(cart.HasPriceChanges);
+
+        var saved = await _cart.SaveCartAsync(userId, "احتياجات الاختبار");
+        Assert.Equal("احتياجات الاختبار", saved.Name); Assert.Empty((await _cart.GetAsync(userId)).Items);
+        Assert.Equal(saved.Id, Assert.Single(await _cart.SavedCartsAsync(userId)).Id);
+        cart = await _cart.RestoreCartAsync(userId, saved.Id);
+        Assert.Single(cart.Items); Assert.Equal("SAVE10", cart.CouponCode);
+
+        product.StockQty = quantity - 1; await _db.SaveChangesAsync();
+        cart = await _cart.GetAsync(userId);
+        Assert.True(cart.HasAvailabilityIssues); Assert.True(cart.Items.Single().HasAvailabilityIssue);
+    }
+
+    [Fact]
     public async Task Checkout_creates_immutable_order_snapshot_and_converts_cart()
     {
         var tenantId = Guid.NewGuid(); _tenant.TenantId = tenantId; var userId = Guid.NewGuid();

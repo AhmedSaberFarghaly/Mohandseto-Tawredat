@@ -79,6 +79,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<CompanyProject> CompanyProjects => Set<CompanyProject>();
     public DbSet<CheckoutAttachment> CheckoutAttachments => Set<CheckoutAttachment>();
     public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
+    public DbSet<Coupon> Coupons => Set<Coupon>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -127,6 +128,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<PaymentAttempt>().HasOne(x => x.CheckoutSession).WithMany()
             .HasForeignKey(x => x.CheckoutSessionId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<CheckoutAttachment>().HasIndex(x => new { x.CheckoutSessionId, x.Type });
+        b.Entity<Coupon>().HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -188,6 +190,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyProject>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CheckoutAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<PaymentAttempt>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Coupon>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

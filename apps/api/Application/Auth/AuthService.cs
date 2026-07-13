@@ -107,7 +107,14 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         {
             TenantId = tenant.Id, Code = "PRJ-GEN", NameAr = "مشتريات الشركة العامة",
         };
-        db.AddRange(tenant, company, branch, user, generalCostCenter, operationsCostCenter, defaultProject);
+        var welcomeCoupon = new Coupon
+        {
+            TenantId = tenant.Id, Code = "WELCOME10", NameAr = "خصم الترحيب",
+            DiscountType = CouponDiscountType.Percentage, DiscountValue = 10,
+            MinimumSubtotal = 500, MaximumDiscount = 1000,
+            StartsAt = DateTime.UtcNow.Date, ExpiresAt = DateTime.UtcNow.Date.AddYears(1),
+        };
+        db.AddRange(tenant, company, branch, user, generalCostCenter, operationsCostCenter, defaultProject, welcomeCoupon);
         db.AuditLogs.Add(new AuditLog
         {
             TenantId = tenant.Id,

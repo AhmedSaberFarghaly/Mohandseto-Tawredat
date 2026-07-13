@@ -29,7 +29,8 @@ public sealed record CheckoutReviewDto(
     string ShippingMethod, string PaymentMethod, string? PurchaseOrderNumber,
     string? CostCenterCode, string? CostCenterName, string? ProjectName, string? RequestingDepartment,
     string? OrderNote, bool AllowSplitDelivery, CheckoutAttachmentDto? PurchaseOrderAttachment,
-    decimal Subtotal, decimal Savings, decimal TaxIncluded, decimal Shipping, decimal Total,
+    decimal Subtotal, decimal Savings, string? CouponCode, decimal CouponDiscount,
+    decimal TaxIncluded, decimal Shipping, decimal Total,
     decimal? BudgetAvailable, bool BudgetExceeded, bool RequiresApproval);
 public sealed record SubmitCheckoutDto(bool AcceptTerms);
 public sealed record OrderCreatedDto(Guid Id, string Number, string Status, bool RequiresApproval, decimal Total, DateTime RequiredDate);

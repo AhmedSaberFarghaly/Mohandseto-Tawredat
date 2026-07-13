@@ -2,12 +2,14 @@ using Mohandseto.Api.Domain.Common;
 
 namespace Mohandseto.Api.Domain.Entities;
 
-public enum CartStatus { Active, Converted, Abandoned }
+public enum CartStatus { Active, Saved, Converted, Abandoned }
 
 public class Cart : TenantEntity
 {
     public Guid UserId { get; set; }
     public CartStatus Status { get; set; } = CartStatus.Active;
+    public string? Name { get; set; }
+    public DateTime? SavedAt { get; set; }
     public string? CouponCode { get; set; }
     public string? OrderNote { get; set; }
     public string? RequestingDepartment { get; set; }
@@ -29,6 +31,25 @@ public class CartItem : TenantEntity
     public Guid? CustomProductRequestId { get; set; }
     public decimal? CustomUnitPrice { get; set; }
     public decimal? CustomLineTotal { get; set; }
+    public string? CustomerNote { get; set; }
+    public decimal? PriceAtAdded { get; set; }
+}
+
+public enum CouponDiscountType { Percentage, Fixed }
+
+public class Coupon : TenantEntity
+{
+    public string Code { get; set; } = string.Empty;
+    public string NameAr { get; set; } = string.Empty;
+    public CouponDiscountType DiscountType { get; set; }
+    public decimal DiscountValue { get; set; }
+    public decimal MinimumSubtotal { get; set; }
+    public decimal? MaximumDiscount { get; set; }
+    public DateTime? StartsAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }
+    public int? UsageLimit { get; set; }
+    public int UsedCount { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public enum CheckoutStatus { Draft, Ready, Submitted, Expired }
@@ -94,6 +115,8 @@ public class Order : TenantEntity
     public bool RequiresApproval { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Savings { get; set; }
+    public string? CouponCode { get; set; }
+    public decimal CouponDiscount { get; set; }
     public decimal TaxIncluded { get; set; }
     public decimal Shipping { get; set; }
     public decimal Total { get; set; }
@@ -114,6 +137,7 @@ public class OrderItem : TenantEntity
     public decimal UnitPrice { get; set; }
     public decimal LineTotal { get; set; }
     public string? CustomizationJson { get; set; }
+    public string? CustomerNote { get; set; }
 }
 
 public class OrderStatusHistory : TenantEntity

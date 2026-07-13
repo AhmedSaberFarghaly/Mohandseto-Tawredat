@@ -108,19 +108,19 @@
 105,107,بدء الإنتاج,Production start,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,InProduction,GET /api/custom-products/requests/{id},ProductionJobs;ProductionStages,custom-products-e2e,Implemented,Automated,Checkout and sample approval gate production
 106,108,اكتمال الطباعة والتغليف,Print and packaging completion,المنتجات المطبوعة والمخصصة | Printed & Custom Products,client,/custom-requests/:id,Ready,GET /api/custom-products/requests/{id},ProductionStages;QualityChecks,custom-products-e2e,Implemented,Automated,Six-stage timeline ends in ready state
 107,109,سلة المشتريات,Shopping cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Active cart,GET /api/cart,Carts;CartItems,flutter-cart,Implemented,Automated,Items quantity savings tax shipping and total summary
-108,110,سلة منتجات عادية ومطبوعة,Mixed regular and printed cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Mixed items,GET /api/cart,Carts;CartItems;ProductVariants,flutter-cart,Partial,Automated,Regular and variant items work; printed customization enters next M4 batch
+108,110,سلة منتجات عادية ومطبوعة,Mixed regular and printed cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Mixed items,GET /api/cart,Carts;CartItems;CustomProductRequests,api-cart;flutter-cart,Implemented,Automated,Regular variant and quoted custom products share one cart while custom quantity remains locked
 109,111,تعديل الكميات,Edit quantities,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Quantity controls,PUT /api/cart/items/{id},CartItems,flutter-cart,Implemented,Automated,Min max stock and live tier repricing
-110,112,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-111,113,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-112,114,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-113,115,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-114,116,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-115,117,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-116,118,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-117,119,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-118,120,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-119,121,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
-120,122,,,السلة وإتمام الطلب | Cart & Checkout,client,,,,,,Pending,Pending,
+110,112,حذف صنف من السلة,Remove cart item,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Delete confirmation,DELETE /api/cart/items/{id},CartItems;CustomProductRequests,api-cart;flutter-cart,Implemented,Automated,Removes regular or custom item and restores custom request state safely
+111,113,حفظ السلة,Save cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Named saved cart,POST /api/cart/save,Carts;CartItems,api-cart;flutter-cart,Implemented,Automated,Saves complete named cart snapshot and opens a new active cart
+112,114,استعادة سلة محفوظة,Restore saved cart,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Saved carts sheet,GET /api/cart/saved; POST /api/cart/saved/{id}/restore,Carts;CartItems,api-cart;flutter-cart,Implemented,Automated,Current nonempty cart is auto-saved before atomic restore
+113,115,إدخال كوبون خصم,Enter coupon,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Coupon entry,POST /api/cart/coupon,Coupons;Carts,api-cart;flutter-cart,Implemented,Automated,Normalizes and validates tenant code dates usage and minimum subtotal
+114,116,تطبيق الخصم,Discount applied,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Discount summary,POST /api/cart/coupon,Coupons;Carts;Orders,api-cart;flutter-cart,Implemented,Automated,Percentage or fixed cap recalculates subtotal tax total and immutable order snapshot
+115,117,تنبيه الحد الأدنى للكمية,Minimum quantity warning,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Quantity validation,PUT /api/cart/items/{id},Products;CartItems,api-cart;flutter-cart,Implemented,Automated,Server enforcement and disabled decrement at minimum
+116,118,تغير سعر المنتج,Product price changed,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Price change warning,POST /api/cart/acknowledge-prices,CartItems;Products;CompanyProductPrices,api-cart;flutter-cart,Implemented,Automated,Compares captured and current unit price and blocks checkout until acknowledged
+117,119,توفر جزئي للكمية,Partial availability,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Availability conflict,GET /api/cart,CartItems;Products;ProductVariants,api-cart;flutter-cart,Implemented,Automated,Shows latest available quantity and blocks checkout until corrected
+118,120,تقسيم التوصيل,Split delivery,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Split delivery toggle,PUT /api/checkout/delivery,CheckoutSessions;Orders,api-checkout;flutter-checkout,Implemented,Automated,Choice persists into immutable order snapshot
+119,121,ملاحظة على الصنف,Product note,السلة وإتمام الطلب | Cart & Checkout,client,/cart,Item note dialog,PUT /api/cart/items/{id}/note,CartItems;OrderItems,api-cart;flutter-cart,Implemented,Automated,500-character note follows the exact item into the order snapshot
+120,122,ملاحظة على الطلب,Order note,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Order note,PUT /api/checkout/context,CheckoutSessions;Orders,api-checkout;flutter-checkout,Implemented,Automated,1500-character note persists at order level
 121,123,اختيار مركز التكلفة,Cost center selection,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Enterprise context,PUT /api/checkout/context,CostCenters;CheckoutSessions;Orders,api-checkout;flutter-checkout,Implemented,Automated,Budget availability and immutable order snapshot
 122,124,الإدارة الطالبة,Requesting department,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Enterprise context,PUT /api/checkout/context,CheckoutSessions;Orders,api-checkout;flutter-checkout,Implemented,Automated,Required department persists to checkout and order
 123,125,اختيار المشروع,Project selection,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Enterprise context,PUT /api/checkout/context,CompanyProjects;CheckoutSessions;Orders,api-checkout;flutter-checkout,Implemented,Automated,Optional tenant-scoped project snapshot
