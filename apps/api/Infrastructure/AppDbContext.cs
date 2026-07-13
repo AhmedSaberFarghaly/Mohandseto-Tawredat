@@ -35,6 +35,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public DbSet<Category> Categories => Set<Category>();
@@ -123,6 +124,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<CompanyBillingProfile> CompanyBillingProfiles => Set<CompanyBillingProfile>();
     public DbSet<CompanyContract> CompanyContracts => Set<CompanyContract>();
     public DbSet<ContractRenewalRequest> ContractRenewalRequests => Set<ContractRenewalRequest>();
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+    public DbSet<SupportMessage> SupportMessages => Set<SupportMessage>();
+    public DbSet<SupportAttachment> SupportAttachments => Set<SupportAttachment>();
+    public DbSet<CallbackRequest> CallbackRequests => Set<CallbackRequest>();
+    public DbSet<SupportArticle> SupportArticles => Set<SupportArticle>();
+    public DbSet<ContentPage> ContentPages => Set<ContentPage>();
+    public DbSet<AccountDeletionRequest> AccountDeletionRequests => Set<AccountDeletionRequest>();
+    public DbSet<MobileAppConfig> MobileAppConfigs => Set<MobileAppConfig>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -136,6 +146,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
 
         b.Entity<User>().HasIndex(u => u.Phone).IsUnique();
         b.Entity<User>().HasIndex(u => u.Email).IsUnique();
+        b.Entity<TwoFactorChallenge>().HasIndex(x => x.TokenHash).IsUnique();
         b.Entity<Product>().HasIndex(p => p.Sku).IsUnique();
         b.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
         b.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
@@ -202,6 +213,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyBillingProfile>().HasIndex(x => x.CompanyId).IsUnique();
         b.Entity<CompanyContract>().HasIndex(x => x.Number).IsUnique();
         b.Entity<ContractRenewalRequest>().HasIndex(x => new { x.ContractId, x.Status });
+        b.Entity<NotificationPreference>().HasIndex(x => new { x.TenantId, x.UserId }).IsUnique();
+        b.Entity<SupportTicket>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<SupportTicket>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.CreatedAt });
+        b.Entity<SupportMessage>().HasIndex(x => new { x.TicketId, x.CreatedAt });
+        b.Entity<CallbackRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.PreferredAt });
+        b.Entity<SupportArticle>().HasIndex(x => x.Slug).IsUnique();
+        b.Entity<ContentPage>().HasIndex(x => x.Slug).IsUnique();
+        b.Entity<AccountDeletionRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status });
+        b.Entity<MobileAppConfig>().HasIndex(x => x.Platform).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -232,6 +252,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
 
         // dependents of User share its soft-delete filter to avoid filter-mismatch anomalies
         b.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
+        b.Entity<TwoFactorChallenge>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<UserRole>().HasQueryFilter(e => !e.User.IsDeleted);
 
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
@@ -307,6 +328,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyBillingProfile>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyContract>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ContractRenewalRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<NotificationPreference>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupportTicket>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupportMessage>().HasQueryFilter(e => !e.IsDeleted && !e.Ticket.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupportAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Ticket.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CallbackRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupportArticle>().HasQueryFilter(e => !e.IsDeleted && e.IsPublished);
+        b.Entity<ContentPage>().HasQueryFilter(e => !e.IsDeleted && e.IsPublished);
+        b.Entity<AccountDeletionRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<MobileAppConfig>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

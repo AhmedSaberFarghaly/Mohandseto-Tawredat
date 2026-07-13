@@ -141,6 +141,19 @@ public class AuthFlowTests : IDisposable
     }
 
     [Fact]
+    public async Task Email_login_requires_and_verifies_second_factor_when_enabled()
+    {
+        var registration = await RegisterCompanyAsync("01055500013", "twofactor@test.com");
+        var user = await _db.Users.SingleAsync(u => u.Id == registration.User!.Id);
+        user.TwoFactorEnabled = true; user.TwoFactorChannel = "sms"; await _db.SaveChangesAsync();
+        var challenge = await _auth.LoginWithEmailAsync("twofactor@test.com", "Secret@123");
+        Assert.True(challenge.RequiresTwoFactor); Assert.Null(challenge.AccessToken); Assert.NotNull(challenge.ChallengeToken); Assert.NotNull(challenge.DevelopmentCode);
+        var verified = await _auth.VerifyTwoFactorAsync(new TwoFactorLoginDto(challenge.ChallengeToken!, challenge.DevelopmentCode!));
+        Assert.NotNull(verified.AccessToken); Assert.False(verified.RequiresTwoFactor);
+        await Assert.ThrowsAsync<ApiException>(() => _auth.VerifyTwoFactorAsync(new TwoFactorLoginDto(challenge.ChallengeToken!, challenge.DevelopmentCode!)));
+    }
+
+    [Fact]
     public async Task Tenant_isolation_filter_hides_other_tenant_branches()
     {
         var a = await RegisterCompanyAsync("01055500004", "e@test.com");

@@ -173,6 +173,27 @@ class AccountScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                const AccountGroup(
+                  title: 'المساعدة والإعدادات',
+                  items: [
+                    AccountItem(
+                      'الإشعارات',
+                      Icons.notifications_outlined,
+                      '/notifications',
+                    ),
+                    AccountItem(
+                      'مركز الدعم',
+                      Icons.support_agent_outlined,
+                      '/support',
+                    ),
+                    AccountItem(
+                      'الإعدادات والأمان',
+                      Icons.settings_outlined,
+                      '/settings',
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

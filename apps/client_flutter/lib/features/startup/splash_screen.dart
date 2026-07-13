@@ -1,33 +1,51 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/app_tokens.dart';
+import '../../core/api/engagement_repository.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  Timer? _timer;
-
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 1600), () {
-      if (mounted) context.go('/login');
-    });
+    _checkRuntime();
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<void> _checkRuntime() async {
+    final minimumDelay = Future<void>.delayed(
+      const Duration(milliseconds: 1600),
+    );
+    MobileAppConfigModel? config;
+    try {
+      config = await ref
+          .read(engagementRepositoryProvider)
+          .appConfig()
+          .timeout(const Duration(seconds: 1));
+    } catch (_) {}
+    await minimumDelay;
+    if (!mounted) return;
+    if (config?.maintenance == true) {
+      context.go('/system/maintenance', extra: config);
+      return;
+    }
+    if (config != null && versionLess('0.2.0', config.minimum)) {
+      context.go('/system/update-required', extra: config);
+      return;
+    }
+    if (config != null && versionLess('0.2.0', config.latest)) {
+      context.go('/system/update-available', extra: config);
+      return;
+    }
+    context.go('/login');
   }
 
   @override
@@ -98,4 +116,14 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     ),
   );
+}
+
+bool versionLess(String current, String target) {
+  final a = current.split('.').map(int.tryParse).map((v) => v ?? 0).toList();
+  final b = target.split('.').map(int.tryParse).map((v) => v ?? 0).toList();
+  for (var i = 0; i < 3; i++) {
+    final av = i < a.length ? a[i] : 0, bv = i < b.length ? b[i] : 0;
+    if (av != bv) return av < bv;
+  }
+  return false;
 }

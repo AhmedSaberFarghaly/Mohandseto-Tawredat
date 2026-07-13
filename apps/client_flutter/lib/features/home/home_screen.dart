@@ -72,6 +72,11 @@ class HomeScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'مركز الموافقات',
                 onPressed: () => context.push('/approvals'),
+                icon: const Icon(Icons.approval_outlined),
+              ),
+              IconButton(
+                tooltip: 'الإشعارات',
+                onPressed: () => context.push('/notifications'),
                 icon: const Badge(
                   smallSize: 7,
                   child: Icon(Icons.notifications_none_rounded),

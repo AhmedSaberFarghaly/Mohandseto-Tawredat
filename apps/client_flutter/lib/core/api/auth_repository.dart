@@ -29,12 +29,17 @@ class AuthResult {
           ? null
           : AuthUser.fromJson(json['user'] as Map<String, dynamic>),
       accessToken = json['accessToken'] as String?,
-      refreshToken = json['refreshToken'] as String?;
+      refreshToken = json['refreshToken'] as String?,
+      requiresTwoFactor = json['requiresTwoFactor'] as bool? ?? false,
+      challengeToken = json['challengeToken'] as String?,
+      developmentCode = json['developmentCode'] as String?;
 
   final bool isNewUser;
   final AuthUser? user;
   final String? accessToken;
   final String? refreshToken;
+  final bool requiresTwoFactor;
+  final String? challengeToken, developmentCode;
 }
 
 class AuthRepository {
@@ -87,6 +92,18 @@ class AuthRepository {
       final response = await _api.dio.post(
         '/api/auth/register-company',
         data: payload,
+      );
+      final result = AuthResult.fromJson(response.data as Map<String, dynamic>);
+      await _persist(result);
+      return result;
+    },
+  );
+
+  Future<AuthResult> verifyTwoFactor(String challenge, String code) => _call(
+    () async {
+      final response = await _api.dio.post(
+        '/api/auth/2fa/verify',
+        data: {'challengeToken': challenge, 'code': code},
       );
       final result = AuthResult.fromJson(response.data as Map<String, dynamic>);
       await _persist(result);

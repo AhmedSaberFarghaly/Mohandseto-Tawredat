@@ -78,6 +78,9 @@ public class User : BaseEntity
     public bool IsPlatformStaff { get; set; }
     public string? AvatarPath { get; set; }
     public string PreferredLanguage { get; set; } = "ar";
+    public string PreferredTheme { get; set; } = "system";
+    public bool TwoFactorEnabled { get; set; }
+    public string? TwoFactorChannel { get; set; }
     public Guid? DefaultBranchId { get; set; }
     public string? JobTitle { get; set; }
     public string? Department { get; set; }
@@ -131,7 +134,7 @@ public class OtpCode : BaseEntity
     public bool Consumed { get; set; }
 }
 
-public enum OtpPurpose { Login, Registration, PasswordReset, PhoneChange }
+public enum OtpPurpose { Login, Registration, PasswordReset, PhoneChange, TwoFactor }
 
 public class RefreshToken : BaseEntity
 {
@@ -142,6 +145,15 @@ public class RefreshToken : BaseEntity
     public DateTime? RevokedAt { get; set; }
     public string? ReplacedByTokenHash { get; set; }
     public string? Device { get; set; }
+}
+
+public class TwoFactorChallenge : BaseEntity
+{
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
+    public string TokenHash { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public bool Consumed { get; set; }
 }
 
 public class AuditLog

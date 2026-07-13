@@ -4,6 +4,7 @@ public record OtpRequestDto(string Phone, string Purpose);
 public record OtpVerifyDto(string Phone, string Code);
 public record EmailLoginDto(string Email, string Password);
 public record RefreshDto(string RefreshToken);
+public record TwoFactorLoginDto(string ChallengeToken, string Code);
 
 public record RegisterCompanyDto(
     string Phone,
@@ -36,4 +37,8 @@ public record AuthResultDto(
     string? AccessToken,
     DateTime? AccessExpiresAt,
     string? RefreshToken,
-    DateTime? RefreshExpiresAt);
+    DateTime? RefreshExpiresAt,
+    bool RequiresTwoFactor = false,
+    string? ChallengeToken = null,
+    DateTime? ChallengeExpiresAt = null,
+    string? DevelopmentCode = null);

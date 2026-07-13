@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Domain.Entities;
@@ -33,6 +34,7 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
             throw ApiException.Unauthorized("البريد الإلكتروني أو كلمة المرور غير صحيحة");
 
         EnsureActive(user);
+        if (user.TwoFactorEnabled) return await CreateTwoFactorChallengeAsync(user, ct);
         return await IssueAsync(user, ct);
     }
 
@@ -181,6 +183,15 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         if (stored is { RevokedAt: null }) { stored.RevokedAt = DateTime.UtcNow; await db.SaveChangesAsync(ct); }
     }
 
+    public async Task<AuthResultDto> VerifyTwoFactorAsync(TwoFactorLoginDto dto, CancellationToken ct = default)
+    {
+        var hash = TokenService.Hash(dto.ChallengeToken);
+        var challenge = await db.TwoFactorChallenges.Include(c => c.User).ThenInclude(u => u.Roles).ThenInclude(r => r.Role).FirstOrDefaultAsync(c => c.TokenHash == hash && !c.Consumed, ct)
+            ?? throw ApiException.Unauthorized("جلسة التحقق غير صالحة");
+        if (challenge.ExpiresAt < DateTime.UtcNow) throw ApiException.Unauthorized("انتهت مهلة التحقق، سجل الدخول من جديد");
+        EnsureActive(challenge.User); await otp.VerifyAsync(challenge.User.Phone, dto.Code, OtpPurpose.TwoFactor, ct); challenge.Consumed = true; await db.SaveChangesAsync(ct); return await IssueAsync(challenge.User, ct);
+    }
+
     public async Task<AuthUserDto> MeAsync(Guid userId, CancellationToken ct = default)
     {
         var user = await db.Users.Include(u => u.Roles).ThenInclude(r => r.Role)
@@ -207,6 +218,14 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         await db.SaveChangesAsync(ct);
         var dto = await ToDtoAsync(user, ct);
         return new AuthResultDto(false, dto, pair.AccessToken, pair.AccessExpiresAt, pair.RefreshToken, pair.RefreshExpiresAt);
+    }
+
+    private async Task<AuthResultDto> CreateTwoFactorChallengeAsync(User user, CancellationToken ct)
+    {
+        foreach (var old in await db.TwoFactorChallenges.Where(c => c.UserId == user.Id && !c.Consumed).ToListAsync(ct)) old.Consumed = true;
+        var raw = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)); var expires = DateTime.UtcNow.AddMinutes(5); var devCode = await otp.RequestAsync(user.Phone, OtpPurpose.TwoFactor, ct);
+        db.TwoFactorChallenges.Add(new TwoFactorChallenge { UserId = user.Id, TokenHash = TokenService.Hash(raw), ExpiresAt = expires }); await db.SaveChangesAsync(ct);
+        return new AuthResultDto(false, null, null, null, null, null, true, raw, expires, devCode);
     }
 
     private async Task<AuthUserDto> ToDtoAsync(User user, CancellationToken ct)

@@ -41,6 +41,11 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     public async Task<ActionResult<AuthResultDto>> Refresh(RefreshDto dto, CancellationToken ct) =>
         Ok(await auth.RefreshAsync(dto.RefreshToken, ct));
 
+    [HttpPost("2fa/verify")]
+    [EnableRateLimiting("auth")]
+    public async Task<ActionResult<AuthResultDto>> VerifyTwoFactor(TwoFactorLoginDto dto, CancellationToken ct) =>
+        Ok(await auth.VerifyTwoFactorAsync(dto, ct));
+
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(RefreshDto dto, CancellationToken ct)
     {

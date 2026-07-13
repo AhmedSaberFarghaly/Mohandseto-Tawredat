@@ -5,6 +5,7 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/otp_screen.dart';
 import '../../features/auth/registration_screen.dart';
 import '../../features/auth/verification_screen.dart';
+import '../../features/auth/two_factor_login_screen.dart';
 import '../../features/catalog/categories_screen.dart';
 import '../../features/catalog/catalog_search_screen.dart';
 import '../../features/catalog/compare_screen.dart';
@@ -23,6 +24,9 @@ import '../../features/returns/returns_screen.dart';
 import '../../features/finance/finance_screen.dart';
 import '../../features/budgets/budgets_screen.dart';
 import '../../features/account/account_screen.dart';
+import '../../features/engagement/engagement_screens.dart';
+import '../api/auth_repository.dart';
+import '../api/engagement_repository.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -35,6 +39,13 @@ final appRouter = GoRouter(
       path: '/splash',
       name: 'splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/system/:type',
+      builder: (_, state) => SystemRuntimeScreen(
+        type: state.pathParameters['type']!,
+        config: state.extra as MobileAppConfigModel?,
+      ),
     ),
     GoRoute(
       path: '/login',
@@ -56,6 +67,11 @@ final appRouter = GoRouter(
         phone: state.uri.queryParameters['phone'] ?? '',
         registrationCode: state.uri.queryParameters['code'],
       ),
+    ),
+    GoRoute(
+      path: '/two-factor-login',
+      builder: (context, state) =>
+          TwoFactorLoginScreen(challenge: state.extra! as AuthResult),
     ),
     GoRoute(
       path: '/documents',
@@ -142,6 +158,72 @@ final appRouter = GoRouter(
             GoRoute(
               path: 'contracts',
               builder: (_, _) => const CompanyContractsScreen(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (_, _) => const NotificationsScreen(),
+          routes: [
+            GoRoute(
+              path: 'preferences',
+              builder: (_, _) => const NotificationPreferencesScreen(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/support',
+          builder: (_, _) => const SupportHubScreen(),
+          routes: [
+            GoRoute(
+              path: 'tickets',
+              builder: (_, _) => const SupportTicketsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'new',
+                  builder: (_, state) => CreateSupportTicketScreen(
+                    sales: state.uri.queryParameters['sales'] == 'true',
+                  ),
+                ),
+                GoRoute(
+                  path: ':id',
+                  builder: (_, state) => SupportTicketDetailScreen(
+                    id: state.pathParameters['id']!,
+                  ),
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'callback',
+              builder: (_, _) => const CallbackScreen(),
+            ),
+            GoRoute(path: 'faq', builder: (_, _) => const FaqScreen()),
+            GoRoute(
+              path: 'content/:slug',
+              builder: (_, state) =>
+                  ContentScreen(slug: state.pathParameters['slug']!),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/settings',
+          builder: (_, _) => const SettingsScreen(),
+          routes: [
+            GoRoute(
+              path: 'password',
+              builder: (_, _) => const ChangePasswordScreen(),
+            ),
+            GoRoute(
+              path: '2fa',
+              builder: (_, _) => const TwoFactorSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'sessions',
+              builder: (_, _) => const SessionsScreen(),
+            ),
+            GoRoute(
+              path: 'delete',
+              builder: (_, _) => const DeleteAccountScreen(),
             ),
           ],
         ),

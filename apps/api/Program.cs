@@ -15,6 +15,7 @@ using Mohandseto.Api.Application.Returns;
 using Mohandseto.Api.Application.Finance;
 using Mohandseto.Api.Application.Budgets;
 using Mohandseto.Api.Application.Account;
+using Mohandseto.Api.Application.Engagement;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -76,6 +77,9 @@ builder.Services.AddScoped<ReturnService>();
 builder.Services.AddScoped<FinanceService>();
 builder.Services.AddScoped<BudgetService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<SupportService>();
+builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

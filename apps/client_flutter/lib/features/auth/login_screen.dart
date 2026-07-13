@@ -44,6 +44,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _email.text.trim(),
           _password.text,
         );
+        if (result.requiresTwoFactor && result.challengeToken != null) {
+          if (!mounted) return;
+          context.push('/two-factor-login', extra: result);
+          return;
+        }
         ref.read(currentUserProvider.notifier).setUser(result.user);
         if (!mounted) return;
         context.go(_destination(result.user?.tenantStatus));

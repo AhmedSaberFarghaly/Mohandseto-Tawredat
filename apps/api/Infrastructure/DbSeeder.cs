@@ -137,6 +137,25 @@ public static class DbSeeder
         }
 
         // 4) catalog reference/demo data (idempotent)
+        if (!await db.ContentPages.AnyAsync())
+        {
+            db.ContentPages.AddRange(
+                new ContentPage { Slug = "terms", TitleAr = "الشروط والأحكام", BodyAr = "تنظم هذه الشروط استخدام منصة مهندسيتو توريدات وطلبات الشراء وعروض الأسعار والدفع والتسليم والمرتجعات. تُعرض الأسعار والضرائب ومواعيد التسليم النهائية قبل تأكيد كل طلب، ويلتزم المستخدم المخول بسياسات شركته وصلاحياتها." },
+                new ContentPage { Slug = "privacy", TitleAr = "سياسة الخصوصية", BodyAr = "نجمع بيانات الحساب والشركة والطلبات اللازمة لتقديم الخدمة وحمايتها. تُعزل بيانات كل شركة، وتُشفّر الاتصالات، ولا نبيع البيانات الشخصية. يمكن طلب الوصول أو التصحيح أو الحذف من مركز الدعم." },
+                new ContentPage { Slug = "about", TitleAr = "من نحن", BodyAr = "مهندسيتو توريدات منصة B2B مصرية توحّد مشتريات الشركات وعروض الأسعار والموافقات والميزانيات والتسليم في تجربة رقمية واحدة دقيقة وقابلة للتدقيق." },
+                new ContentPage { Slug = "contact", TitleAr = "تواصل معنا", BodyAr = "فريقنا متاح لمساعدتك في الطلبات والحسابات والتوريدات الخاصة.", ContactPhone = "+20200000000", WhatsAppPhone = "+201000000000", ContactEmail = "support@mohandseto.com", Address = "القاهرة، جمهورية مصر العربية" });
+        }
+        if (!await db.SupportArticles.AnyAsync())
+        {
+            db.SupportArticles.AddRange(
+                new SupportArticle { Slug = "track-order", Category = "orders", SortOrder = 1, QuestionAr = "كيف أتابع حالة طلبي؟", AnswerAr = "افتح الطلب ثم اختر تتبع الشحنات لعرض الخط الزمني والموقع المتوقع وإثبات التسليم." },
+                new SupportArticle { Slug = "quote-time", Category = "quotes", SortOrder = 2, QuestionAr = "كم يستغرق استلام عرض السعر؟", AnswerAr = "يعتمد الوقت على عدد الأصناف والتخصيص، وستصلك إشعارات بكل تحديث أو طلب معلومات إضافية." },
+                new SupportArticle { Slug = "invoice-download", Category = "billing", SortOrder = 3, QuestionAr = "كيف أحصل على الفاتورة الإلكترونية؟", AnswerAr = "من قسم المالية افتح الفاتورة ثم اختر تنزيل PDF أو Excel حسب الصلاحيات." },
+                new SupportArticle { Slug = "return-order", Category = "returns", SortOrder = 4, QuestionAr = "كيف أطلب إرجاع صنف؟", AnswerAr = "يمكن بدء طلب الإرجاع من تفاصيل الطلب خلال فترة الأهلية وتحديد الكمية والسبب وإرفاق الصور." });
+        }
+        if (!await db.MobileAppConfigs.AnyAsync())
+            db.MobileAppConfigs.Add(new MobileAppConfig { Platform = "all", MinimumVersion = "0.2.0", LatestVersion = "0.2.0", MessageAr = "يتوفر إصدار أحدث من تطبيق مهندسيتو توريدات." });
+        await db.SaveChangesAsync();
         await CatalogSeeder.SeedAsync(db, logger);
         await CustomizationSeeder.SeedAsync(db, logger);
     }

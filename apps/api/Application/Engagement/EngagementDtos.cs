@@ -1,0 +1,25 @@
+namespace Mohandseto.Api.Application.Engagement;
+
+public record NotificationDto(Guid Id, string Type, string Title, string Body, string? EntityType, Guid? EntityId, bool IsRead, DateTime CreatedAt);
+public record NotificationPageDto(int UnreadCount, int Total, IReadOnlyList<NotificationDto> Items);
+public record NotificationPreferencesDto(bool PushEnabled, bool EmailEnabled, bool SmsEnabled, bool OrdersEnabled, bool ApprovalsEnabled, bool QuotesEnabled, bool InvoicesEnabled, bool PromotionsEnabled);
+public record SupportTicketListDto(Guid Id, string Number, string Type, string Priority, string Status, string Subject, DateTime CreatedAt, DateTime? UpdatedAt, int UnreadMessages);
+public record SupportMessageDto(Guid Id, Guid SenderUserId, string SenderName, bool IsStaff, string Body, DateTime CreatedAt, DateTime? ReadAt);
+public record SupportAttachmentDto(Guid Id, string Name, string ContentType, long SizeBytes, DateTime CreatedAt);
+public record SupportTicketDetailDto(Guid Id, string Number, string Type, string Priority, string Status, string Subject, string Description, Guid? OrderId, DateTime CreatedAt, DateTime? ResolvedAt, int? Rating, IReadOnlyList<SupportMessageDto> Messages, IReadOnlyList<SupportAttachmentDto> Attachments);
+public record CreateSupportTicketDto(string Type, string Priority, string Subject, string Description, Guid? OrderId);
+public record AddSupportMessageDto(string Body);
+public record RateSupportTicketDto(int Rating, string? Comment);
+public record CreateCallbackRequestDto(string Phone, string Topic, DateTime PreferredAt);
+public record CallbackRequestDto(Guid Id, string Phone, string Topic, DateTime PreferredAt, string Status, DateTime CreatedAt);
+public record SupportArticleDto(string Slug, string Category, string Question, string Answer);
+public record ContentPageDto(string Slug, string Title, string Body, string? Phone, string? WhatsApp, string? Email, string? Address);
+public record UserSettingsDto(string Language, string Theme, bool TwoFactorEnabled, string? TwoFactorChannel, IReadOnlyList<UserSessionDto> Sessions, DateTime? DeletionScheduledFor);
+public record UpdateAppearanceDto(string Language, string Theme);
+public record ChangePasswordDto(string CurrentPassword, string NewPassword);
+public record TwoFactorRequestDto(string Channel);
+public record TwoFactorVerifyDto(string Code, string Channel);
+public record DisableTwoFactorDto(string Password);
+public record UserSessionDto(Guid Id, string Device, DateTime CreatedAt, DateTime ExpiresAt, bool IsCurrent);
+public record DeleteAccountDto(string Password, string Reason);
+public record MobileAppConfigDto(string MinimumVersion, string LatestVersion, bool MaintenanceEnabled, string? Message, string? UpdateUrl);
