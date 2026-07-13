@@ -48,6 +48,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ProductAttributeValue> ProductAttributeValues => Set<ProductAttributeValue>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductDocument> ProductDocuments => Set<ProductDocument>();
+    public DbSet<ProductLink> ProductLinks => Set<ProductLink>();
+    public DbSet<ProductPriceChange> ProductPriceChanges => Set<ProductPriceChange>();
     public DbSet<CompanyProductPrice> CompanyProductPrices => Set<CompanyProductPrice>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
     public DbSet<RecentlyViewed> RecentlyVieweds => Set<RecentlyViewed>();
@@ -164,6 +166,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyProductPrice>().HasIndex(p => new { p.TenantId, p.ProductId, p.ValidFrom });
         b.Entity<QuantityPriceTier>().HasIndex(t => new { t.ProductId, t.MinQty }).IsUnique();
         b.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
+        b.Entity<ProductLink>().HasIndex(x => new { x.ProductId, x.LinkedProductId, x.Type }).IsUnique();
+        b.Entity<ProductPriceChange>().HasIndex(x => new { x.ProductId, x.CreatedAt });
         b.Entity<CompareItem>().HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
         b.Entity<RecentSearch>().HasIndex(s => new { s.UserId, s.Query }).IsUnique();
         b.Entity<Cart>().HasIndex(c => new { c.TenantId, c.UserId, c.Status });
@@ -259,6 +263,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ProductAttributeValue>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
         b.Entity<ProductVariant>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
         b.Entity<ProductDocument>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<ProductLink>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<ProductPriceChange>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<CustomProductTemplate>().HasQueryFilter(e => !e.IsDeleted && !e.Product.IsDeleted);
         b.Entity<CustomizationOption>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);
         b.Entity<PrintMethod>().HasQueryFilter(e => !e.IsDeleted && !e.Template.IsDeleted && !e.Template.Product.IsDeleted);

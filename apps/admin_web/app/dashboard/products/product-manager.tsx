@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ProductContentEditor } from "./product-content-editor";
+import { ProductCommercialEditor } from "./product-commercial-editor";
 
 type Product = {
   id: string; sku: string; nameAr: string; nameEn: string; categoryName: string;
@@ -40,7 +41,11 @@ export function ProductManager() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [importErrors, setImportErrors] = useState<string[] | null>(null);
   const [contentProduct, setContentProduct] = useState<Product | null>(null);
+  const [commercialProduct, setCommercialProduct] = useState<Product | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [history, setHistory] = useState<{id:string;sku:string;product:string;staff:string;oldPrice:number;newPrice:number;changePercent:number;reason:string;source:string;at:string}[] | null>(null);
 
   const requestProducts = useCallback(async (signal?: AbortSignal) => {
     const response = await fetch(`/api/admin/catalog/products?page=${page}&pageSize=20&q=${encodeURIComponent(query)}`, { signal });
@@ -159,10 +164,22 @@ export function ProductManager() {
       const response = await fetch("/api/admin/catalog/products/import", { method: "POST", body: form });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.title || body.message || "تعذر استيراد الكتالوج");
-      window.alert(`اكتمل الاستيراد: ${body.created} جديد، ${body.updated} محدث، ${body.rejected} مرفوض`);
+      if (body.errors?.length) setImportErrors(body.errors); else window.alert(`اكتمل الاستيراد: ${body.created} جديد، ${body.updated} محدث، ${body.rejected} مرفوض`);
       await reload();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "تعذر استيراد الكتالوج"); }
     finally { setImporting(false); }
+  }
+
+  async function saveBulkPrices(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); if (!data) return; setSaving(true); const form = new FormData(event.currentTarget);
+    const response = await fetch("/api/admin/catalog/products/bulk-prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: form.get("reason"), items: data.items.map((item) => ({ productId: item.id, newPrice: Number(form.get(`price-${item.id}`)) })) }) });
+    if (!response.ok) { const body = await response.json().catch(() => ({})); setError(body.title || "تعذر تعديل الأسعار"); setSaving(false); return; }
+    setBulkOpen(false); setSaving(false); await reload();
+  }
+
+  async function openHistory() {
+    const response = await fetch("/api/admin/catalog/products/price-history?limit=200");
+    if (!response.ok) { setError("تعذر تحميل سجل الأسعار"); return; } setHistory(await response.json());
   }
 
   const flatCategories = categories.flatMap((parent) => [parent, ...parent.children]);
@@ -176,8 +193,10 @@ export function ProductManager() {
       <section className="panel catalog-toolbar">
         <div className="search-box"><span>⌕</span><input value={query} onChange={(event) => { setLoading(true); setQuery(event.target.value); setPage(1); }} placeholder="ابحث بالاسم أو كود المنتج..." /></div>
         <button className="secondary-button" onClick={() => { setQuery(""); setPage(1); }}>مسح التصفية</button>
-        <label className="secondary-button file-button">{importing ? "جاري الاستيراد..." : "استيراد CSV"}<input type="file" accept=".csv,text/csv" disabled={importing} onChange={(event) => { void importCatalog(event.target.files?.[0]); event.target.value = ""; }} /></label>
+        <label className="secondary-button file-button">{importing ? "جاري الاستيراد..." : "استيراد Excel"}<input type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={importing} onChange={(event) => { void importCatalog(event.target.files?.[0]); event.target.value = ""; }} /></label>
         <button className="secondary-button" disabled={exporting} onClick={exportCatalog}>{exporting ? "جاري التصدير..." : "تصدير Excel (CSV)"}</button>
+        <button className="secondary-button" onClick={() => setBulkOpen(true)}>تعديل جماعي للأسعار</button>
+        <button className="secondary-button" onClick={openHistory}>سجل الأسعار</button>
         <span className="catalog-count">{data?.total ?? 0} منتج</span>
       </section>
       <section className="panel products-admin-panel">
@@ -189,7 +208,7 @@ export function ProductManager() {
               <td><b>{product.price.toLocaleString("ar-EG")} ج.م</b></td>
               <td><span className={`stock-chip ${product.stockStatus === "OutOfStock" ? "out" : product.stockStatus === "LowStock" ? "low" : ""}`}>{product.stockQty} متاح</span></td>
               <td>{product.isPrintable ? <span className="type-chip">مطبوع</span> : "قياسي"}</td>
-              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="المحتوى والملفات" onClick={() => setContentProduct(product)}>▣</button><button title="المتغيرات" onClick={() => openVariants(product)}>◆</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
+              <td><div className="row-actions"><button title="تعديل" onClick={() => openEditor(product.id)}>✎</button><button title="المحتوى والملفات" onClick={() => setContentProduct(product)}>▣</button><button title="الإعدادات التجارية" onClick={() => setCommercialProduct(product)}>٪</button><button title="المتغيرات" onClick={() => openVariants(product)}>◆</button><button title="أرشفة" onClick={() => archive(product)}>⌫</button></div></td>
             </tr>)}
           </tbody></table></div>
         )}
@@ -248,6 +267,10 @@ export function ProductManager() {
         </section>
       </div>}
       {contentProduct && <ProductContentEditor product={contentProduct} onClose={() => setContentProduct(null)} onError={setError} />}
+      {commercialProduct && <ProductCommercialEditor product={commercialProduct} onClose={() => setCommercialProduct(null)} onError={setError} />}
+      {bulkOpen && data && <div className="modal-backdrop"><section className="product-editor bulk-price-editor"><header><div><h2>تعديل جماعي للأسعار</h2><p>تحديث أسعار المنتجات الظاهرة في الصفحة الحالية مع حفظ سجل كامل</p></div><button onClick={() => setBulkOpen(false)}>×</button></header><form onSubmit={saveBulkPrices}><div className="bulk-price-list">{data.items.map(item => <label key={item.id}><span><b>{item.nameAr}</b><small>{item.sku}</small></span><input name={`price-${item.id}`} type="number" min="0.01" step="0.01" defaultValue={item.price} required /></label>)}</div><label className="bulk-reason">سبب التعديل<textarea name="reason" required /></label><footer><button type="button" className="secondary-button" onClick={() => setBulkOpen(false)}>إلغاء</button><button className="primary-button" disabled={saving}>حفظ كل الأسعار</button></footer></form></section></div>}
+      {history && <div className="modal-backdrop"><section className="product-editor price-history-editor"><header><div><h2>سجل تغير الأسعار</h2><p>تتبع كامل للقيمة القديمة والجديدة والموظف والسبب</p></div><button onClick={() => setHistory(null)}>×</button></header><div className="table-wrap"><table><thead><tr><th>المنتج</th><th>السعر القديم</th><th>السعر الجديد</th><th>التغير</th><th>الموظف</th><th>السبب</th><th>التاريخ</th></tr></thead><tbody>{history.map(row => <tr key={row.id}><td><b>{row.product}</b><small>{row.sku}</small></td><td>{row.oldPrice.toLocaleString("ar-EG")}</td><td>{row.newPrice.toLocaleString("ar-EG")}</td><td className={row.changePercent<0?"price-down":"price-up"}>{row.changePercent>0?"+":""}{row.changePercent}%</td><td>{row.staff}</td><td>{row.reason}</td><td>{new Date(row.at).toLocaleString("ar-EG")}</td></tr>)}</tbody></table></div>{!history.length&&<div className="admin-empty">لا توجد تغييرات أسعار مسجلة بعد</div>}</section></div>}
+      {importErrors && <div className="modal-backdrop"><section className="mini-editor import-errors-editor"><header><div><h2>مراجعة أخطاء الاستيراد</h2><p>صحح الصفوف التالية ثم أعد رفع الملف</p></div><button onClick={() => setImportErrors(null)}>×</button></header><div className="import-error-list">{importErrors.map((message,index)=><article key={index}><span>!</span><p>{message}</p></article>)}</div><footer><button className="primary-button" onClick={() => setImportErrors(null)}>تمت المراجعة</button></footer></section></div>}
     </>
   );
 }

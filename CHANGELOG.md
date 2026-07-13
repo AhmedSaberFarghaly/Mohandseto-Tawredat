@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Commercial product operations for screens 426–450: packaging, cost and margin, company pricing, alternatives and related products, warranty, SEO, XLSX import error review, bulk price editing and auditable price history.
+- `ProductCommercialOperations` migration and full service/XLSX automated coverage.
 - Full admin quote-operations workspace for screens 404–425: RFQ queues, extraction review, product linking, supplier price requests and comparison, profit margins, versioned customer quotes, discounts, terms, negotiation, acceptance, order conversion and templates.
 - `AdminQuoteOperations` migration with suppliers, temporary RFQ products, quote templates and commercial version fields.
 - End-to-end admin quote lifecycle coverage plus authenticated HTTP verification through the Next.js BFF.

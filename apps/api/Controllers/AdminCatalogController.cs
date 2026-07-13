@@ -1,5 +1,8 @@
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
+using System.IO.Compression;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +16,14 @@ namespace Mohandseto.Api.Controllers;
 [ApiController]
 [Route("api/admin/catalog")]
 [Authorize(Roles = "super_admin,products_manager,system_admin")]
-public sealed class AdminCatalogController(AppDbContext db, CatalogService catalog, IWebHostEnvironment? env = null) : ControllerBase
+public sealed class AdminCatalogController(AppDbContext db, CatalogService catalog, IWebHostEnvironment? env = null, AdminCatalogOperationsService? operations = null) : ControllerBase
 {
     private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
     private static readonly string[] ImageContentTypes = ["image/jpeg", "image/png", "image/webp"];
     private const long MaxImageBytes = 5 * 1024 * 1024;
     private const long MaxDocumentBytes = 10 * 1024 * 1024;
     private string ContentRoot => env?.ContentRootPath ?? AppContext.BaseDirectory;
+    private Guid UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub"), out var id) ? id : throw ApiException.Unauthorized();
     [HttpGet("products")]
     public Task<PagedResult<ProductCardDto>> Products([FromQuery] ProductQuery query, CancellationToken ct) =>
         catalog.ProductsAsync(query, null, ct);
@@ -53,9 +57,11 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
     {
         var product = await db.Products.FirstOrDefaultAsync(p => p.Id == id, ct)
             ?? throw ApiException.NotFound("المنتج غير موجود");
+        var oldPrice = product.BasePrice;
         await ValidateProductAsync(dto, id, ct);
         Map(product, dto);
         await db.SaveChangesAsync(ct);
+        if (operations is not null) await operations.RecordPriceChangeAsync(UserId, product, oldPrice, "Manual", "تعديل بيانات المنتج", ct);
         return Ok(new { product.Id });
     }
 
@@ -102,9 +108,15 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
     public async Task<IActionResult> ImportProducts([FromForm] IFormFile file, CancellationToken ct)
     {
         if (file.Length == 0) throw ApiException.BadRequest("ملف الاستيراد فارغ");
-        using var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8, true);
-        var lines = new List<string>();
-        while (await reader.ReadLineAsync(ct) is { } line) if (!string.IsNullOrWhiteSpace(line)) lines.Add(line);
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (extension is not (".csv" or ".xlsx")) throw ApiException.BadRequest("الملف يجب أن يكون CSV أو Excel XLSX");
+        List<string> lines;
+        if (extension == ".xlsx") lines = ReadXlsxLines(file.OpenReadStream());
+        else
+        {
+            using var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8, true); lines = [];
+            while (await reader.ReadLineAsync(ct) is { } line) if (!string.IsNullOrWhiteSpace(line)) lines.Add(line);
+        }
         if (lines.Count < 2) throw ApiException.BadRequest("ملف الاستيراد لا يحتوي على منتجات");
 
         var headers = ParseCsvLine(lines[0]).Select((name, index) => (name: name.Trim().TrimStart('\uFEFF'), index))
@@ -445,6 +457,31 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
         }
         values.Add(value.ToString());
         return values;
+    }
+
+    private static List<string> ReadXlsxLines(Stream source)
+    {
+        using var zip = new ZipArchive(source, ZipArchiveMode.Read, leaveOpen: false); XNamespace ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+        var shared = new List<string>(); var sharedEntry = zip.GetEntry("xl/sharedStrings.xml");
+        if (sharedEntry is not null) { using var stream = sharedEntry.Open(); shared = XDocument.Load(stream).Descendants(ns + "si").Select(x => string.Concat(x.Descendants(ns + "t").Select(t => t.Value))).ToList(); }
+        var sheetEntry = zip.GetEntry("xl/worksheets/sheet1.xml") ?? throw ApiException.BadRequest("ورقة Excel الأولى غير موجودة"); using var sheetStream = sheetEntry.Open();
+        var rows = new List<string>(); foreach (var row in XDocument.Load(sheetStream).Descendants(ns + "row"))
+        {
+            var cells = row.Elements(ns + "c").ToList(); if (cells.Count == 0) continue; var max = cells.Max(c => ColumnIndex(c.Attribute("r")?.Value)); var values = Enumerable.Repeat(string.Empty, max + 1).ToArray();
+            foreach (var cell in cells)
+            {
+                var index = ColumnIndex(cell.Attribute("r")?.Value); var raw = cell.Element(ns + "v")?.Value ?? string.Concat(cell.Descendants(ns + "t").Select(x => x.Value));
+                values[index] = cell.Attribute("t")?.Value == "s" && int.TryParse(raw, out var sharedIndex) && sharedIndex >= 0 && sharedIndex < shared.Count ? shared[sharedIndex] : raw;
+            }
+            rows.Add(string.Join(',', values.Select(Csv)));
+        }
+        return rows;
+    }
+
+    private static int ColumnIndex(string? reference)
+    {
+        var result = 0; foreach (var character in (reference ?? "A").TakeWhile(char.IsLetter)) result = result * 26 + char.ToUpperInvariant(character) - 'A' + 1;
+        return Math.Max(0, result - 1);
     }
 
     private static void ValidateFile(IFormFile file, long maxBytes, IReadOnlyCollection<string> extensions, IReadOnlyCollection<string> contentTypes, string label)

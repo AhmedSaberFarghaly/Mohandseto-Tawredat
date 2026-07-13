@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
+using System.IO.Compression;
+using System.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -167,6 +169,34 @@ public sealed class CatalogFlowTests : IDisposable
         };
         Assert.IsType<OkObjectResult>(await controller.ImportProducts(upload, default));
         Assert.Equal(250, await _db.Products.CountAsync());
+    }
+
+    [Fact]
+    public async Task Admin_can_import_real_xlsx_and_report_invalid_rows()
+    {
+        var category = await _db.Categories.FirstAsync(); var unit = await _db.Units.FirstAsync();
+        var rows = new[]
+        {
+            new[] { "sku", "nameAr", "nameEn", "slug", "categorySlug", "brandSlug", "unitCode", "basePrice", "stockQty" },
+            new[] { "XLSX-NEW-1", "منتج Excel", "Excel Product", "xlsx-new-1", category.Slug, "", unit.Code, "125.5", "20" },
+            new[] { "XLSX-BAD-1", "صف غير صالح", "Bad", "xlsx-bad-1", "missing-category", "", unit.Code, "0", "-1" },
+        };
+        await using var stream = new MemoryStream(); using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            var entry = zip.CreateEntry("xl/worksheets/sheet1.xml"); await using var writer = new StreamWriter(entry.Open());
+            await writer.WriteAsync("<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData>");
+            for (var r = 0; r < rows.Length; r++)
+            {
+                await writer.WriteAsync($"<row r=\"{r + 1}\">"); for (var c = 0; c < rows[r].Length; c++)
+                    await writer.WriteAsync($"<c r=\"{(char)('A' + c)}{r + 1}\" t=\"inlineStr\"><is><t>{SecurityElement.Escape(rows[r][c])}</t></is></c>");
+                await writer.WriteAsync("</row>");
+            }
+            await writer.WriteAsync("</sheetData></worksheet>");
+        }
+        stream.Position = 0; IFormFile upload = new FormFile(stream, 0, stream.Length, "file", "products.xlsx")
+        { Headers = new HeaderDictionary(), ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+        var result = Assert.IsType<OkObjectResult>(await new AdminCatalogController(_db, _catalog).ImportProducts(upload, default));
+        Assert.NotNull(result.Value); Assert.True(await _db.Products.AnyAsync(x => x.Sku == "XLSX-NEW-1")); Assert.False(await _db.Products.AnyAsync(x => x.Sku == "XLSX-BAD-1"));
     }
 
     [Fact]

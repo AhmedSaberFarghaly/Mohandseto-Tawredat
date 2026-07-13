@@ -50,6 +50,7 @@ public class Product : BaseEntity
     public Guid UnitId { get; set; }
     public UnitOfMeasure Unit { get; set; } = null!;
     public decimal BasePrice { get; set; }
+    public decimal CostPrice { get; set; }
     public decimal? CompareAtPrice { get; set; }
     public decimal TaxRatePercent { get; set; } = 14m;
     public int MinOrderQty { get; set; } = 1;
@@ -63,6 +64,13 @@ public class Product : BaseEntity
     public int RatingCount { get; set; }
     public string? WarrantyAr { get; set; }
     public int DeliveryEstimateDays { get; set; } = 2;
+    public string? PackageType { get; set; }
+    public int UnitsPerPackage { get; set; } = 1;
+    public int PackagesPerCarton { get; set; } = 1;
+    public string? CartonBarcode { get; set; }
+    public string? SeoTitle { get; set; }
+    public string? SeoDescription { get; set; }
+    public string? SeoKeywords { get; set; }
     public ICollection<ProductImage> Images { get; set; } = [];
     public ICollection<QuantityPriceTier> PriceTiers { get; set; } = [];
     public ICollection<ProductAttributeValue> Attributes { get; set; } = [];
@@ -73,6 +81,25 @@ public class Product : BaseEntity
         StockQty <= 0 ? StockStatus.OutOfStock
         : StockQty <= LowStockThreshold ? StockStatus.LowStock
         : StockStatus.InStock;
+}
+
+public enum ProductLinkType { Alternative, Related }
+public class ProductLink : BaseEntity
+{
+    public Guid ProductId { get; set; }
+    public Guid LinkedProductId { get; set; }
+    public ProductLinkType Type { get; set; }
+    public int SortOrder { get; set; }
+}
+
+public class ProductPriceChange : BaseEntity
+{
+    public Guid ProductId { get; set; }
+    public Guid StaffUserId { get; set; }
+    public decimal OldPrice { get; set; }
+    public decimal NewPrice { get; set; }
+    public string Reason { get; set; } = string.Empty;
+    public string Source { get; set; } = "Manual";
 }
 
 public class ProductImage : BaseEntity
