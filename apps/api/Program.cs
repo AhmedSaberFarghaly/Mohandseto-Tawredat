@@ -13,6 +13,7 @@ using Mohandseto.Api.Application.Rfq;
 using Mohandseto.Api.Application.Orders;
 using Mohandseto.Api.Application.Returns;
 using Mohandseto.Api.Application.Finance;
+using Mohandseto.Api.Application.Budgets;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -72,6 +73,7 @@ builder.Services.AddScoped<RfqService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ReturnService>();
 builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<BudgetService>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

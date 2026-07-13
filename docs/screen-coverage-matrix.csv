@@ -278,20 +278,20 @@
 275,277,طلب زيادة الحد,Increase credit limit,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Increase request,POST /api/finance/credit-limit-requests,CreditLimitRequests,finance-e2e;flutter-finance,Implemented,Automated,Prevents duplicate active requests and role-protected decision
 276,278,الفواتير المجمعة للشركة,Consolidated company invoices,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Company consolidated view,GET /api/finance/invoices,Invoices;Orders,finance-e2e;flutter-finance,Implemented,Automated,Tenant-wide invoice center across company orders
 277,279,تصدير كشف حساب Excel,Export invoices Excel,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Excel export,GET /api/finance/invoices/export,Invoices;InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Valid XLSX workbook with totals paid outstanding and dates
-278,280,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-279,281,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-280,282,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-281,283,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-282,284,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-283,285,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-284,286,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-285,287,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-286,288,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-287,289,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-288,290,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-289,291,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-290,292,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
-291,293,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
+278,280,لوحة ميزانية الشركة,Company budget dashboard,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Annual dashboard,GET /api/budgets/summary,CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Total used reserved available utilization and forecast
+279,281,الميزانية الشهرية,Monthly budget,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Monthly trend,GET /api/budgets/summary?month=,CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Monthly order spend aggregation
+280,282,الميزانية السنوية,Annual budget,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Year selector,GET /api/budgets/summary?year=,CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Multi-year period-aware dashboard
+281,283,مراكز التكلفة,Cost centers,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Centers list,GET /api/budgets/summary,CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Health usage available and period for active centers
+282,284,تفاصيل مركز التكلفة,Cost center details,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets/centers/:id,Center details,GET /api/budgets/centers/{id},CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Owner tenant scoped spend orders projects and departments
+283,285,مصروفات مركز التكلفة,Cost center expenses,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets/centers/:id,Expense list,GET /api/budgets/centers/{id},Orders;CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Chronological order allocations with totals
+284,286,تجاوز الميزانية,Budget exceeded,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Critical state,GET /api/budgets/alerts,CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Automatic 100 percent critical alert and red state
+285,287,توزيع الميزانية على الأقسام,Budget distribution,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Department allocation,GET /api/budgets/summary,Orders,budget-e2e;flutter-budget,Implemented,Automated,Department category distribution from order snapshots
+286,288,الصرف حسب الفئة,Spend by category,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Category chart,GET /api/budgets/summary,Orders,budget-e2e;flutter-budget,Implemented,Automated,Ranked category bars with exact totals
+287,289,أعلى مراكز التكلفة استهلاكًا,Highest consuming centers,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Center ranking,GET /api/budgets/summary,CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Utilization and health ranking
+288,290,مقارنة الميزانية بالصرف الفعلي,Budget vs actual,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets/centers/:id,Actual comparison,GET /api/budgets/centers/{id},CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Monthly actual bars against annual plan
+289,291,التوقعات المستقبلية,Budget forecast,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Forecast,GET /api/budgets/summary,CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Average monthly spend projected through year end
+290,292,تنبيهات الميزانية,Budget alerts,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Alerts,GET /api/budgets/alerts,CostCenters,budget-e2e;flutter-budget,Implemented,Automated,80 percent warning 100 percent critical and forecast alerts
+291,293,طلب تعديل الميزانية,Budget adjustment request,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets/centers/:id,Adjustment dialog,POST /api/budgets/adjustment-requests,BudgetAdjustmentRequests;CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Duplicate prevention reason validation and role-protected decision
 292,294,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
 293,295,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
 294,296,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,

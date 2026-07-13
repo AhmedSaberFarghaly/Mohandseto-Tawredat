@@ -21,6 +21,7 @@ import '../../features/rfq/rfqs_screen.dart';
 import '../../features/orders/orders_screen.dart';
 import '../../features/returns/returns_screen.dart';
 import '../../features/finance/finance_screen.dart';
+import '../../features/budgets/budgets_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -146,6 +147,17 @@ final appRouter = GoRouter(
       name: 'invoice-detail',
       builder: (context, state) =>
           InvoiceDetailScreen(id: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/budgets',
+      name: 'budgets',
+      builder: (context, state) => const BudgetsScreen(),
+    ),
+    GoRoute(
+      path: '/budgets/centers/:id',
+      name: 'budget-center',
+      builder: (context, state) =>
+          BudgetCenterScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/products/:idOrSlug',

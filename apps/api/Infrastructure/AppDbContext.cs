@@ -117,6 +117,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
     public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     public DbSet<CreditLimitRequest> CreditLimitRequests => Set<CreditLimitRequest>();
+    public DbSet<BudgetAdjustmentRequest> BudgetAdjustmentRequests => Set<BudgetAdjustmentRequest>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -189,6 +190,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Invoice>().HasIndex(x => new { x.TenantId, x.Status, x.DueAt });
         b.Entity<InvoicePayment>().HasIndex(x => x.Reference).IsUnique();
         b.Entity<CreditLimitRequest>().HasIndex(x => new { x.TenantId, x.Status, x.CreatedAt });
+        b.Entity<BudgetAdjustmentRequest>().HasIndex(x => new { x.TenantId, x.CostCenterId, x.Status, x.CreatedAt });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -288,6 +290,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<InvoiceLine>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<InvoicePayment>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CreditLimitRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<BudgetAdjustmentRequest>().HasQueryFilter(e => !e.IsDeleted && !e.CostCenter.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

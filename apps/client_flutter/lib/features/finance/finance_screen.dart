@@ -29,6 +29,11 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
       title: const Text('الفواتير والمدفوعات'),
       actions: [
         IconButton(
+          onPressed: () => context.push('/budgets'),
+          icon: const Icon(Icons.pie_chart_outline),
+          tooltip: 'الميزانيات ومراكز التكلفة',
+        ),
+        IconButton(
           onPressed: _export,
           icon: const Icon(Icons.file_download_outlined),
           tooltip: 'تصدير Excel',
