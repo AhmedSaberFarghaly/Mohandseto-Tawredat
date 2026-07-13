@@ -254,30 +254,30 @@
 251,253,إشعار رصيد دائن,Credit balance notice,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Credit balance,GET /api/returns/{id},RefundTransactions;Notifications,returns-e2e;flutter-returns,Implemented,Automated,Company credit balance refund method
 252,254,استرداد المبلغ,Refund completed,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Refund success,POST /api/admin/returns/{id}/progress,RefundTransactions;ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Provider reference amount method and completion timestamp
 253,255,اكتمال طلب الإرجاع,Return completed,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Completed,GET /api/returns/{id},ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Terminal refund or replacement completion state
-254,256,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-255,257,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-256,258,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-257,259,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-258,260,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-259,261,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-260,262,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-261,263,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-262,264,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-263,265,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-264,266,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-265,267,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-266,268,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-267,269,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-268,270,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-269,271,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-270,272,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-271,273,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-272,274,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-273,275,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-274,276,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-275,277,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-276,278,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
-277,279,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
+254,256,مركز الفواتير,Invoice center,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Summary tabs,GET /api/finance/summary,Invoices;InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Outstanding overdue due-soon credit and payments dashboard
+255,257,قائمة الفواتير,Invoices list,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Invoice filters,GET /api/finance/invoices,Invoices;Orders,finance-e2e;flutter-finance,Implemented,Automated,Status date and order-number states
+256,258,تفاصيل الفاتورة,Invoice details,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Details,GET /api/finance/invoices/{id},Invoices;InvoiceLines;InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Immutable order tax totals lines and payment snapshot
+257,259,تحميل الفاتورة PDF,Download invoice PDF,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,PDF action,GET /api/finance/invoices/{id}/pdf,Invoices;InvoiceLines,finance-e2e;flutter-finance,Implemented,Automated,Valid generated tax invoice PDF
+258,260,مشاركة الفاتورة,Share invoice,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Share action,GET /api/finance/invoices/{id},Invoices,flutter-finance,Implemented,Automated,Copies invoice order total outstanding and due summary
+259,261,فاتورة ضريبية إلكترونية,Electronic tax invoice,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,QR verification,GET /api/finance/invoices/{id},Invoices,finance-e2e;flutter-finance,Implemented,Automated,Tax number ETA UUID support and deterministic QR payload
+260,262,الرصيد المستحق,Outstanding balance,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Outstanding hero,GET /api/finance/summary,Invoices,finance-e2e;flutter-finance,Implemented,Automated,Total open amount calculated from immutable invoices and verified payments
+261,263,فاتورة مستحقة,Invoice due,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Due state,GET /api/finance/invoices/{id},Invoices,finance-e2e;flutter-finance,Implemented,Automated,Issue due status and remaining amount
+262,264,تفاصيل الدفعة,Payment details,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Payment timeline,GET /api/finance/invoices/{id},InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Reference bank reference receipt verification and rejection details
+263,265,المدفوعات السابقة,Previous payments,الفواتير والمدفوعات | Invoices & Payments,client,/finance,History,GET /api/finance/summary,InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Verified recent payment history
+264,266,المبالغ المستحقة,Amounts due,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Due metrics,GET /api/finance/summary,Invoices,finance-e2e;flutter-finance,Implemented,Automated,Open overdue and seven-day buckets
+265,267,تقويم الاستحقاق,Payment calendar,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Upcoming calendar,GET /api/finance/summary,Invoices,finance-e2e;flutter-finance,Implemented,Automated,Chronological upcoming invoice due dates
+266,268,تنبيه فاتورة متأخرة,Overdue invoice alert,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Overdue state,GET /api/finance/summary,Invoices,finance-e2e;flutter-finance,Implemented,Automated,Automatic overdue status refresh and late-day indicator
+267,269,بدء التحويل البنكي,Initiate bank transfer,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Payment dialog,POST /api/finance/invoices/{id}/payments,InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Validates amount against outstanding and issues unique reference
+268,270,رفع إيصال التحويل,Upload transfer receipt,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Receipt upload,POST /api/finance/payments/{id}/receipt,InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Secure owner-scoped JPG PNG PDF evidence
+269,271,تتبع التحويل,Track transfer,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Payment tracking,GET /api/finance/invoices/{id},InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Initiated pending verification completed rejected and failed states
+270,272,تأكيد استلام الدفع,Payment confirmation,الفواتير والمدفوعات | Invoices & Payments,client,/finance/invoices/:id,Payment success,POST /api/admin/finance/payments/{id}/decision,InvoicePayments;Invoices;Notifications,finance-e2e;flutter-finance,Implemented,Automated,Role-protected verification updates paid and invoice status atomically
+271,273,الحد الائتماني,Credit limit,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Credit card,GET /api/finance/summary,Companies;Invoices,finance-e2e;flutter-finance,Implemented,Automated,Company limit utilization and availability
+272,274,المستخدم من الحد,Used credit,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Utilization,GET /api/finance/summary,Companies;Invoices,finance-e2e;flutter-finance,Implemented,Automated,Outstanding-backed used credit and percentage
+273,275,المتبقي من الحد,Available credit,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Available credit,GET /api/finance/summary,Companies;Invoices,finance-e2e;flutter-finance,Implemented,Automated,Non-negative available credit calculation
+274,276,طلب حد ائتماني,Credit limit application,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Credit request,POST /api/finance/credit-limit-requests,CreditLimitRequests;Companies,finance-e2e;flutter-finance,Implemented,Automated,Requested limit and business reason validation
+275,277,طلب زيادة الحد,Increase credit limit,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Increase request,POST /api/finance/credit-limit-requests,CreditLimitRequests,finance-e2e;flutter-finance,Implemented,Automated,Prevents duplicate active requests and role-protected decision
+276,278,الفواتير المجمعة للشركة,Consolidated company invoices,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Company consolidated view,GET /api/finance/invoices,Invoices;Orders,finance-e2e;flutter-finance,Implemented,Automated,Tenant-wide invoice center across company orders
+277,279,تصدير كشف حساب Excel,Export invoices Excel,الفواتير والمدفوعات | Invoices & Payments,client,/finance,Excel export,GET /api/finance/invoices/export,Invoices;InvoicePayments,finance-e2e;flutter-finance,Implemented,Automated,Valid XLSX workbook with totals paid outstanding and dates
 278,280,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
 279,281,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,
 280,282,,,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,,,,,,Pending,Pending,

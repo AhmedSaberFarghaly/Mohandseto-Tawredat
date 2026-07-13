@@ -113,6 +113,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ReturnAttachment> ReturnAttachments => Set<ReturnAttachment>();
     public DbSet<ReturnStatusHistory> ReturnStatusHistories => Set<ReturnStatusHistory>();
     public DbSet<RefundTransaction> RefundTransactions => Set<RefundTransaction>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+    public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
+    public DbSet<CreditLimitRequest> CreditLimitRequests => Set<CreditLimitRequest>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -180,6 +184,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ReturnRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.CreatedAt });
         b.Entity<ReturnItem>().HasIndex(x => new { x.ReturnRequestId, x.OrderItemId }).IsUnique();
         b.Entity<RefundTransaction>().HasIndex(x => x.ProviderReference).IsUnique();
+        b.Entity<Invoice>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<Invoice>().HasIndex(x => x.OrderId).IsUnique();
+        b.Entity<Invoice>().HasIndex(x => new { x.TenantId, x.Status, x.DueAt });
+        b.Entity<InvoicePayment>().HasIndex(x => x.Reference).IsUnique();
+        b.Entity<CreditLimitRequest>().HasIndex(x => new { x.TenantId, x.Status, x.CreatedAt });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -275,6 +284,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ReturnAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ReturnStatusHistory>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<RefundTransaction>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Invoice>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<InvoiceLine>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<InvoicePayment>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CreditLimitRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

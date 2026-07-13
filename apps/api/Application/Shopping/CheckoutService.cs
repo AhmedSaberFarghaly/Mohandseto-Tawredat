@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Application.Customization;
 using Mohandseto.Api.Application.Approvals;
+using Mohandseto.Api.Application.Finance;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
@@ -9,7 +10,7 @@ namespace Mohandseto.Api.Application.Shopping;
 
 public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts,
     PaymentGatewayService payments, IWebHostEnvironment environment, CustomizationService? customization = null,
-    IConfiguration? configuration = null, ApprovalService? approvals = null)
+    IConfiguration? configuration = null, ApprovalService? approvals = null, FinanceService? finance = null)
 {
     private static readonly Dictionary<string, string> AllowedAttachments = new(StringComparer.OrdinalIgnoreCase)
     { ["application/pdf"] = ".pdf", ["image/png"] = ".png", ["image/jpeg"] = ".jpg" };
@@ -229,6 +230,7 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         order.History.Add(new OrderStatusHistory { TenantId = tenantId, Status = order.Status, ChangedBy = userId,
             Note = order.RequiresApproval ? "أرسل الطلب للموافقة الداخلية" : "تم تأكيد الطلب" });
         db.Orders.Add(order); session.Status = CheckoutStatus.Submitted; session.Cart.Status = CartStatus.Converted;
+        finance?.IssueForOrder(order);
         if (order.RequiresApproval) center.ReservedAmount += order.Total; else center.UsedAmount += order.Total;
         if (order.RequiresApproval && approvals is not null)
             await approvals.CreateForOrderAsync(order, review.BudgetExceeded, userId, ct);

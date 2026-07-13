@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Approvals;
+using Mohandseto.Api.Application.Finance;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
@@ -10,7 +11,7 @@ using Mohandseto.Api.Infrastructure;
 namespace Mohandseto.Api.Application.Rfq;
 
 public sealed class RfqService(AppDbContext db, ITenantProvider tenantProvider, IWebHostEnvironment environment,
-    ApprovalService? approvals = null)
+    ApprovalService? approvals = null, FinanceService? finance = null)
 {
     private static readonly Dictionary<string, (RfqAttachmentType Type, string Ext)> AllowedFiles = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -189,7 +190,7 @@ public sealed class RfqService(AppDbContext db, ITenantProvider tenantProvider, 
             Sku = await db.Products.Where(p => p.Id == item.ProductId).Select(p => p.Sku).FirstAsync(ct), NameAr = item.DescriptionAr,
             Quantity = decimal.ToInt32(item.Quantity), UnitPrice = item.UnitPrice, LineTotal = item.LineTotal });
         order.History.Add(new OrderStatusHistory { TenantId = TenantId(), Status = order.Status, ChangedBy = userId, Note = $"تحويل من {rfq.Number}" });
-        db.Orders.Add(order); if (requiresApproval) { center.ReservedAmount += order.Total; if (approvals is not null) await approvals.CreateForOrderAsync(order, version.Total > available, userId, ct); }
+        db.Orders.Add(order); finance?.IssueForOrder(order); if (requiresApproval) { center.ReservedAmount += order.Total; if (approvals is not null) await approvals.CreateForOrderAsync(order, version.Total > available, userId, ct); }
         else center.UsedAmount += order.Total;
         rfq.Status = RfqStatus.Converted; rfq.ConvertedOrderId = order.Id; await db.SaveChangesAsync(ct);
         return new(order.Id, order.Number, order.Status.ToString(), order.RequiresApproval, order.Total);

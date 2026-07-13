@@ -12,6 +12,7 @@ using Mohandseto.Api.Application.Approvals;
 using Mohandseto.Api.Application.Rfq;
 using Mohandseto.Api.Application.Orders;
 using Mohandseto.Api.Application.Returns;
+using Mohandseto.Api.Application.Finance;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -70,6 +71,7 @@ builder.Services.AddScoped<ApprovalService>();
 builder.Services.AddScoped<RfqService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ReturnService>();
+builder.Services.AddScoped<FinanceService>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

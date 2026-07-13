@@ -2,11 +2,11 @@
 
 ## Current execution checkpoint — 2026-07-13
 
-- Overall implementation gate: **57%**.
-- M5 is complete. Orders/tracking (204–235) and returns/replacements (236–255) are complete inside M6; invoices/payments, budgets and account are next.
-- Database: **13 migrations** through `ReturnsWorkflow`, verified against a fresh SQLite database.
-- Automated verification: **32 backend tests + 15 Flutter tests**, with clean Flutter static analysis.
-- Implemented M6 capabilities now include fulfillment/tracking, secure delivery confirmation, issues and ratings, plus the complete return eligibility, pickup, inspection, refund and replacement lifecycle.
+- Overall implementation gate: **60%**.
+- M5 is complete. Orders/tracking (204–235), returns/replacements (236–255) and invoices/payments (256–279) are complete inside M6; budgets and company account are next.
+- Database: **14 migrations** through `FinanceWorkflow`, verified against a fresh SQLite database.
+- Automated verification: **33 backend tests + 17 Flutter tests**, with clean Flutter static analysis.
+- Implemented M6 capabilities now also include tax invoices, electronic QR/PDF/XLSX, outstanding and overdue calendars, bank-transfer verification and company credit-limit workflows.
 
 > يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Enterprise Checkout).
 

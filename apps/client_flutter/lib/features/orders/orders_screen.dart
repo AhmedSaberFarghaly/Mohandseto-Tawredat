@@ -32,6 +32,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         title: const Text('طلباتي'),
         actions: [
           IconButton(
+            onPressed: () => context.push('/finance'),
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            tooltip: 'الفواتير والمدفوعات',
+          ),
+          IconButton(
             onPressed: () => context.push('/returns'),
             icon: const Icon(Icons.assignment_return_outlined),
             tooltip: 'مركز المرتجعات',
