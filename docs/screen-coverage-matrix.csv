@@ -402,28 +402,28 @@
 399,401,الطلبات المتأخرة,Late orders,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Late view,GET /api/admin/orders?overdue=true,Orders;Companies,admin-orders-api;admin-build,Implemented,Automated,Deadline-based live escalation queue and KPI
 400,402,الطلبات المجدولة,Scheduled orders,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Scheduled view,GET /api/admin/orders/recurring,RecurringOrderSchedules;Orders,admin-orders-api;admin-build,Implemented,Automated,Next-run company frequency status and estimated value
 401,403,الطلبات المتكررة,Recurring orders admin,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Recurring management,GET and POST /api/admin/orders/recurring,RecurringOrderSchedules;Orders;Companies,admin-orders-api;admin-build,Implemented,Automated,Platform-wide recurring KPIs pause resume and scheduling controls
-402,404,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-403,405,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-404,406,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-405,407,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-406,408,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-407,409,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-408,410,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-409,411,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-410,412,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-411,413,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-412,414,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-413,415,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-414,416,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-415,417,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-416,418,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-417,419,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-418,420,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-419,421,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-420,422,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-421,423,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-422,424,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
-423,425,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
+402,404,قائمة طلبات عروض الأسعار,RFQ list,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes,List and KPI views,GET /api/admin/quotes,Rfqs;CustomerQuotes;Companies,admin-quotes-api;admin-build;admin-http,Implemented,Automated,Search status queues pagination export and live KPIs
+403,405,تفاصيل طلب عرض السعر,RFQ details,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Details workspace,GET /api/admin/quotes/{id},Rfqs;RfqItems;CustomerQuotes,admin-quotes-api;admin-build,Implemented,Automated,Customer deadline progress and operational tabs
+404,406,استخراج الأصناف من الملف,Extract items from file,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Extraction review,GET /api/admin/quotes/{id},RfqAttachments;RfqItems,admin-quotes-api;admin-build,Implemented,Automated,Surfaces source confidence and review state from client upload pipeline
+405,407,مراجعة المنتجات المطلوبة,Review requested products,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Item review modal,POST /api/admin/quotes/{id}/items/{itemId}/review,RfqItems,admin-quotes-api;admin-build,Implemented,Automated,Validated quantity unit specifications brand and alternatives
+406,408,ربط بمنتج موجود,Link existing product,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Catalog link modal,GET products; POST item link,RfqItems;Products,admin-quotes-api;admin-build,Implemented,Automated,Active product lookup with SKU snapshot
+407,409,إنشاء منتج مؤقت,Create temporary product,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Temporary product modal,POST /api/admin/quotes/{id}/items/{itemId}/temporary,RfqTemporaryProducts;RfqItems,admin-quotes-api;admin-build,Implemented,Automated,Estimate cost lead time and specifications without catalog pollution
+408,410,طلب سعر من مورد,Request supplier price,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Supplier request modal,POST /api/admin/quotes/{id}/supplier-requests,Suppliers;SupplierQuoteRequests,admin-quotes-api;admin-build,Implemented,Automated,Existing or new supplier deadline contact and request tracking
+409,411,مقارنة أسعار الموردين,Compare supplier prices,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Comparison matrix,POST supplier-quotes; GET detail,SupplierQuotes;SupplierQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Per-item best-price highlighting totals validity and alternatives
+410,412,حساب هامش الربح,Profit margin calculation,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Pricing analysis,POST /api/admin/quotes/{id}/versions,CustomerQuoteItems;SupplierQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Cost sale profit and margin per line
+411,413,تحديد مدة التوريد,Set supply duration,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Lead-time fields,POST /api/admin/quotes/{id}/versions,CustomerQuoteVersions;CustomerQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Per-line and overall supply durations
+412,414,إنشاء عرض سعر,Create quotation,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Quote builder,POST /api/admin/quotes/{id}/versions,CustomerQuotes;CustomerQuoteVersions;CustomerQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Server totals tax shipping validation and draft or immediate send
+413,415,إضافة بدائل,Add alternatives,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Alternative lines,POST /api/admin/quotes/{id}/versions,CustomerQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Alternative flag product and reason retained per version
+414,416,إضافة خصم,Add discount,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Discount controls,POST /api/admin/quotes/{id}/versions,CustomerQuoteVersions,admin-quotes-api;admin-build,Implemented,Automated,None percent and fixed discount with bounded server calculation
+415,417,إضافة شروط الدفع,Add payment terms,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Terms editor,POST /api/admin/quotes/{id}/versions,CustomerQuoteVersions,admin-quotes-api;admin-build,Implemented,Automated,Versioned payment and delivery conditions
+416,418,إرسال العرض للعميل,Send quote to customer,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Send action,POST /api/admin/quotes/{id}/versions/{versionId}/send,CustomerQuotes;Notifications,admin-quotes-api;admin-http,Implemented,Automated,Expiry check status transition and customer notification
+417,419,تعديل عرض السعر,Edit quotation,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],New revision builder,POST /api/admin/quotes/{id}/versions,CustomerQuoteVersions;CustomerQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Loads latest commercial values and creates immutable revision
+418,420,سجل نسخ عرض السعر,Quote version history,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Versions timeline,GET detail; GET version PDF,CustomerQuoteVersions;CustomerQuoteItems,admin-quotes-api;admin-build,Implemented,Automated,Totals changes validity sent state and PDF per version
+419,421,متابعة التفاوض,Track negotiation,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Negotiation timeline,POST /api/admin/quotes/{id}/negotiate,QuoteNegotiations;CustomerQuotes,admin-quotes-api;admin-build,Implemented,Automated,Staff and customer messages counteroffers revisions and clarification
+420,422,قبول عرض السعر,Quote accepted,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Acceptance state,POST /api/admin/quotes/{id}/versions/{versionId}/accept,Rfqs;CustomerQuotes,admin-quotes-api;admin-build,Implemented,Automated,Version validity and accepted-version lock
+421,423,تحويل العرض إلى طلب,Convert quote to order,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes/[id],Conversion modal,GET conversion-options; POST convert,Orders;OrderItems;CostCenters;Rfqs,admin-quotes-api;admin-build,Implemented,Automated,Tenant-scoped branch cost center receiver budget and approval handling
+422,424,عروض الأسعار المنتهية,Expired quotes,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes,Expired queue,GET /api/admin/quotes?statuses=Expired,CustomerQuoteVersions;Rfqs,admin-quotes-api;admin-build,Implemented,Automated,Effective expiry status KPI and filtered queue
+423,425,قوالب عروض الأسعار,Quote templates,إدارة عروض الأسعار | Quotes Management,admin,/dashboard/quotes,Templates view,GET POST PUT /api/admin/quotes/templates,QuoteTemplates,admin-quotes-api;admin-build;admin-http,Implemented,Automated,Reusable validity lead time terms and discount presets
 424,426,قائمة المنتجات,Products list,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Products table,GET /api/admin/catalog/products,Products,admin-build,Implemented,Automated,Search pagination and stock states
 425,427,إضافة منتج,Create product,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Create modal,POST /api/admin/catalog/products,Products,admin-build,Implemented,Automated,Validated BFF mutation
 426,428,تعديل منتج,Edit product,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Edit modal,PUT /api/admin/catalog/products/{id},Products,admin-build,Implemented,Automated,Loads current values

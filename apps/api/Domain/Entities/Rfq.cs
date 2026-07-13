@@ -18,6 +18,7 @@ public class Rfq : TenantEntity
     public string? DeliveryGovernorate { get; set; }
     public Guid? AcceptedQuoteId { get; set; }
     public Guid? ConvertedOrderId { get; set; }
+    public Guid? AssignedStaffId { get; set; }
     public ICollection<RfqItem> Items { get; set; } = [];
     public ICollection<RfqAttachment> Attachments { get; set; } = [];
     public ICollection<CustomerQuote> Quotes { get; set; } = [];
@@ -63,6 +64,19 @@ public class SupplierQuoteRequest : TenantEntity
     public string Status { get; set; } = "Sent";
 }
 
+public class Supplier : BaseEntity
+{
+    public string Code { get; set; } = string.Empty;
+    public string NameAr { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
+    public string? ContactName { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public int TypicalLeadDays { get; set; } = 3;
+    public decimal Rating { get; set; } = 5;
+    public bool IsActive { get; set; } = true;
+}
+
 public class SupplierQuote : TenantEntity
 {
     public Guid RfqId { get; set; }
@@ -104,6 +118,9 @@ public class CustomerQuoteVersion : TenantEntity
     public decimal Subtotal { get; set; }
     public decimal Tax { get; set; }
     public decimal Shipping { get; set; }
+    public string DiscountType { get; set; } = "None";
+    public decimal DiscountValue { get; set; }
+    public decimal DiscountAmount { get; set; }
     public decimal Total { get; set; }
     public DateTime ValidUntil { get; set; }
     public int DeliveryDays { get; set; }
@@ -123,9 +140,32 @@ public class CustomerQuoteItem : TenantEntity
     public decimal Quantity { get; set; }
     public string UnitName { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
+    public decimal CostPrice { get; set; }
+    public int DeliveryDays { get; set; }
     public decimal LineTotal { get; set; }
     public bool IsAlternative { get; set; }
     public string? AlternativeReason { get; set; }
+}
+
+public class RfqTemporaryProduct : TenantEntity
+{
+    public Guid RfqItemId { get; set; }
+    public string NameAr { get; set; } = string.Empty;
+    public string? Specifications { get; set; }
+    public decimal EstimatedCost { get; set; }
+    public int DeliveryDays { get; set; }
+}
+
+public class QuoteTemplate : BaseEntity
+{
+    public string NameAr { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int ValidDays { get; set; } = 14;
+    public int DeliveryDays { get; set; } = 5;
+    public string? Terms { get; set; }
+    public string DiscountType { get; set; } = "None";
+    public decimal DiscountValue { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public enum NegotiationMessageType { Message, CounterOffer, RevisionRequest, Clarification }

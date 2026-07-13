@@ -3,9 +3,12 @@
 All notable changes to Mohandseto Tawredat are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Versioning per milestone (v0.1.0 → v1.0.0).
 
-## [Unreleased] — Milestone 3 in progress
+## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Full admin quote-operations workspace for screens 404–425: RFQ queues, extraction review, product linking, supplier price requests and comparison, profit margins, versioned customer quotes, discounts, terms, negotiation, acceptance, order conversion and templates.
+- `AdminQuoteOperations` migration with suppliers, temporary RFQ products, quote templates and commercial version fields.
+- End-to-end admin quote lifecycle coverage plus authenticated HTTP verification through the Next.js BFF.
 - Catalog API with categories, brands, products, search, filters, sorting, pagination, details, variants, quantity tiers, contract pricing, favorites, compare, and recently viewed.
 - Idempotent catalog seed: 12 main categories, 40 subcategories, 10 brands, 6 units, and 250 products.
 - Flutter home, category hierarchy, product listing, filters, favorites, and product details.

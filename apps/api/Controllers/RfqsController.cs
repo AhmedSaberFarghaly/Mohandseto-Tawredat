@@ -26,7 +26,7 @@ public sealed class RfqsController(RfqService rfqs) : ControllerBase
     [HttpGet("{id:guid}/quotes/{versionId:guid}/pdf")] public async Task<IActionResult> Pdf(Guid id, Guid versionId, CancellationToken ct) => File(await rfqs.QuotePdfAsync(UserId, id, versionId, ct), "application/pdf", $"quote-{id:N}.pdf");
 }
 
-[ApiController, Authorize(Roles = "platform_admin,quotes_officer,sales_manager"), Route("api/admin/rfqs")]
+[ApiController, Authorize(Roles = "super_admin,platform_admin,quotes_officer,sales_manager,sales_agent,operations_manager"), Route("api/admin/rfqs")]
 public sealed class AdminRfqsController(RfqService rfqs) : ControllerBase
 {
     private Guid UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub"), out var id) ? id : throw ApiException.Unauthorized();

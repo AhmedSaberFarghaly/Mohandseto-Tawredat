@@ -177,19 +177,19 @@ public sealed class RfqService(AppDbContext db, ITenantProvider tenantProvider, 
         var rfq = await OwnedAsync(userId, id, ct); if (rfq.Status != RfqStatus.Accepted || rfq.AcceptedQuoteId is null) throw ApiException.Conflict("يجب قبول عرض سعر صالح أولًا");
         var quote = await db.CustomerQuotes.Include(q => q.Versions).ThenInclude(v => v.Items).FirstAsync(q => q.Id == rfq.AcceptedQuoteId, ct);
         var version = quote.Versions.First(v => v.Id == quote.AcceptedVersionId); if (version.Items.Any(i => i.ProductId == null)) throw ApiException.Conflict("يجب ربط كل أصناف العرض بمنتجات الكتالوج قبل التحويل");
-        var branch = await db.CompanyBranches.AsNoTracking().FirstOrDefaultAsync(b => b.Id == dto.BranchId, ct) ?? throw ApiException.BadRequest("عنوان التوصيل غير صالح");
-        var center = await db.CostCenters.FirstOrDefaultAsync(c => c.Id == dto.CostCenterId && c.IsActive, ct) ?? throw ApiException.BadRequest("مركز التكلفة غير صالح");
+        var branch = await db.CompanyBranches.AsNoTracking().FirstOrDefaultAsync(b => b.Id == dto.BranchId && b.TenantId == rfq.TenantId, ct) ?? throw ApiException.BadRequest("عنوان التوصيل غير صالح");
+        var center = await db.CostCenters.FirstOrDefaultAsync(c => c.Id == dto.CostCenterId && c.TenantId == rfq.TenantId && c.IsActive, ct) ?? throw ApiException.BadRequest("مركز التكلفة غير صالح");
         var available = center.BudgetAmount - center.UsedAmount - center.ReservedAmount; var requiresApproval = version.Total > available || version.Total >= (center.ApprovalThreshold ?? 5000);
-        var order = new Order { TenantId = TenantId(), Number = $"ORD-{DateTime.UtcNow:yyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}", UserId = userId,
+        var order = new Order { TenantId = rfq.TenantId, Number = $"ORD-{DateTime.UtcNow:yyMMdd}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}", UserId = userId,
             BranchId = branch.Id, BranchName = branch.Name, DeliveryAddress = string.Join(" - ", new[] { branch.Governorate, branch.City, branch.AddressLine }.Where(x => !string.IsNullOrWhiteSpace(x))),
             ReceiverName = CleanRequired(dto.ReceiverName, 150), ReceiverPhone = CleanRequired(dto.ReceiverPhone, 30), RequiredDate = rfq.RequiredDate,
             ShippingMethod = ShippingMethod.Standard, PaymentMethod = PaymentMethod.BankTransfer, CostCenterId = center.Id, CostCenterCode = center.Code,
             CostCenterName = center.NameAr, RequestingDepartment = "طلب عرض أسعار", SourceRfqId = rfq.Id, Status = requiresApproval ? OrderStatus.PendingApproval : OrderStatus.Confirmed,
             RequiresApproval = requiresApproval, Subtotal = version.Subtotal, TaxIncluded = version.Tax, Shipping = version.Shipping, Total = version.Total };
-        foreach (var item in version.Items) order.Items.Add(new OrderItem { TenantId = TenantId(), ProductId = item.ProductId!.Value,
+        foreach (var item in version.Items) order.Items.Add(new OrderItem { TenantId = rfq.TenantId, ProductId = item.ProductId!.Value,
             Sku = await db.Products.Where(p => p.Id == item.ProductId).Select(p => p.Sku).FirstAsync(ct), NameAr = item.DescriptionAr,
             Quantity = decimal.ToInt32(item.Quantity), UnitPrice = item.UnitPrice, LineTotal = item.LineTotal });
-        order.History.Add(new OrderStatusHistory { TenantId = TenantId(), Status = order.Status, ChangedBy = userId, Note = $"تحويل من {rfq.Number}" });
+        order.History.Add(new OrderStatusHistory { TenantId = rfq.TenantId, Status = order.Status, ChangedBy = userId, Note = $"تحويل من {rfq.Number}" });
         db.Orders.Add(order); finance?.IssueForOrder(order); if (requiresApproval) { center.ReservedAmount += order.Total; if (approvals is not null) await approvals.CreateForOrderAsync(order, version.Total > available, userId, ct); }
         else center.UsedAmount += order.Total;
         rfq.Status = RfqStatus.Converted; rfq.ConvertedOrderId = order.Id; await db.SaveChangesAsync(ct);
@@ -199,8 +199,10 @@ public sealed class RfqService(AppDbContext db, ITenantProvider tenantProvider, 
     public async Task<RfqConversionOptionsDto> ConversionOptionsAsync(CancellationToken ct = default)
     {
         var tenantId = TenantId();
-        var branches = await db.CompanyBranches.AsNoTracking().OrderByDescending(b => b.IsMain).Select(b => new RfqBranchDto(b.Id, b.Name,
-            string.Join(" - ", new[] { b.Governorate, b.City, b.AddressLine }.Where(x => !string.IsNullOrWhiteSpace(x))))).ToListAsync(ct);
+        var branchRows = await db.CompanyBranches.AsNoTracking().OrderByDescending(b => b.IsMain)
+            .Select(b => new { b.Id, b.Name, b.Governorate, b.City, b.AddressLine }).ToListAsync(ct);
+        var branches = branchRows.Select(b => new RfqBranchDto(b.Id, b.Name,
+            string.Join(" - ", new[] { b.Governorate, b.City, b.AddressLine }.Where(x => !string.IsNullOrWhiteSpace(x))))).ToList();
         var centers = await db.CostCenters.AsNoTracking().Where(c => c.IsActive).OrderBy(c => c.Code).Select(c => new RfqCostCenterDto(c.Id, c.Code, c.NameAr,
             c.BudgetAmount - c.UsedAmount - c.ReservedAmount)).ToListAsync(ct);
         var receivers = await db.Users.AsNoTracking().Where(u => u.TenantId == tenantId && u.IsActive).OrderBy(u => u.FullName)
