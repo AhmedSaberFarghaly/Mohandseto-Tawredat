@@ -2,13 +2,13 @@
 
 ## Current execution checkpoint — 2026-07-14
 
-- Overall implementation gate: **82%**.
-- M6 is complete and M7 is in progress. Admin screens 369–465 now cover dashboards, orders, quotes, commercial products, categories, home content, policies and targeted communications; inventory and CRM are next.
-- Database: **22 migrations** through `AdminContentOperations`, verified against a fresh SQLite database.
-- Automated verification: **47 backend tests + 23 Flutter tests**, clean Flutter analysis, a clean Next.js production build/lint and authenticated BFF HTTP verification.
+- Overall implementation gate: **85%**.
+- M6 is complete and M7 is in progress. Admin screens 369–489 now cover dashboards, orders, quotes, commercial products, content, communications and full warehouse inventory operations; suppliers and CRM are next.
+- Database: **23 migrations** through `InventoryWarehouseOperations`, verified against a fresh SQLite database.
+- Automated verification: **49 backend tests + 23 Flutter tests**, clean Flutter analysis, a clean Next.js production build/lint and authenticated BFF HTTP verification.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-14 (Admin Content and Communications).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-14 (Inventory and Warehouse Operations).
 
 ## 1. وصف المشروع الحالي
 
@@ -20,7 +20,7 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 22 migrations حتى `AdminContentOperations` مطبقة ومختبرة على قاعدة فارغة |
+| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 23 migrations حتى `InventoryWarehouseOperations` مطبقة ومختبرة على قاعدة فارغة |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | دخول ولوحات حية + طلبات وعروض أسعار + إدارة منتجات تجارية كاملة |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
@@ -34,6 +34,7 @@
 | الكتالوج والرئيسية والبحث (شاشات 40–77) | 95% — البحث وسجله والمقارنة والتفاصيل والصور وتنزيل الملفات تعمل؛ الشركة والفروع مرتبطان بوحدة الشركات |
 | إدارة المنتجات التجارية | 100% — شاشات 426–450؛ الوسائط والمواصفات والمتغيرات والعبوات والتكلفة والهامش وأسعار الشركات والروابط وSEO وExcel والأسعار الجماعية وسجلها |
 | إدارة المحتوى والتواصل | 100% — شاشات 451–465؛ الأقسام وترتيب الرئيسية والبنرات والجدولة والاستهداف والصفحات والسياسات وFAQ والإشعارات والرسائل |
+| المخزون والمستودعات | 100% — شاشات 466–489؛ المخازن والأرصدة والحركات والتحويل والحجز والجرد والتتبع والباركود والاستلام والفحص والتقييم |
 | المنتجات المطبوعة والمخصصة (شاشات 78–108) | 100% — التخصيص والملفات والشعارات المحفوظة والتسعير ونسخ التصميم والاعتماد والسلة والعينة ومراحل الإنتاج تعمل |
 | السلة وCheckout (شاشات 109–151) | 100% — السلال المحفوظة والكوبونات والتوفر وملاحظات الأصناف وسياق الشركة والعناوين والدفع بكل حالاته والمرفقات والمراجعة والطلب تعمل |
 | الموافقات الداخلية (شاشات 152–167) | 100% — السياسات والمستويات والصندوق والقرارات والتعديل والتفويض والتعليقات والمرفقات والميزانية والتصعيد والإشعارات تعمل |
@@ -44,7 +45,7 @@
 | دخول ولوحات الإدارة | 100% — شاشات 369–381؛ 2FA واستعادة ودور ومؤشرات وتحليلات وتخصيص مرتبطة ببيانات فعلية |
 | إدارة الطلبات | 100% — شاشات 382–403؛ الفلاتر والتفاصيل والتشغيل والشحنات والتعاون والفواتير والاسترداد والأرشيف والتكرار |
 | إدارة عروض الأسعار | 100% — شاشات 404–425؛ الاستخراج والموردون والمقارنة والهامش والخصومات والنسخ والتفاوض والقبول والتحويل والقوالب |
-| المخزون وCRM وباقي الإدارة | قيد التنفيذ — شاشات 466–756 |
+| الموردون وCRM وباقي الإدارة | قيد التنفيذ — شاشات 490–756 |
 
 التتبع التفصيلي: `docs/screen-coverage-matrix.csv` (756 صفًا).
 
@@ -54,7 +55,7 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 47 اختبار Backend + 23 Flutter + Next lint/build وHTTP integration تغطي النطاق المنفذ |
+| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 49 اختبار Backend + 23 Flutter + Next lint/build وHTTP integration تغطي النطاق المنفذ |
 | 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
@@ -76,7 +77,7 @@
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
-6. **M7 (قيد التنفيذ — البوابة العامة 82%):** دخول الإدارة واللوحات والطلبات والعروض والمنتجات التجارية والمحتوى والتواصل مكتملة؛ المخزون والموردون وCRM هي الحزم التالية.
+6. **M7 (قيد التنفيذ — البوابة العامة 85%):** دخول الإدارة واللوحات والطلبات والعروض والمنتجات والمحتوى والمخزون مكتملة؛ الموردون والمشتريات وCRM هي الحزم التالية.
 5. M10: تصلّب نهائي + `v1.0.0`.
 
 ## 7. معايير الجاهزية للإنتاج

@@ -20,6 +20,7 @@ using Mohandseto.Api.Application.Admin;
 using Mohandseto.Api.Application.AdminOrders;
 using Mohandseto.Api.Application.AdminQuotes;
 using Mohandseto.Api.Application.AdminContent;
+using Mohandseto.Api.Application.AdminInventory;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped<AdminDashboardService>();
 builder.Services.AddScoped<AdminOrderService>();
 builder.Services.AddScoped<AdminQuoteService>();
 builder.Services.AddScoped<AdminContentService>();
+builder.Services.AddScoped<AdminInventoryService>();
 builder.Services.AddHostedService<ContentDispatchWorker>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();

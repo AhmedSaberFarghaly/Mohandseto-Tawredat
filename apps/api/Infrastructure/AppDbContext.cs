@@ -146,6 +146,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<HomeSection> HomeSections => Set<HomeSection>();
     public DbSet<HomeBanner> HomeBanners => Set<HomeBanner>();
     public DbSet<ContentDispatch> ContentDispatches => Set<ContentDispatch>();
+    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
+    public DbSet<WarehouseStock> WarehouseStocks => Set<WarehouseStock>();
+    public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
+    public DbSet<InventoryBatch> InventoryBatches => Set<InventoryBatch>();
+    public DbSet<InventorySerial> InventorySerials => Set<InventorySerial>();
+    public DbSet<StockCount> StockCounts => Set<StockCount>();
+    public DbSet<StockCountItem> StockCountItems => Set<StockCountItem>();
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+    public DbSet<GoodsReceiptItem> GoodsReceiptItems => Set<GoodsReceiptItem>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -251,6 +260,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<HomeBanner>().HasIndex(x => new { x.TargetTenantId, x.SortOrder });
         b.Entity<ContentDispatch>().HasIndex(x => new { x.Status, x.ScheduledAt });
         b.Entity<ContentDispatch>().HasIndex(x => new { x.TargetTenantId, x.CreatedAt });
+        b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<WarehouseStock>().HasIndex(x => new { x.WarehouseId, x.ProductId }).IsUnique();
+        b.Entity<WarehouseStock>().HasIndex(x => x.Barcode).IsUnique();
+        b.Entity<InventoryMovement>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<InventoryMovement>().HasIndex(x => new { x.WarehouseId, x.ProductId, x.CreatedAt });
+        b.Entity<InventoryBatch>().HasIndex(x => new { x.WarehouseId, x.ProductId, x.BatchNumber }).IsUnique();
+        b.Entity<InventoryBatch>().HasIndex(x => x.ExpiryAt);
+        b.Entity<InventorySerial>().HasIndex(x => x.SerialNumber).IsUnique();
+        b.Entity<StockCount>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<StockCountItem>().HasIndex(x => new { x.StockCountId, x.ProductId }).IsUnique();
+        b.Entity<GoodsReceipt>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<GoodsReceiptItem>().HasIndex(x => new { x.GoodsReceiptId, x.ProductId }).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -379,6 +400,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<HomeSection>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<HomeBanner>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<ContentDispatch>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<Warehouse>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<WarehouseStock>().HasQueryFilter(e => !e.IsDeleted && !e.Warehouse.IsDeleted && !e.Product.IsDeleted);
+        b.Entity<InventoryMovement>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<InventoryBatch>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<InventorySerial>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<StockCount>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<StockCountItem>().HasQueryFilter(e => !e.IsDeleted && !e.StockCount.IsDeleted);
+        b.Entity<GoodsReceipt>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<GoodsReceiptItem>().HasQueryFilter(e => !e.IsDeleted && !e.GoodsReceipt.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

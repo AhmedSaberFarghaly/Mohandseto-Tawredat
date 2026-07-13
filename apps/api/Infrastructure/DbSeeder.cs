@@ -166,6 +166,7 @@ public static class DbSeeder
         }
         await db.SaveChangesAsync();
         await CatalogSeeder.SeedAsync(db, logger);
+        await InventorySeeder.SeedAsync(db, logger);
         await CustomizationSeeder.SeedAsync(db, logger);
     }
 }

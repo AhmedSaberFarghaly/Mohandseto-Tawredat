@@ -464,30 +464,30 @@
 461,463,إدارة السياسات,Policies Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Policies content view,GET/POST/PUT content pages,ContentPages,admin-content;admin-build,Implemented,Automated,Terms privacy returns and shipping policy classification
 462,464,إشعارات التطبيق,App Notifications,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Notification campaign editor,POST content/dispatches,ContentDispatches;AppNotifications,admin-content;admin-build,Implemented,Automated,Immediate scheduled global and company-targeted delivery
 463,465,رسائل داخل التطبيق,In-app Messages,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,In-app message campaign editor,POST content/dispatches,ContentDispatches;AppNotifications,admin-content;admin-build,Implemented,Automated,Audited recipients scheduling and exactly-once status guard
-464,466,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-465,467,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-466,468,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-467,469,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-468,470,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-469,471,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-470,472,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-471,473,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-472,474,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-473,475,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-474,476,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-475,477,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-476,478,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-477,479,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-478,480,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-479,481,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-480,482,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-481,483,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-482,484,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-483,485,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-484,486,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-485,487,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-486,488,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
-487,489,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
+464,466,لوحة المخزون,Inventory Dashboard,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Overview KPIs and alerts,GET admin/inventory,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Value units reservations low and out-of-stock KPIs
+465,467,قائمة المخازن,Warehouses List,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Warehouses tab,GET admin/inventory,Warehouses;WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Warehouse cards with stock totals and value
+466,468,تفاصيل المخزن,Warehouse Details,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Warehouse editor,POST/PUT warehouses,Warehouses,admin-inventory;admin-build,Implemented,Automated,Validated code address governorate and activation
+467,469,المخزون الحالي,Current Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Stock ledger table,GET admin/inventory,WarehouseStocks;Products,admin-inventory;admin-build,Implemented,Automated,On-hand reserved available reorder and valuation
+468,470,حركات المخزون,Stock Movements,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Movements audit tab,GET admin/inventory,InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Immutable numbered movement ledger with balances
+469,471,إضافة مخزون,Add Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Add stock editor,POST inventory/adjust,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Atomic stock addition with optional tracking data
+470,472,خصم مخزون,Deduct Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Deduct stock editor,POST inventory/adjust,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Available-balance guard and reason audit
+471,473,تحويل بين المخازن,Warehouse Transfer,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Transfer editor,POST inventory/transfer,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Atomic paired transfer-out and transfer-in entries
+472,474,جرد المخزون,Stock Count,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Stock count session,POST inventory/counts,StockCounts;StockCountItems,admin-inventory;admin-build,Implemented,Automated,System snapshot per warehouse
+473,475,تسوية المخزون,Stock Reconciliation,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Count reconciliation editor,POST counts/reconcile,StockCounts;WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Difference reasons and exactly-once reconciliation
+474,476,المنتجات منخفضة المخزون,Low Stock Products,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Low stock filter,GET admin/inventory,WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Available quantity compared with reorder level
+475,477,المنتجات النافدة,Out of Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Out-of-stock filter,GET admin/inventory,WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Zero on-hand alert and KPI
+476,478,حجز مخزون لطلب,Reserve Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Reserve stock editor,POST inventory/reserve,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Reference-aware reservation with availability guard
+477,479,تحرير المخزون المحجوز,Release Reserved Stock,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Release reserved editor,POST inventory/reserve,WarehouseStocks;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Reserved-balance guard and release audit
+478,480,أرقام التشغيلات,Batch Numbers,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Batches tracking table,POST inventory/adjust; GET inventory,InventoryBatches,admin-inventory;admin-build,Implemented,Automated,Unique warehouse product batch tracking
+479,481,الأرقام التسلسلية للأجهزة,Serial Numbers,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Serial tracking table,POST inventory/adjust; GET inventory,InventorySerials,admin-inventory;admin-build,Implemented,Automated,Global uniqueness and batch association
+480,482,تواريخ الصلاحية,Expiry Dates,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Expiry status table,GET admin/inventory,InventoryBatches,admin-inventory;admin-build,Implemented,Automated,Valid expiring expired and no-expiry states
+481,483,مواقع الرفوف,Shelf Locations,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Stock metadata editor,PUT stocks/metadata,WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Persisted shelf position per warehouse product
+482,484,إدارة الباركود,Barcode Management,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Barcode labels sheet,PUT stocks/metadata,WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Unique barcode assignment and label preview
+483,485,طباعة باركود,Print Barcode,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Print barcode action,Browser print,WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Print-specific responsive label stylesheet
+484,486,استلام مشتريات المورد,Receive Supplier Goods,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Goods receipt editor,POST inventory/receipts,GoodsReceipts;GoodsReceiptItems;Suppliers,admin-inventory;admin-build,Implemented,Automated,Validated receipt pending inspection
+485,487,فحص الاستلام,Receiving Inspection,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Inspection editor,POST receipts/inspect,GoodsReceipts;WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Full-item accepted and damaged quantity validation
+486,488,رفض كمية تالفة,Reject Damaged,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Damaged quantity decision,POST receipts/inspect,GoodsReceiptItems;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Rejected damaged audit without inflating stock
+487,489,تقرير تقييم المخزون,Inventory Valuation Report,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Valuation overview,GET admin/inventory,WarehouseStocks;Products,admin-inventory;admin-build,Implemented,Automated,Per-item warehouse and total cost valuation
 488,490,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
 489,491,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
 490,492,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
