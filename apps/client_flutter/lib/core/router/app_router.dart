@@ -22,11 +22,10 @@ import '../../features/orders/orders_screen.dart';
 import '../../features/returns/returns_screen.dart';
 import '../../features/finance/finance_screen.dart';
 import '../../features/budgets/budgets_screen.dart';
+import '../../features/account/account_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
-import '../../features/home/placeholder_screen.dart';
-import 'package:flutter/material.dart';
 import '../../features/startup/splash_screen.dart';
 
 final appRouter = GoRouter(
@@ -94,11 +93,57 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/account',
           name: 'account',
-          builder: (context, state) => const PlaceholderScreen(
-            title: 'حسابي',
-            icon: Icons.person_outline_rounded,
-            message: 'سيتم استكمال بيانات الحساب والمستخدمين والإعدادات.',
-          ),
+          builder: (context, state) => const AccountScreen(),
+          routes: [
+            GoRoute(
+              path: 'profile',
+              builder: (_, _) => const ProfileEditorScreen(),
+            ),
+            GoRoute(
+              path: 'company',
+              builder: (_, _) => const CompanyAccountScreen(),
+            ),
+            GoRoute(
+              path: 'documents',
+              builder: (_, _) => const AccountDocumentsScreen(),
+            ),
+            GoRoute(
+              path: 'branches',
+              builder: (_, _) => const BranchesScreen(),
+            ),
+            GoRoute(
+              path: 'users',
+              builder: (_, _) => const CompanyUsersScreen(),
+            ),
+            GoRoute(
+              path: 'roles',
+              builder: (_, _) => const RolesPermissionsScreen(),
+            ),
+            GoRoute(
+              path: 'approvals',
+              builder: (_, _) => const ApprovalSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'cost-centers',
+              builder: (_, _) => const CostCentersSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'audit',
+              builder: (_, _) => const AccountAuditScreen(),
+            ),
+            GoRoute(
+              path: 'brand',
+              builder: (_, _) => const BrandSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'billing',
+              builder: (_, _) => const BillingSettingsScreen(),
+            ),
+            GoRoute(
+              path: 'contracts',
+              builder: (_, _) => const CompanyContractsScreen(),
+            ),
+          ],
         ),
         GoRoute(
           path: '/products',

@@ -118,6 +118,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     public DbSet<CreditLimitRequest> CreditLimitRequests => Set<CreditLimitRequest>();
     public DbSet<BudgetAdjustmentRequest> BudgetAdjustmentRequests => Set<BudgetAdjustmentRequest>();
+    public DbSet<CompanyInvite> CompanyInvites => Set<CompanyInvite>();
+    public DbSet<CompanyBrandProfile> CompanyBrandProfiles => Set<CompanyBrandProfile>();
+    public DbSet<CompanyBillingProfile> CompanyBillingProfiles => Set<CompanyBillingProfile>();
+    public DbSet<CompanyContract> CompanyContracts => Set<CompanyContract>();
+    public DbSet<ContractRenewalRequest> ContractRenewalRequests => Set<ContractRenewalRequest>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -169,7 +174,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Coupon>().HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
         b.Entity<ApprovalRequest>().HasIndex(x => x.Number).IsUnique();
         b.Entity<ApprovalRequest>().HasIndex(x => new { x.TenantId, x.Status, x.DueAt });
-        b.Entity<ApprovalLevel>().HasIndex(x => new { x.PolicyId, x.Sequence }).IsUnique();
+        b.Entity<ApprovalLevel>().HasIndex(x => new { x.PolicyId, x.Sequence }).IsUnique().HasFilter("\"IsDeleted\" = 0");
         b.Entity<ApprovalStep>().HasIndex(x => new { x.RequestId, x.Sequence }).IsUnique();
         b.Entity<AppNotification>().HasIndex(x => new { x.TenantId, x.UserId, x.ReadAt });
         b.Entity<Rfq>().HasIndex(x => x.Number).IsUnique();
@@ -191,6 +196,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<InvoicePayment>().HasIndex(x => x.Reference).IsUnique();
         b.Entity<CreditLimitRequest>().HasIndex(x => new { x.TenantId, x.Status, x.CreatedAt });
         b.Entity<BudgetAdjustmentRequest>().HasIndex(x => new { x.TenantId, x.CostCenterId, x.Status, x.CreatedAt });
+        b.Entity<CompanyInvite>().HasIndex(x => x.TokenHash).IsUnique();
+        b.Entity<CompanyInvite>().HasIndex(x => new { x.TenantId, x.Email, x.Status });
+        b.Entity<CompanyBrandProfile>().HasIndex(x => x.CompanyId).IsUnique();
+        b.Entity<CompanyBillingProfile>().HasIndex(x => x.CompanyId).IsUnique();
+        b.Entity<CompanyContract>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<ContractRenewalRequest>().HasIndex(x => new { x.ContractId, x.Status });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -291,6 +302,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<InvoicePayment>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CreditLimitRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<BudgetAdjustmentRequest>().HasQueryFilter(e => !e.IsDeleted && !e.CostCenter.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyInvite>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyBrandProfile>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyBillingProfile>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyContract>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ContractRenewalRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

@@ -105,4 +105,16 @@ public class CompanyController(AppDbContext db, IWebHostEnvironment env) : Contr
 
         return Ok(new { doc.Id, type = docType.ToString(), status = doc.ReviewStatus.ToString() });
     }
+
+    [HttpGet("documents/{id:guid}/download")]
+    public async Task<IActionResult> DownloadDocument(Guid id, CancellationToken ct)
+    {
+        var doc = await db.CompanyDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id && d.TenantId == TenantId, ct)
+            ?? throw ApiException.NotFound("المستند غير موجود");
+        var root = Path.GetFullPath(env.ContentRootPath);
+        var fullPath = Path.GetFullPath(Path.Combine(root, doc.StoragePath));
+        if (!fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(fullPath))
+            throw ApiException.NotFound("ملف المستند غير موجود");
+        return PhysicalFile(fullPath, doc.ContentType, doc.FileName, enableRangeProcessing: true);
+    }
 }

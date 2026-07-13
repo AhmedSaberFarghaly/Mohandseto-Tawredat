@@ -79,6 +79,10 @@ public class User : BaseEntity
     public string? AvatarPath { get; set; }
     public string PreferredLanguage { get; set; } = "ar";
     public Guid? DefaultBranchId { get; set; }
+    public string? JobTitle { get; set; }
+    public string? Department { get; set; }
+    /// <summary>Maximum single-order value for this user; null delegates to company policy.</summary>
+    public decimal? PurchaseLimit { get; set; }
     public ICollection<UserRole> Roles { get; set; } = [];
 }
 

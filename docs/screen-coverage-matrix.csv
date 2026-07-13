@@ -292,33 +292,33 @@
 289,291,التوقعات المستقبلية,Budget forecast,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Forecast,GET /api/budgets/summary,CostCenters;Orders,budget-e2e;flutter-budget,Implemented,Automated,Average monthly spend projected through year end
 290,292,تنبيهات الميزانية,Budget alerts,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets,Alerts,GET /api/budgets/alerts,CostCenters,budget-e2e;flutter-budget,Implemented,Automated,80 percent warning 100 percent critical and forecast alerts
 291,293,طلب تعديل الميزانية,Budget adjustment request,الميزانية ومراكز التكلفة | Budgets & Cost Centers,client,/budgets/centers/:id,Adjustment dialog,POST /api/budgets/adjustment-requests,BudgetAdjustmentRequests;CostCenters,budget-e2e;flutter-budget,Implemented,Automated,Duplicate prevention reason validation and role-protected decision
-292,294,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-293,295,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-294,296,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-295,297,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-296,298,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-297,299,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-298,300,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-299,301,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-300,302,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-301,303,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-302,304,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-303,305,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-304,306,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-305,307,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-306,308,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-307,309,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-308,310,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-309,311,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-310,312,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-311,313,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-312,314,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-313,315,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-314,316,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-315,317,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-316,318,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-317,319,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
-318,320,,,حساب الشركة والمستخدمون | Company Account & Users,client,,,,,,Pending,Pending,
+292,294,الملف الشخصي للمستخدم,User profile,حساب الشركة والمستخدمون | Company Account & Users,client,/account,Profile dashboard,GET /api/account,Users;Companies,account-e2e;flutter-account,Implemented,Automated,Identity card company metrics credit and navigation hub
+293,295,تعديل البيانات الشخصية,Edit personal information,حساب الشركة والمستخدمون | Company Account & Users,client,/account/profile,Profile form,PUT /api/account/profile,Users;CompanyBranches,account-e2e;flutter-account,Implemented,Automated,Unique email branch validation and language preference
+294,296,بيانات الشركة,Company information,حساب الشركة والمستخدمون | Company Account & Users,client,/account/company,Company card,GET /api/account/company,Companies;Tenants,account-e2e;flutter-account,Implemented,Automated,Legal registration tax contact and verification state
+295,297,تعديل بيانات الشركة,Edit company information,حساب الشركة والمستخدمون | Company Account & Users,client,/account/company,Company form,PUT /api/account/admin/company,Companies;Tenants,account-e2e;flutter-account,Implemented,Automated,Role protected update with audit trail
+296,298,مستندات الشركة,Company documents,حساب الشركة والمستخدمون | Company Account & Users,client,/account/documents,Document list,GET /api/account/documents; GET /api/company/documents/{id}/download,CompanyDocuments,account-e2e;flutter-account,Implemented,Automated,Tenant isolated statuses rejections and secure range download
+297,299,عناوين الشركة,Company addresses,حساب الشركة والمستخدمون | Company Account & Users,client,/account/branches,Address list,GET /api/account/branches,CompanyBranches,account-e2e;flutter-account,Implemented,Automated,Main and delivery address presentation
+298,300,فروع الشركة,Company branches,حساب الشركة والمستخدمون | Company Account & Users,client,/account/branches,Branch management,GET /api/account/branches,CompanyBranches,account-e2e;flutter-account,Implemented,Automated,Main-first branch cards and edit actions
+299,301,إضافة فرع,Add branch,حساب الشركة والمستخدمون | Company Account & Users,client,/account/branches,Branch sheet,POST /api/account/admin/branches,CompanyBranches,account-e2e;flutter-account,Implemented,Automated,Coordinates contact main-branch exclusivity and audit
+300,302,مستخدمو الشركة,Company users,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,User directory,GET /api/account/admin/users,Users;UserRoles,account-e2e;flutter-account,Implemented,Automated,Active state job department branch and role visibility
+301,303,إضافة مستخدم,Add user,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,User form,POST /api/account/admin/users,Users;UserRoles,account-e2e;flutter-account,Implemented,Automated,Unique identity secure password roles branch and purchase limit
+302,304,دعوة مستخدم,Invite user,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,Invitation sheet,POST /api/account/admin/invites; POST /api/account/invites/accept,CompanyInvites;Users,account-e2e;flutter-account,Implemented,Automated,Hashed seven-day token lifecycle and duplicate prevention
+303,305,إنشاء دور,Create role,حساب الشركة والمستخدمون | Company Account & Users,client,/account/roles,Role builder,POST /api/account/admin/roles,Roles;RolePermissions,account-e2e;flutter-account,Implemented,Automated,Tenant custom roles with validated permissions
+304,306,تعيين الصلاحيات,Assign permissions,حساب الشركة والمستخدمون | Company Account & Users,client,/account/roles,Permission selector,PUT /api/account/admin/roles/{id}/permissions,RolePermissions;Permissions,account-e2e;flutter-account,Implemented,Automated,System role protection and atomic permission update
+305,307,إزالة مستخدم,Remove user,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,Deactivate action,POST /api/account/admin/users/{id}/deactivate,Users;RefreshTokens,account-e2e;flutter-account,Implemented,Automated,Soft deactivation immediate session revocation and self-lockout guard
+306,308,نقل مستخدم إلى فرع آخر,Transfer user to another branch,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,Branch assignment,PUT /api/account/admin/users/{id},Users;CompanyBranches,account-e2e;flutter-account,Implemented,Automated,Tenant branch validation and activity audit
+307,309,سجل نشاط المستخدم,User activity log,حساب الشركة والمستخدمون | Company Account & Users,client,/account/audit,Filtered timeline,GET /api/account/admin/audit?userId=,AuditLogs;Users,account-e2e;flutter-account,Implemented,Automated,Latest 200 tenant events with actor and entity context
+308,310,مصفوفة صلاحيات الشركة,Company permission matrix,حساب الشركة والمستخدمون | Company Account & Users,client,/account/roles,Expandable matrix,GET /api/account/admin/roles; GET /api/account/admin/permissions,Roles;Permissions;UserRoles,account-e2e;flutter-account,Implemented,Automated,Module grouped capabilities and assigned-user counts
+309,311,إدارة مستويات الموافقة,Manage approval levels,حساب الشركة والمستخدمون | Company Account & Users,client,/account/approvals,Approval settings,PUT /api/account/admin/approval-policies/{id},ApprovalPolicies;ApprovalLevels;ApprovalAssignments,account-e2e;flutter-account,Implemented,Automated,Sequential levels approvers financial authority and SLA validation
+310,312,إدارة الحد النقدي للطلب,Manage order cash limit,حساب الشركة والمستخدمون | Company Account & Users,client,/account/users,Purchase limit control,PUT /api/account/admin/users/{id},Users,account-e2e;flutter-account,Implemented,Automated,Per-user single-order limit with company policy fallback
+311,313,إدارة مراكز التكلفة,Manage cost centers,حساب الشركة والمستخدمون | Company Account & Users,client,/account/cost-centers,Cost center editor,POST/PUT /api/account/admin/cost-centers,CostCenters,account-e2e;flutter-account,Implemented,Automated,Unique codes budget floor threshold and active state
+312,314,سجل مسؤولي النظام,System administrator log,حساب الشركة والمستخدمون | Company Account & Users,client,/account/audit,Governance timeline,GET /api/account/admin/audit,AuditLogs;Users,account-e2e;flutter-account,Implemented,Automated,Role protected tenant audit visibility
+313,315,الهوية البصرية للشركة,Company visual identity,حساب الشركة والمستخدمون | Company Account & Users,client,/account/brand,Brand editor,PUT /api/account/admin/brand; POST /api/account/admin/brand/logo,CompanyBrandProfiles,account-e2e;flutter-account,Implemented,Automated,Validated colors secure five-megabyte logo and brand names
+314,316,بيانات الفوترة والضرائب,Billing and tax information,حساب الشركة والمستخدمون | Company Account & Users,client,/account/billing,Billing form,PUT /api/account/admin/billing,CompanyBillingProfiles,account-e2e;flutter-account,Implemented,Automated,Invoice identity tax address payment terms and PO requirement
+315,317,العقود وشروط الدفع,Contracts and payment terms,حساب الشركة والمستخدمون | Company Account & Users,client,/account/contracts,Contract list,GET /api/account/contracts,CompanyContracts,account-e2e;flutter-account,Implemented,Automated,Term dates credit limit payment window and auto-renew state
+316,318,تفاصيل عقد الشركة,Company contract details,حساب الشركة والمستخدمون | Company Account & Users,client,/account/contracts,Contract card,GET /api/account/contracts,CompanyContracts,account-e2e;flutter-account,Implemented,Automated,Exact dates terms document reference and remaining days
+317,319,إنذار انتهاء العقد,Contract expiration warning,حساب الشركة والمستخدمون | Company Account & Users,client,/account/contracts,Expiry warning,GET /api/account/contracts,CompanyContracts,account-e2e;flutter-account,Implemented,Automated,Automatic expiring and expired state derived from UTC dates
+318,320,طلب تجديد العقد,Contract renewal request,حساب الشركة والمستخدمون | Company Account & Users,client,/account/contracts,Renewal form,POST /api/account/contracts/{id}/renewal-requests,ContractRenewalRequests,account-e2e;flutter-account,Implemented,Automated,One active request per contract with one-to-sixty month validation
 319,321,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,
 320,322,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,
 321,323,,,"الإشعارات والدعم والإعدادات | Notifications, Support & Settings",client,,,,,,Pending,Pending,

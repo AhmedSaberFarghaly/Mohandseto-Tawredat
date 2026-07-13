@@ -2,13 +2,13 @@
 
 ## Current execution checkpoint — 2026-07-13
 
-- Overall implementation gate: **62%**.
-- M5 is complete. Client screens 204–293 now cover orders/tracking, returns, finance and budgets; company account/users and notification/support/settings are next.
-- Database: **15 migrations** through `BudgetAnalytics`, verified against a fresh SQLite database.
-- Automated verification: **34 backend tests + 19 Flutter tests**, with clean Flutter static analysis.
-- M6 now includes auditable cost-center analytics, monthly/annual spend, budget health alerts, forecasts and adjustment approvals in addition to fulfillment and finance.
+- Overall implementation gate: **65%**.
+- M5 is complete. Client screens 204–320 now cover orders/tracking, returns, finance, budgets and the full company-account governance flow; notification/support/settings are next.
+- Database: **16 migrations** through `CompanyAccount`, verified against a fresh SQLite database.
+- Automated verification: **36 backend tests + 21 Flutter tests**, with clean Flutter static analysis.
+- M6 now includes tenant-safe company profiles, branches, documents, users, hashed invitations, custom roles, permission matrices, approval levels, purchase limits, cost centers, branding, billing and contract renewal in addition to fulfillment and finance.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Enterprise Checkout).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Company Account & Users).
 
 ## 1. وصف المشروع الحالي
 
@@ -20,7 +20,7 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 11 migrations حتى `RfqWorkflow` مطبقة ومختبرة على قاعدة فارغة |
+| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 16 migrations حتى `CompanyAccount` مطبقة ومختبرة على قاعدة فارغة |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | RTL + Dashboard + Products/Categories/Brands/Variants، يبني |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
@@ -37,7 +37,9 @@
 | السلة وCheckout (شاشات 109–151) | 100% — السلال المحفوظة والكوبونات والتوفر وملاحظات الأصناف وسياق الشركة والعناوين والدفع بكل حالاته والمرفقات والمراجعة والطلب تعمل |
 | الموافقات الداخلية (شاشات 152–167) | 100% — السياسات والمستويات والصندوق والقرارات والتعديل والتفويض والتعليقات والمرفقات والميزانية والتصعيد والإشعارات تعمل |
 | طلبات عروض الأسعار (شاشات 168–203) | 100% — الإنشاء من الكتالوج أو الملفات والاستخراج والمراجعة والعروض والإصدارات والمقارنة والتفاوض والقرار وPDF والتحويل لطلب تعمل |
-| باقي الوحدات (طلبات، مخزون، CRM…) | 0% — مجدولة M6–M9 |
+| الطلبات والتتبع والمرتجعات والمالية والميزانيات | 100% — شاشات 204–293 مرتبطة بدورات عمل فعلية ومختبرة |
+| حساب الشركة والمستخدمون | 100% — شاشات 294–320؛ الملف والفروع والمستندات والمستخدمون والأدوار والموافقات والفوترة والعقود |
+| الإشعارات والدعم والإعدادات وCRM والإدارة | مجدولة للمراحل التالية |
 
 التتبع التفصيلي: `docs/screen-coverage-matrix.csv` (756 صفًا).
 
@@ -47,7 +49,7 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 28 اختبار Backend + 11 Flutter + E2E Catalog/Media/Cart/Checkout/Custom Products/Approvals/RFQ |
+| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 36 اختبار Backend + 21 Flutter تغطي الدورات المنفذة حتى حساب الشركة |
 | 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
@@ -67,7 +69,7 @@
 2. **M3 (بوابة 30% مكتملة):** البحث والمقارنة وCRUD المراجع والمحتوى والـMedia وCSV مكتملة؛ أسعار الشركات تنتقل مع إدارة الحسابات التجارية.
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
-5. **M6 (التالية):** طلبات العميل والتتبع والمرتجعات والمالية والحساب.
+5. **M6 (قيد الإغلاق):** اكتملت طلبات العميل والتتبع والمرتجعات والمالية والميزانيات والحساب؛ المتبقي الإشعارات والدعم والإعدادات (321–368).
 5. M10: تصلّب نهائي + `v1.0.0`.
 
 ## 7. معايير الجاهزية للإنتاج
