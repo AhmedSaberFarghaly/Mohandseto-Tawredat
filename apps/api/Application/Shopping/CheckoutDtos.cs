@@ -6,15 +6,19 @@ public sealed record CheckoutPaymentOptionDto(string Code, string NameAr, bool E
 public sealed record CheckoutCostCenterDto(Guid Id, string Code, string NameAr, decimal BudgetAmount,
     decimal UsedAmount, decimal ReservedAmount, decimal AvailableAmount, decimal? ApprovalThreshold);
 public sealed record CheckoutProjectDto(Guid Id, string Code, string NameAr);
+public sealed record CheckoutReceiverDto(Guid Id, string Name, string Phone);
 public sealed record CheckoutAttachmentDto(Guid Id, string Name, string ContentType, long SizeBytes, string DownloadUrl);
+public sealed record BankTransferInstructionsDto(string BankName, string AccountName, string Iban, string Currency);
 public sealed record CheckoutOptionsDto(
     Guid SessionId, CartDto Cart, IReadOnlyList<CheckoutBranchDto> Branches,
     IReadOnlyList<CheckoutPaymentOptionDto> PaymentOptions, IReadOnlyList<CheckoutCostCenterDto> CostCenters,
-    IReadOnlyList<CheckoutProjectDto> Projects, Guid? BranchId, Guid? CostCenterId, Guid? ProjectId,
+    IReadOnlyList<CheckoutProjectDto> Projects, IReadOnlyList<CheckoutReceiverDto> Receivers,
+    Guid? BranchId, Guid? CostCenterId, Guid? ProjectId,
     string? RequestingDepartment, string? OrderNote, bool AllowSplitDelivery,
     string? ReceiverName, string? ReceiverPhone, DateTime? RequiredDate, string? TimeSlot,
     string ShippingMethod, string? PaymentMethod, string? PurchaseOrderNumber, string? InternalReference,
-    Guid? PaymentAttemptId, decimal? CreditPortion, decimal? CardPortion, CheckoutAttachmentDto? PurchaseOrderAttachment);
+    Guid? PaymentAttemptId, decimal? CreditPortion, decimal? CardPortion, CheckoutAttachmentDto? PurchaseOrderAttachment,
+    BankTransferInstructionsDto BankTransferInstructions, CheckoutAttachmentDto? BankTransferReceipt);
 public sealed record UpdateDeliveryDto(Guid BranchId, string ReceiverName, string ReceiverPhone,
     DateTime RequiredDate, string TimeSlot, string ShippingMethod, bool AllowSplitDelivery = false);
 public sealed record UpdateCheckoutContextDto(Guid CostCenterId, Guid? ProjectId, string RequestingDepartment,
@@ -29,6 +33,7 @@ public sealed record CheckoutReviewDto(
     string ShippingMethod, string PaymentMethod, string? PurchaseOrderNumber,
     string? CostCenterCode, string? CostCenterName, string? ProjectName, string? RequestingDepartment,
     string? OrderNote, bool AllowSplitDelivery, CheckoutAttachmentDto? PurchaseOrderAttachment,
+    CheckoutAttachmentDto? BankTransferReceipt,
     decimal Subtotal, decimal Savings, string? CouponCode, decimal CouponDiscount,
     decimal TaxIncluded, decimal Shipping, decimal Total,
     decimal? BudgetAvailable, bool BudgetExceeded, bool RequiresApproval);

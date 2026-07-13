@@ -27,6 +27,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _projectId;
   CheckoutPaymentAttempt? _paymentAttempt;
   CheckoutAttachment? _poAttachment;
+  CheckoutAttachment? _bankReceipt;
   bool _allowSplit = false;
   String _shipping = 'Standard';
   String _slot = '09:00-12:00';
@@ -80,6 +81,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _orderNote.text = value.orderNote ?? '';
         _allowSplit = value.allowSplitDelivery;
         _poAttachment = value.purchaseOrderAttachment;
+        _bankReceipt = value.bankTransferReceipt;
         _po.text = value.purchaseOrderNumber ?? '';
         _reference.text = value.internalReference ?? '';
       });
@@ -268,6 +270,32 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         label: const Text('إضافة عنوان جديد وتحديد الموقع'),
       ),
       const SizedBox(height: 14),
+      if (_options!.receivers.isNotEmpty) ...[
+        DropdownButtonFormField<String>(
+          decoration: const InputDecoration(
+            labelText: 'اختيار مسؤول استلام من الشركة',
+            prefixIcon: Icon(Icons.badge_outlined),
+          ),
+          items: _options!.receivers
+              .map(
+                (receiver) => DropdownMenuItem(
+                  value: receiver.id,
+                  child: Text('${receiver.name} — ${receiver.phone}'),
+                ),
+              )
+              .toList(),
+          onChanged: (id) {
+            final receiver = _options!.receivers.firstWhere(
+              (item) => item.id == id,
+            );
+            setState(() {
+              _receiver.text = receiver.name;
+              _phone.text = receiver.phone;
+            });
+          },
+        ),
+        const SizedBox(height: 10),
+      ],
       TextField(
         controller: _receiver,
         decoration: const InputDecoration(
@@ -467,6 +495,63 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
       ],
+      if (_payment == 'BankTransfer') ...[
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.primaryTint,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'بيانات التحويل البنكي',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _options!.bankTransferInstructions?.bankName ??
+                    'بيانات البنك غير متاحة',
+              ),
+              Text(_options!.bankTransferInstructions?.accountName ?? ''),
+              SelectableText(
+                _options!.bankTransferInstructions?.iban ?? '',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _busy ? null : _pickBankReceipt,
+                icon: Icon(
+                  _bankReceipt == null
+                      ? Icons.upload_file_outlined
+                      : Icons.check_circle_outline,
+                ),
+                label: Text(
+                  _bankReceipt?.name ?? 'رفع إيصال التحويل PDF أو صورة',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+      if (_payment == 'CashOnDelivery')
+        const _PaymentNotice(
+          icon: Icons.payments_outlined,
+          text:
+              'السداد لمسؤول التوصيل عند الاستلام. الحد الأقصى للطلب النقدي 20,000 ج.م.',
+        ),
+      if (_payment == 'MonthlyInvoice')
+        const _PaymentNotice(
+          icon: Icons.calendar_month_outlined,
+          text:
+              'تُضاف العملية إلى كشف الشركة الشهري وتُسدّد وفق دورة الائتمان المعتمدة.',
+        ),
       const SizedBox(height: 18),
       TextField(
         controller: _po,
@@ -1007,6 +1092,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
+  Future<void> _pickBankReceipt() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf', 'png', 'jpg', 'jpeg'],
+      withData: true,
+    );
+    if (result == null) return;
+    setState(() => _busy = true);
+    try {
+      final attachment = await ref
+          .read(checkoutRepositoryProvider)
+          .uploadBankReceipt(result.files.single);
+      if (mounted) setState(() => _bankReceipt = attachment);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر رفع إيصال التحويل: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _preparePayment() async {
     final isPartial = _payment == 'Partial';
     final credit = double.tryParse(_creditPortion.text) ?? 0;
@@ -1097,6 +1206,28 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String _money(double value) => NumberFormat('#,##0.00', 'ar').format(value);
   (String, String, String) _choice(String code, String name, String note) =>
       (code, name, note);
+}
+
+class _PaymentNotice extends StatelessWidget {
+  const _PaymentNotice({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(top: 10),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: AppColors.gray100,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: AppColors.primary),
+        const SizedBox(width: 9),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 10))),
+      ],
+    ),
+  );
 }
 
 class OrderSuccessScreen extends StatelessWidget {

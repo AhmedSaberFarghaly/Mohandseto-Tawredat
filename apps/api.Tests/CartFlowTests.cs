@@ -172,13 +172,18 @@ public sealed class CartFlowTests : IDisposable
         Assert.Equal("purchase-order.pdf", attachment.Name);
         var stored = await checkout.AttachmentAsync(userId, attachment.Id);
         Assert.True(File.Exists(stored.Path)); Assert.StartsWith(_filesRoot, stored.Path, StringComparison.OrdinalIgnoreCase);
+        var receiptUpload = new FormFile(new MemoryStream(bytes), 0, bytes.Length, "file", "bank-receipt.pdf")
+        { Headers = new HeaderDictionary(), ContentType = "application/pdf" };
+        var receipt = await checkout.UploadAttachmentAsync(userId, receiptUpload, CheckoutAttachmentType.BankTransferReceipt);
 
         var review = await checkout.ReviewAsync(userId);
         Assert.True(review.BudgetExceeded); Assert.True(review.RequiresApproval); Assert.True(review.AllowSplitDelivery);
+        Assert.Equal(receipt.Id, review.BankTransferReceipt?.Id);
         var order = await checkout.SubmitAsync(userId, true);
         Assert.True(order.RequiresApproval);
         Assert.Equal(review.Total, (await _db.CostCenters.SingleAsync(c => c.Id == center.Id)).ReservedAmount);
-        Assert.Equal(order.Id, (await _db.CheckoutAttachments.SingleAsync(a => a.Id == attachment.Id)).OrderId);
+        Assert.All(await _db.CheckoutAttachments.Where(a => a.CheckoutSession.UserId == userId).ToListAsync(),
+            item => Assert.Equal(order.Id, item.OrderId));
 
         _tenant.TenantId = Guid.NewGuid();
         var hidden = await Assert.ThrowsAsync<ApiException>(() => checkout.AttachmentAsync(userId, attachment.Id));

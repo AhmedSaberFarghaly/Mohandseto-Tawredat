@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Application.Shopping;
+using Mohandseto.Api.Domain.Entities;
 
 namespace Mohandseto.Api.Controllers;
 
@@ -16,7 +17,11 @@ public sealed class CheckoutController(CheckoutService checkout) : ControllerBas
     [HttpPut("delivery")] public Task<CheckoutOptionsDto> Delivery(UpdateDeliveryDto dto, CancellationToken ct) => checkout.DeliveryAsync(UserId, dto, ct);
     [HttpPut("payment")] public Task<CheckoutOptionsDto> Payment(UpdatePaymentDto dto, CancellationToken ct) => checkout.PaymentAsync(UserId, dto, ct);
     [HttpPost("attachments/purchase-order"), RequestSizeLimit(10 * 1024 * 1024 + 1024)]
-    public Task<CheckoutAttachmentDto> UploadPurchaseOrder(IFormFile file, CancellationToken ct) => checkout.UploadAttachmentAsync(UserId, file, ct);
+    public Task<CheckoutAttachmentDto> UploadPurchaseOrder(IFormFile file, CancellationToken ct) =>
+        checkout.UploadAttachmentAsync(UserId, file, CheckoutAttachmentType.PurchaseOrder, ct);
+    [HttpPost("attachments/bank-transfer-receipt"), RequestSizeLimit(10 * 1024 * 1024 + 1024)]
+    public Task<CheckoutAttachmentDto> UploadBankReceipt(IFormFile file, CancellationToken ct) =>
+        checkout.UploadAttachmentAsync(UserId, file, CheckoutAttachmentType.BankTransferReceipt, ct);
     [HttpGet("attachments/{id:guid}")]
     public async Task<IActionResult> Attachment(Guid id, CancellationToken ct)
     {

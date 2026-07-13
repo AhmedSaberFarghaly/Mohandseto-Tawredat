@@ -7,7 +7,8 @@ using Mohandseto.Api.Infrastructure;
 namespace Mohandseto.Api.Application.Shopping;
 
 public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts,
-    PaymentGatewayService payments, IWebHostEnvironment environment, CustomizationService? customization = null)
+    PaymentGatewayService payments, IWebHostEnvironment environment, CustomizationService? customization = null,
+    IConfiguration? configuration = null)
 {
     private static readonly Dictionary<string, string> AllowedAttachments = new(StringComparer.OrdinalIgnoreCase)
     { ["application/pdf"] = ".pdf", ["image/png"] = ".png", ["image/jpeg"] = ".jpg" };
@@ -24,14 +25,19 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
                 c.UsedAmount, c.ReservedAmount, c.BudgetAmount - c.UsedAmount - c.ReservedAmount, c.ApprovalThreshold)).ToListAsync(ct);
         var projects = await db.CompanyProjects.AsNoTracking().Where(p => p.IsActive).OrderBy(p => p.Code)
             .Select(p => new CheckoutProjectDto(p.Id, p.Code, p.NameAr)).ToListAsync(ct);
+        var receivers = await db.Users.AsNoTracking().Where(u => u.TenantId == tenantId && u.IsActive && u.PhoneVerified)
+            .OrderBy(u => u.FullName).Select(u => new CheckoutReceiverDto(u.Id, u.FullName, u.Phone)).ToListAsync(ct);
         var company = await db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId, ct);
         var availableCredit = (company?.CreditLimit ?? 0) - (company?.CreditUsed ?? 0);
         var total = TotalFor(cart, session.ShippingMethod);
+        var bank = BankInstructions();
+        var bankConfigured = environment.IsDevelopment() || !string.IsNullOrWhiteSpace(configuration?["Payments:BankIban"]);
         var paymentOptions = new List<CheckoutPaymentOptionDto>
         {
             new(nameof(PaymentMethod.CreditLine), "الشراء الآجل - الحد الائتماني", availableCredit >= total,
                 availableCredit >= total ? null : "الرصيد الائتماني المتاح غير كافٍ"),
-            new(nameof(PaymentMethod.BankTransfer), "تحويل بنكي", true, null),
+            new(nameof(PaymentMethod.BankTransfer), "تحويل بنكي", bankConfigured,
+                bankConfigured ? null : "بيانات الحساب البنكي غير مهيأة"),
             new(nameof(PaymentMethod.CashOnDelivery), "نقدي عند الاستلام", total <= 20000,
                 total <= 20000 ? null : "الحد الأقصى للدفع النقدي 20,000 ج.م"),
             new(nameof(PaymentMethod.MonthlyInvoice), "فاتورة شهرية مجمعة", availableCredit >= total,
@@ -41,14 +47,17 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             new(nameof(PaymentMethod.Partial), "دفع جزئي بالحد الائتماني والبطاقة", payments.IsAvailable && availableCredit > 0 && availableCredit < total,
                 payments.IsAvailable ? "يتاح عندما يغطي الحد الائتماني جزءًا من الإجمالي" : "بوابة الدفع الإلكتروني غير مهيأة"),
         };
-        var attachment = await db.CheckoutAttachments.AsNoTracking().Where(a => a.CheckoutSessionId == session.Id && a.Type == CheckoutAttachmentType.PurchaseOrder)
-            .OrderByDescending(a => a.CreatedAt).FirstOrDefaultAsync(ct);
-        return new(session.Id, cart, branches, paymentOptions, centers, projects, session.BranchId,
+        var attachments = await db.CheckoutAttachments.AsNoTracking().Where(a => a.CheckoutSessionId == session.Id)
+            .OrderByDescending(a => a.CreatedAt).ToListAsync(ct);
+        var purchaseOrder = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.PurchaseOrder);
+        var bankReceipt = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.BankTransferReceipt);
+        return new(session.Id, cart, branches, paymentOptions, centers, projects, receivers, session.BranchId,
             session.CostCenterId, session.ProjectId, session.RequestingDepartment, session.OrderNote,
             session.AllowSplitDelivery, session.ReceiverName, session.ReceiverPhone, session.RequiredDate,
             session.TimeSlot, session.ShippingMethod.ToString(), session.PaymentMethod?.ToString(),
             session.PurchaseOrderNumber, session.InternalReference, session.PaymentAttemptId, session.CreditPortion,
-            session.CardPortion, attachment is null ? null : Attachment(attachment));
+            session.CardPortion, purchaseOrder is null ? null : Attachment(purchaseOrder), bank,
+            bankReceipt is null ? null : Attachment(bankReceipt));
     }
 
     public async Task<CheckoutOptionsDto> AddAddressAsync(Guid userId, CreateCheckoutAddressDto dto, CancellationToken ct = default)
@@ -125,7 +134,8 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         await db.SaveChangesAsync(ct); return await OptionsAsync(userId, ct);
     }
 
-    public async Task<CheckoutAttachmentDto> UploadAttachmentAsync(Guid userId, IFormFile file, CancellationToken ct = default)
+    public async Task<CheckoutAttachmentDto> UploadAttachmentAsync(Guid userId, IFormFile file,
+        CheckoutAttachmentType type = CheckoutAttachmentType.PurchaseOrder, CancellationToken ct = default)
     {
         var cart = await RequireCartAsync(userId, ct); var session = await SessionAsync(userId, cart.Id!.Value, ct);
         if (file.Length is <= 0 or > 10 * 1024 * 1024 || !AllowedAttachments.TryGetValue(file.ContentType, out var ext))
@@ -133,10 +143,10 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         var folder = Path.Combine(environment.ContentRootPath, "App_Data", "checkout", TenantId().ToString("N"), session.Id.ToString("N"));
         Directory.CreateDirectory(folder); var absolute = Path.Combine(folder, $"{Guid.NewGuid():N}{ext}");
         await using (var stream = File.Create(absolute)) await file.CopyToAsync(stream, ct);
-        var old = await db.CheckoutAttachments.Where(a => a.CheckoutSessionId == session.Id && a.Type == CheckoutAttachmentType.PurchaseOrder).ToListAsync(ct);
+        var old = await db.CheckoutAttachments.Where(a => a.CheckoutSessionId == session.Id && a.Type == type).ToListAsync(ct);
         if (old.Count > 0) db.CheckoutAttachments.RemoveRange(old);
         var attachment = new CheckoutAttachment { TenantId = TenantId(), CheckoutSessionId = session.Id,
-            Type = CheckoutAttachmentType.PurchaseOrder, OriginalName = Path.GetFileName(file.FileName),
+            Type = type, OriginalName = Path.GetFileName(file.FileName),
             StoredPath = Path.GetRelativePath(environment.ContentRootPath, absolute).Replace('\\', '/'), ContentType = file.ContentType, SizeBytes = file.Length };
         db.CheckoutAttachments.Add(attachment); await db.SaveChangesAsync(ct); return Attachment(attachment);
     }
@@ -169,8 +179,10 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             throw ApiException.BadRequest("بيانات الجهة الطالبة والتوصيل والدفع غير مكتملة");
         var center = await db.CostCenters.AsNoTracking().FirstAsync(c => c.Id == session.CostCenterId, ct);
         var project = session.ProjectId is null ? null : await db.CompanyProjects.AsNoTracking().FirstAsync(p => p.Id == session.ProjectId, ct);
-        var attachment = await db.CheckoutAttachments.AsNoTracking().Where(a => a.CheckoutSessionId == session.Id && a.Type == CheckoutAttachmentType.PurchaseOrder)
-            .OrderByDescending(a => a.CreatedAt).FirstOrDefaultAsync(ct);
+        var attachments = await db.CheckoutAttachments.AsNoTracking().Where(a => a.CheckoutSessionId == session.Id)
+            .OrderByDescending(a => a.CreatedAt).ToListAsync(ct);
+        var attachment = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.PurchaseOrder);
+        var bankReceipt = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.BankTransferReceipt);
         var shipping = ShippingCost(session.ShippingMethod, cart.Subtotal); var total = cart.Subtotal + shipping;
         var available = center.BudgetAmount - center.UsedAmount - center.ReservedAmount; var exceeded = total > available;
         var requiresApproval = exceeded || total >= (center.ApprovalThreshold ?? 5000);
@@ -178,7 +190,8 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             session.ReceiverName, session.ReceiverPhone, session.RequiredDate.Value, session.TimeSlot ?? string.Empty,
             session.ShippingMethod.ToString(), session.PaymentMethod.Value.ToString(), session.PurchaseOrderNumber,
             center.Code, center.NameAr, project?.NameAr, session.RequestingDepartment, session.OrderNote, session.AllowSplitDelivery,
-            attachment is null ? null : Attachment(attachment), cart.Subtotal, cart.Savings, cart.CouponCode, cart.CouponDiscount, cart.TaxIncluded, shipping,
+            attachment is null ? null : Attachment(attachment), bankReceipt is null ? null : Attachment(bankReceipt),
+            cart.Subtotal, cart.Savings, cart.CouponCode, cart.CouponDiscount, cart.TaxIncluded, shipping,
             total, available, exceeded, requiresApproval);
     }
 
@@ -258,6 +271,11 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
     private static decimal ShippingCost(ShippingMethod method, decimal subtotal) => method switch { ShippingMethod.Express => 150, ShippingMethod.Pickup => 0, _ => subtotal >= 2000 ? 0 : 150 };
     private static decimal TotalFor(CartDto cart, ShippingMethod method) => cart.Subtotal + ShippingCost(method, cart.Subtotal);
     private static CheckoutAttachmentDto Attachment(CheckoutAttachment a) => new(a.Id, a.OriginalName, a.ContentType, a.SizeBytes, $"/api/checkout/attachments/{a.Id}");
+    private BankTransferInstructionsDto BankInstructions() => new(
+        configuration?["Payments:BankName"] ?? "بنك التطوير التجريبي",
+        configuration?["Payments:BankAccountName"] ?? "شركة مهندسيتو توريدات",
+        configuration?["Payments:BankIban"] ?? "EG00 0000 0000 0000 0000 0000 000",
+        "EGP");
     private static string JoinAddress(params string?[] parts) => string.Join(" - ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
     private static string CleanRequired(string? value, int max) => string.IsNullOrWhiteSpace(value) ? throw ApiException.BadRequest("البيان المطلوب غير مكتمل") : value.Trim()[..Math.Min(value.Trim().Length, max)];
     private static string? Clean(string? value, int max) => string.IsNullOrWhiteSpace(value) ? null : value.Trim()[..Math.Min(value.Trim().Length, max)];

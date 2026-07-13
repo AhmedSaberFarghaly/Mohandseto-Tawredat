@@ -66,6 +66,21 @@ class CheckoutProject {
   final String id, code, name;
 }
 
+class CheckoutReceiver {
+  const CheckoutReceiver({
+    required this.id,
+    required this.name,
+    required this.phone,
+  });
+  factory CheckoutReceiver.fromJson(Map<String, dynamic> json) =>
+      CheckoutReceiver(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        phone: json['phone'] as String,
+      );
+  final String id, name, phone;
+}
+
 class CheckoutAttachment {
   const CheckoutAttachment({
     required this.id,
@@ -82,6 +97,23 @@ class CheckoutAttachment {
       );
   final String id, name, downloadUrl;
   final int sizeBytes;
+}
+
+class BankTransferInstructions {
+  const BankTransferInstructions({
+    required this.bankName,
+    required this.accountName,
+    required this.iban,
+    required this.currency,
+  });
+  factory BankTransferInstructions.fromJson(Map<String, dynamic> json) =>
+      BankTransferInstructions(
+        bankName: json['bankName'] as String,
+        accountName: json['accountName'] as String,
+        iban: json['iban'] as String,
+        currency: json['currency'] as String,
+      );
+  final String bankName, accountName, iban, currency;
 }
 
 class CheckoutPaymentOption {
@@ -120,6 +152,7 @@ class CheckoutOptions {
     required this.internalReference,
     this.costCenters = const [],
     this.projects = const [],
+    this.receivers = const [],
     this.costCenterId,
     this.projectId,
     this.requestingDepartment,
@@ -129,6 +162,8 @@ class CheckoutOptions {
     this.creditPortion,
     this.cardPortion,
     this.purchaseOrderAttachment,
+    this.bankTransferInstructions,
+    this.bankTransferReceipt,
   });
   factory CheckoutOptions.fromJson(Map<String, dynamic> json) =>
       CheckoutOptions(
@@ -162,6 +197,9 @@ class CheckoutOptions {
         projects: ((json['projects'] as List?) ?? const [])
             .map((x) => CheckoutProject.fromJson(x as Map<String, dynamic>))
             .toList(),
+        receivers: ((json['receivers'] as List?) ?? const [])
+            .map((x) => CheckoutReceiver.fromJson(x as Map<String, dynamic>))
+            .toList(),
         costCenterId: json['costCenterId'] as String?,
         projectId: json['projectId'] as String?,
         requestingDepartment: json['requestingDepartment'] as String?,
@@ -174,6 +212,16 @@ class CheckoutOptions {
             ? null
             : CheckoutAttachment.fromJson(
                 json['purchaseOrderAttachment'] as Map<String, dynamic>,
+              ),
+        bankTransferInstructions: json['bankTransferInstructions'] == null
+            ? null
+            : BankTransferInstructions.fromJson(
+                json['bankTransferInstructions'] as Map<String, dynamic>,
+              ),
+        bankTransferReceipt: json['bankTransferReceipt'] == null
+            ? null
+            : CheckoutAttachment.fromJson(
+                json['bankTransferReceipt'] as Map<String, dynamic>,
               ),
       );
   final String sessionId;
@@ -191,6 +239,7 @@ class CheckoutOptions {
   final String shippingMethod;
   final List<CheckoutCostCenter> costCenters;
   final List<CheckoutProject> projects;
+  final List<CheckoutReceiver> receivers;
   final String? costCenterId,
       projectId,
       requestingDepartment,
@@ -199,6 +248,8 @@ class CheckoutOptions {
   final bool allowSplitDelivery;
   final double? creditPortion, cardPortion;
   final CheckoutAttachment? purchaseOrderAttachment;
+  final BankTransferInstructions? bankTransferInstructions;
+  final CheckoutAttachment? bankTransferReceipt;
 }
 
 class CheckoutReview {
@@ -226,6 +277,7 @@ class CheckoutReview {
     this.purchaseOrderAttachment,
     this.budgetAvailable,
     this.budgetExceeded = false,
+    this.bankTransferReceipt,
   });
   factory CheckoutReview.fromJson(Map<String, dynamic> json) => CheckoutReview(
     items: (json['items'] as List)
@@ -257,6 +309,11 @@ class CheckoutReview {
           ),
     budgetAvailable: (json['budgetAvailable'] as num?)?.toDouble(),
     budgetExceeded: json['budgetExceeded'] as bool? ?? false,
+    bankTransferReceipt: json['bankTransferReceipt'] == null
+        ? null
+        : CheckoutAttachment.fromJson(
+            json['bankTransferReceipt'] as Map<String, dynamic>,
+          ),
   );
   final List<CartItemModel> items;
   final String branchName,
@@ -273,6 +330,7 @@ class CheckoutReview {
   final bool allowSplitDelivery, budgetExceeded;
   final CheckoutAttachment? purchaseOrderAttachment;
   final double? budgetAvailable;
+  final CheckoutAttachment? bankTransferReceipt;
 }
 
 class CheckoutPaymentAttempt {
@@ -418,6 +476,19 @@ class CheckoutRepository {
     return CheckoutAttachment.fromJson(
       (await _api.dio.post(
             '/api/checkout/attachments/purchase-order',
+            data: FormData.fromMap({'file': upload}),
+          )).data
+          as Map<String, dynamic>,
+    );
+  }
+
+  Future<CheckoutAttachment> uploadBankReceipt(PlatformFile file) async {
+    final upload = file.bytes != null
+        ? MultipartFile.fromBytes(file.bytes!, filename: file.name)
+        : await MultipartFile.fromFile(file.path!, filename: file.name);
+    return CheckoutAttachment.fromJson(
+      (await _api.dio.post(
+            '/api/checkout/attachments/bank-transfer-receipt',
             data: FormData.fromMap({'file': upload}),
           )).data
           as Map<String, dynamic>,
