@@ -113,6 +113,9 @@ public class Order : TenantEntity
     public decimal? CardPortion { get; set; }
     public OrderStatus Status { get; set; }
     public bool RequiresApproval { get; set; }
+    public Guid? AssignedStaffId { get; set; }
+    public DateTime? ArchivedAt { get; set; }
+    public Guid? ArchivedBy { get; set; }
     public decimal Subtotal { get; set; }
     public decimal Savings { get; set; }
     public string? CouponCode { get; set; }

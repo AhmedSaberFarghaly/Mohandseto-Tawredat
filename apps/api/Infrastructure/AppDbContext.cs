@@ -59,6 +59,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderStatusHistory> OrderStatusHistories => Set<OrderStatusHistory>();
+    public DbSet<OrderInternalNote> OrderInternalNotes => Set<OrderInternalNote>();
+    public DbSet<OrderCommunication> OrderCommunications => Set<OrderCommunication>();
+    public DbSet<AdminOrderRefund> AdminOrderRefunds => Set<AdminOrderRefund>();
+    public DbSet<ShipmentItem> ShipmentItems => Set<ShipmentItem>();
     public DbSet<CustomProductTemplate> CustomProductTemplates => Set<CustomProductTemplate>();
     public DbSet<CustomizationOption> CustomizationOptions => Set<CustomizationOption>();
     public DbSet<PrintMethod> PrintMethods => Set<PrintMethod>();
@@ -164,6 +168,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CheckoutSession>().HasIndex(s => new { s.TenantId, s.UserId, s.CartId, s.Status });
         b.Entity<Order>().HasIndex(o => o.Number).IsUnique();
         b.Entity<Order>().HasIndex(o => new { o.TenantId, o.UserId, o.CreatedAt });
+        b.Entity<Order>().HasIndex(o => new { o.ArchivedAt, o.Status, o.RequiredDate });
+        b.Entity<OrderInternalNote>().HasIndex(x => new { x.OrderId, x.CreatedAt });
+        b.Entity<OrderCommunication>().HasIndex(x => new { x.OrderId, x.CreatedAt });
+        b.Entity<AdminOrderRefund>().HasIndex(x => x.Reference).IsUnique();
+        b.Entity<ShipmentItem>().HasIndex(x => new { x.ShipmentId, x.OrderItemId }).IsUnique();
         b.Entity<CustomProductTemplate>().HasIndex(t => t.ProductId).IsUnique();
         b.Entity<CustomizationOption>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
         b.Entity<PrintMethod>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
@@ -271,6 +280,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Order>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderItem>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderStatusHistory>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderInternalNote>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderCommunication>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<AdminOrderRefund>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ShipmentItem>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CustomProductRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CustomRequestItem>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<LogoAsset>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));

@@ -17,6 +17,7 @@ using Mohandseto.Api.Application.Budgets;
 using Mohandseto.Api.Application.Account;
 using Mohandseto.Api.Application.Engagement;
 using Mohandseto.Api.Application.Admin;
+using Mohandseto.Api.Application.AdminOrders;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -82,6 +83,7 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<SupportService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<AdminDashboardService>();
+builder.Services.AddScoped<AdminOrderService>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

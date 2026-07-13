@@ -380,28 +380,28 @@
 377,379,أحدث الطلبات,Recent orders,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Live orders table,GET /api/admin/dashboard,Orders;Companies,admin-dashboard-api;admin-build,Implemented,Automated,Recent orders with company status totals and CSV export
 378,380,لوحة التحليلات,Analytics dashboard,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard/analytics,Advanced analytics,GET /api/admin/dashboard,Orders;Companies;Rfqs,admin-dashboard-api;admin-build,Implemented,Automated,Top companies quote stages averages and period filters
 379,381,تخصيص لوحة المعلومات,Dashboard customization,الدخول ولوحات المعلومات | Login & Dashboards,admin,/dashboard,Widget customization,Client preference,N/A,admin-build,Implemented,Automated,Persisted local widget visibility with reset to defaults
-380,382,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-381,383,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-382,384,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-383,385,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-384,386,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-385,387,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-386,388,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-387,389,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-388,390,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-389,391,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-390,392,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-391,393,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-392,394,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-393,395,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-394,396,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-395,397,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-396,398,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-397,399,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-398,400,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-399,401,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-400,402,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
-401,403,,,إدارة الطلبات | Orders Management,admin,,,,,,Pending,Pending,
+380,382,قائمة الطلبات,Orders list,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Active orders,GET /api/admin/orders,Orders;Companies;Users,admin-orders-api;admin-build,Implemented,Automated,Paginated live list with KPIs search status and CSV export
+381,383,فلاتر الطلبات المتقدمة,Advanced order filters,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Advanced filters,GET /api/admin/orders,Orders;Companies;Users,admin-orders-api;admin-build,Implemented,Automated,Status company staff dates overdue and archive query support
+382,384,تفاصيل الطلب,Order details,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Overview,GET /api/admin/orders/{id},Orders;OrderItems;Shipments,admin-orders-api;admin-build,Implemented,Automated,Database-backed operational overview with totals and actions
+383,385,بيانات العميل والشركة,Customer and company info,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Company tab,GET /api/admin/orders/{id},Companies;Users;Orders,admin-orders-api;admin-build,Implemented,Automated,Customer company tax credit and delivery context
+384,386,منتجات الطلب,Order products,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Products tab,GET /api/admin/orders/{id},OrderItems;Products,admin-orders-api;admin-build,Implemented,Automated,Live stock availability quantities pricing and totals
+385,387,مسار الطلب,Order timeline,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Timeline tab,GET /api/admin/orders/{id},OrderStatusHistories,admin-orders-api;admin-build,Implemented,Automated,Chronological auditable status and admin-action timeline
+386,388,تعديل حالة الطلب,Change order status,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Status action,POST /api/admin/orders/{id}/fulfillment,Orders;OrderStatusHistories;Shipments,admin-orders-api;admin-build,Implemented,Automated,Validated transitions create history shipment events and customer notification
+387,389,تعديل الكميات,Edit quantities,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Quantity action,POST /api/admin/orders/{id}/quantities,Orders;OrderItems;OrderStatusHistories,admin-orders-api;admin-build,Implemented,Automated,Pre-shipment validation recalculation and audit note
+388,390,استبدال منتج,Substitute product,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Substitution action,POST /api/admin/orders/{id}/substitute,Orders;OrderItems;Products,admin-orders-api;admin-build,Implemented,Automated,Active-stock alternative validation and total recalculation
+389,391,تقسيم الطلب إلى شحنات,Split order into shipments,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Split action,POST /api/admin/orders/{id}/split,Shipments;ShipmentItems;OrderItems,admin-orders-api;admin-build,Implemented,Automated,Atomic exact-quantity allocation across multiple shipments
+390,392,تخصيص الطلب لموظف,Assign to staff,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Assignment action,POST /api/admin/orders/{id}/assign,Orders;Users;OrderStatusHistories,admin-orders-api;admin-build,Implemented,Automated,Active platform-staff validation and workload options
+391,393,إضافة ملاحظة داخلية,Internal note,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Notes tab,POST /api/admin/orders/{id}/notes,OrderInternalNotes;Users,admin-orders-api;admin-build,Implemented,Automated,Staff-only timestamped collaboration log
+392,394,سجل المحادثات,Conversation log,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Communications tab,POST /api/admin/orders/{id}/communications,OrderCommunications;Users,admin-orders-api;admin-build,Implemented,Automated,Phone email WhatsApp chat and visit records
+393,395,إصدار فاتورة,Issue invoice,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Invoice action,POST /api/admin/orders/{id}/invoice,Invoices;InvoiceLines;Orders,admin-orders-api;admin-build,Implemented,Automated,Idempotent invoice issuance from current order snapshot
+394,396,طباعة قائمة التجهيز,Print picking list,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Picking document,GET /api/admin/orders/{id}/picking,OrderItems;Products,admin-orders-api;admin-build,Implemented,Automated,Shelf-sorted printable picking preview
+395,397,طباعة قائمة التغليف,Print packing list,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Packing document,GET /api/admin/orders/{id}/packing,OrderItems;Shipments,admin-orders-api;admin-build,Implemented,Automated,Printable package grouping and estimated weights
+396,398,إلغاء الطلب,Cancel order,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Cancellation action,POST /api/admin/orders/{id}/cancel,Orders;OrderCancellations;OrderStatusHistories,admin-orders-api;admin-build,Implemented,Automated,State guard required reason audit trail and customer lifecycle update
+397,399,استرداد المبلغ,Process refund,إدارة الطلبات | Orders Management,admin,/dashboard/orders/[id],Refund action,POST /api/admin/orders/{id}/refund,AdminOrderRefunds;Orders,admin-orders-api;admin-build,Implemented,Automated,Cumulative amount guard method reason and unique reference
+398,400,أرشفة الطلب,Archive order,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Archive view,POST /api/admin/orders/{id}/archive; POST /restore,Orders;OrderStatusHistories,admin-orders-api;admin-build,Implemented,Automated,Reversible archive with staff audit identity
+399,401,الطلبات المتأخرة,Late orders,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Late view,GET /api/admin/orders?overdue=true,Orders;Companies,admin-orders-api;admin-build,Implemented,Automated,Deadline-based live escalation queue and KPI
+400,402,الطلبات المجدولة,Scheduled orders,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Scheduled view,GET /api/admin/orders/recurring,RecurringOrderSchedules;Orders,admin-orders-api;admin-build,Implemented,Automated,Next-run company frequency status and estimated value
+401,403,الطلبات المتكررة,Recurring orders admin,إدارة الطلبات | Orders Management,admin,/dashboard/orders,Recurring management,GET and POST /api/admin/orders/recurring,RecurringOrderSchedules;Orders;Companies,admin-orders-api;admin-build,Implemented,Automated,Platform-wide recurring KPIs pause resume and scheduling controls
 402,404,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
 403,405,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,
 404,406,,,إدارة عروض الأسعار | Quotes Management,admin,,,,,,Pending,Pending,

@@ -2,13 +2,13 @@
 
 ## Current execution checkpoint — 2026-07-13
 
-- Overall implementation gate: **72%**.
-- M6 is complete and M7 is in progress. Admin screens 369–381 now provide secure login states and live dashboards; orders and CRM are the next admin slices.
-- Database: **18 migrations** through `AdminIdentitySecurity`, verified against a fresh SQLite database.
-- Automated verification: **41 backend tests + 23 Flutter tests**, clean Flutter analysis, and a clean Next.js production build/lint.
+- Overall implementation gate: **75%**.
+- M6 is complete and M7 is in progress. Admin screens 369–403 now cover secure dashboards plus the full order-operations console; quotes and CRM are next.
+- Database: **19 migrations** through `AdminOrderOperations`, verified against a fresh SQLite database.
+- Automated verification: **42 backend tests + 23 Flutter tests**, clean Flutter analysis, and a clean Next.js production build/lint.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Admin Auth & Live Dashboards).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Admin Order Operations).
 
 ## 1. وصف المشروع الحالي
 
@@ -20,8 +20,8 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 18 migrations حتى `AdminIdentitySecurity` مطبقة ومختبرة على قاعدة فارغة |
-| لوحة الإدارة | Next.js 16 + TypeScript (App Router) | دخول آمن + 2FA + استعادة + Dashboard/Analytics حية + Products/Categories/Brands/Variants |
+| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 19 migrations حتى `AdminOrderOperations` مطبقة ومختبرة على قاعدة فارغة |
+| لوحة الإدارة | Next.js 16 + TypeScript (App Router) | دخول ولوحات حية + إدارة طلبات تشغيلية كاملة + Products/Categories/Brands/Variants |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
 
@@ -41,7 +41,8 @@
 | حساب الشركة والمستخدمون | 100% — شاشات 294–320؛ الملف والفروع والمستندات والمستخدمون والأدوار والموافقات والفوترة والعقود |
 | الإشعارات والدعم والإعدادات | 100% — شاشات 321–368؛ الإشعارات والتذاكر والمحتوى والأمان وحالات التشغيل |
 | دخول ولوحات الإدارة | 100% — شاشات 369–381؛ 2FA واستعادة ودور ومؤشرات وتحليلات وتخصيص مرتبطة ببيانات فعلية |
-| CRM وباقي وحدات الإدارة | قيد التنفيذ — شاشات 382–756 |
+| إدارة الطلبات | 100% — شاشات 382–403؛ الفلاتر والتفاصيل والتشغيل والشحنات والتعاون والفواتير والاسترداد والأرشيف والتكرار |
+| CRM وباقي وحدات الإدارة | قيد التنفيذ — شاشات 404–756 |
 
 التتبع التفصيلي: `docs/screen-coverage-matrix.csv` (756 صفًا).
 
@@ -51,7 +52,7 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 41 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ |
+| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 42 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ |
 | 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
@@ -73,7 +74,7 @@
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
-6. **M7 (قيد التنفيذ — البوابة العامة 72%):** دخول الإدارة ولوحات المعلومات مكتملة؛ إدارة الطلبات ثم العروض وCRM هي الحزم التالية.
+6. **M7 (قيد التنفيذ — البوابة العامة 75%):** دخول الإدارة ولوحات المعلومات وإدارة الطلبات مكتملة؛ عروض الأسعار ثم CRM هي الحزم التالية.
 5. M10: تصلّب نهائي + `v1.0.0`.
 
 ## 7. معايير الجاهزية للإنتاج
