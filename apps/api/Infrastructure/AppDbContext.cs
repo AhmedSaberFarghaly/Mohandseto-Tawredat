@@ -143,6 +143,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ContentPage> ContentPages => Set<ContentPage>();
     public DbSet<AccountDeletionRequest> AccountDeletionRequests => Set<AccountDeletionRequest>();
     public DbSet<MobileAppConfig> MobileAppConfigs => Set<MobileAppConfig>();
+    public DbSet<HomeSection> HomeSections => Set<HomeSection>();
+    public DbSet<HomeBanner> HomeBanners => Set<HomeBanner>();
+    public DbSet<ContentDispatch> ContentDispatches => Set<ContentDispatch>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -242,6 +245,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ContentPage>().HasIndex(x => x.Slug).IsUnique();
         b.Entity<AccountDeletionRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status });
         b.Entity<MobileAppConfig>().HasIndex(x => x.Platform).IsUnique();
+        b.Entity<HomeSection>().HasIndex(x => x.Key).IsUnique();
+        b.Entity<HomeSection>().HasIndex(x => new { x.SortOrder, x.IsActive });
+        b.Entity<HomeBanner>().HasIndex(x => new { x.IsActive, x.StartsAt, x.EndsAt });
+        b.Entity<HomeBanner>().HasIndex(x => new { x.TargetTenantId, x.SortOrder });
+        b.Entity<ContentDispatch>().HasIndex(x => new { x.Status, x.ScheduledAt });
+        b.Entity<ContentDispatch>().HasIndex(x => new { x.TargetTenantId, x.CreatedAt });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -367,6 +376,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ContentPage>().HasQueryFilter(e => !e.IsDeleted && e.IsPublished);
         b.Entity<AccountDeletionRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<MobileAppConfig>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<HomeSection>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<HomeBanner>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<ContentDispatch>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

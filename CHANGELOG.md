@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Content and home-page operations for screens 451–465: category and home-section reordering, banner scheduling and company targeting, pages, policies, FAQ, app notifications and in-app messages.
+- `AdminContentOperations` migration, targeted delivery audit, 47-test backend gate and authenticated Next.js BFF HTTP verification.
 - Commercial product operations for screens 426–450: packaging, cost and margin, company pricing, alternatives and related products, warranty, SEO, XLSX import error review, bulk price editing and auditable price history.
 - `ProductCommercialOperations` migration and full service/XLSX automated coverage.
 - Full admin quote-operations workspace for screens 404–425: RFQ queues, extraction review, product linking, supplier price requests and comparison, profit margins, versioned customer quotes, discounts, terms, negotiation, acceptance, order conversion and templates.

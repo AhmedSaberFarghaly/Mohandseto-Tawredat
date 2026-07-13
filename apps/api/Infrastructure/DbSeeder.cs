@@ -155,6 +155,15 @@ public static class DbSeeder
         }
         if (!await db.MobileAppConfigs.AnyAsync())
             db.MobileAppConfigs.Add(new MobileAppConfig { Platform = "all", MinimumVersion = "0.2.0", LatestVersion = "0.2.0", MessageAr = "يتوفر إصدار أحدث من تطبيق مهندسيتو توريدات." });
+        if (!await db.HomeSections.AnyAsync())
+        {
+            db.HomeSections.AddRange(
+                new HomeSection { Key = "hero_banners", NameAr = "البنرات الرئيسية", SortOrder = 0 },
+                new HomeSection { Key = "featured_categories", NameAr = "الأقسام المميزة", SortOrder = 1 },
+                new HomeSection { Key = "recommended_products", NameAr = "منتجات مقترحة لشركتك", SortOrder = 2 },
+                new HomeSection { Key = "latest_offers", NameAr = "أحدث العروض", SortOrder = 3 },
+                new HomeSection { Key = "recently_viewed", NameAr = "شوهدت مؤخرًا", SortOrder = 4 });
+        }
         await db.SaveChangesAsync();
         await CatalogSeeder.SeedAsync(db, logger);
         await CustomizationSeeder.SeedAsync(db, logger);

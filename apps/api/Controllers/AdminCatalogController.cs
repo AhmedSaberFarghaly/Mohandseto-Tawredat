@@ -301,6 +301,20 @@ public sealed class AdminCatalogController(AppDbContext db, CatalogService catal
         return NoContent();
     }
 
+    [HttpPut("categories/reorder")]
+    public async Task<IActionResult> ReorderCategories(ReorderCategoriesDto dto, CancellationToken ct)
+    {
+        if (dto.Items.Count == 0 || dto.Items.Select(x => x.Id).Distinct().Count() != dto.Items.Count)
+            throw ApiException.BadRequest("قائمة ترتيب الأقسام غير صالحة");
+        var ids = dto.Items.Select(x => x.Id).ToList();
+        var categories = await db.Categories.Where(x => ids.Contains(x.Id)).ToListAsync(ct);
+        if (categories.Count != ids.Count) throw ApiException.BadRequest("أحد الأقسام غير موجود");
+        var order = dto.Items.ToDictionary(x => x.Id, x => x.SortOrder);
+        foreach (var category in categories) category.SortOrder = Math.Max(0, order[category.Id]);
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
     [HttpGet("brands")]
     public async Task<IActionResult> Brands(CancellationToken ct) => Ok(await db.Brands.IgnoreQueryFilters()
         .AsNoTracking().OrderBy(b => b.NameAr).Select(b => new { b.Id, b.NameAr, b.NameEn, b.Slug, b.LogoPath, b.IsActive })

@@ -78,6 +78,8 @@ public sealed class ProductQuery
 }
 
 public sealed record UpsertCategoryDto(Guid? ParentId, string NameAr, string NameEn, string Slug, string? IconName, string? ImagePath, int SortOrder, bool IsActive);
+public sealed record CategoryOrderItemDto(Guid Id, int SortOrder);
+public sealed record ReorderCategoriesDto(IReadOnlyList<CategoryOrderItemDto> Items);
 public sealed record UpsertBrandDto(string NameAr, string NameEn, string Slug, string? LogoPath, bool IsActive);
 public sealed record UpsertVariantDto(Guid? Id, string Sku, string NameAr, string NameEn, string? OptionsJson, decimal PriceAdjustment, int StockQty, bool IsActive);
 

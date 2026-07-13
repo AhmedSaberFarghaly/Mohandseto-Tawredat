@@ -449,21 +449,21 @@
 446,448,مراجعة أخطاء الاستيراد,Import errors review,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Import errors modal,POST products/import,Products,admin-catalog;admin-build,Implemented,Automated,Rejected-row details shown for correction and retry
 447,449,تعديل جماعي للأسعار,Bulk price edit,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Bulk price modal,POST products/bulk-prices,Products;ProductPriceChanges,admin-catalog-commercial;admin-build,Implemented,Automated,Validated multi-product update with mandatory reason
 448,450,سجل تغير السعر,Price change log,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/products,Price history modal,GET products/price-history,ProductPriceChanges;Products;Users,admin-catalog-commercial;admin-build,Implemented,Automated,Old new percent staff source reason and timestamp audit
-449,451,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-450,452,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-451,453,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-452,454,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-453,455,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-454,456,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-455,457,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-456,458,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-457,459,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-458,460,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-459,461,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-460,462,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-461,463,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-462,464,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
-463,465,,,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,,,,,,Pending,Pending,
+449,451,إدارة الأقسام,Categories Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Categories manager,GET/POST/PUT/DELETE categories,Categories,admin-content;admin-build,Implemented,Automated,Full category and subcategory CRUD
+450,452,إضافة قسم,Add Category,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Category editor,POST categories,Categories,admin-content;admin-build,Implemented,Automated,Parent child validation and unique slugs
+451,453,السحب لإعادة الترتيب,Drag to Reorder,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Drag and drop category cards,PUT categories/reorder,Categories,admin-content;admin-build,Implemented,Automated,Persisted ordering with rollback on failure
+452,454,الأقسام الفرعية,Subcategories,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/categories,Child category editor,POST/PUT categories,Categories,admin-content;admin-build,Implemented,Automated,Parent selection and active-product archive guards
+453,455,إدارة الصفحة الرئيسية,Home Page Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Home sections workspace,GET/POST/PUT/DELETE content sections,HomeSections,admin-content;admin-build,Implemented,Automated,Live active-section preview and JSON settings
+454,456,إعادة ترتيب أقسام الرئيسية,Reorder Home Sections,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Home section drag and drop,PUT content sections/reorder,HomeSections,admin-content;admin-build,Implemented,Automated,Persisted display order
+455,457,إدارة البنرات,Banners Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Banner cards,GET/POST/PUT/DELETE banners,HomeBanners,admin-content;admin-build,Implemented,Automated,Active scheduled expired and inactive states
+456,458,إضافة بنر,Add Banner,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Banner editor,POST content/banners,HomeBanners,admin-content;admin-build,Implemented,Automated,Image title subtitle and action validation
+457,459,جدولة بنر,Schedule Banner,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Banner scheduling fields,POST/PUT content/banners,HomeBanners,admin-content;admin-build,Implemented,Automated,UTC validity window and automatic state
+458,460,استهداف البنر لشركات محددة,Target Banner to specific companies,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Company audience selector,POST/PUT content/banners,HomeBanners;Tenants,admin-content;admin-build,Implemented,Automated,Optional tenant targeting with validation
+459,461,صفحات المحتوى,Content Pages,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Content pages table,GET/POST/PUT/DELETE content pages,ContentPages,admin-content;admin-build,Implemented,Automated,Drafts and published pages remain editable
+460,462,إدارة الأسئلة الشائعة,FAQ Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,FAQ list and editor,GET/POST/PUT/DELETE content faq,SupportArticles,admin-content;admin-build,Implemented,Automated,Categories ordering publishing and unique slugs
+461,463,إدارة السياسات,Policies Management,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Policies content view,GET/POST/PUT content pages,ContentPages,admin-content;admin-build,Implemented,Automated,Terms privacy returns and shipping policy classification
+462,464,إشعارات التطبيق,App Notifications,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,Notification campaign editor,POST content/dispatches,ContentDispatches;AppNotifications,admin-content;admin-build,Implemented,Automated,Immediate scheduled global and company-targeted delivery
+463,465,رسائل داخل التطبيق,In-app Messages,"المنتجات والأقسام والمحتوى | Products, Categories & Content",admin,/dashboard/content,In-app message campaign editor,POST content/dispatches,ContentDispatches;AppNotifications,admin-content;admin-build,Implemented,Automated,Audited recipients scheduling and exactly-once status guard
 464,466,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
 465,467,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,
 466,468,,,المخزون والمستودعات | Inventory & Warehouses,admin,,,,,,Pending,Pending,

@@ -111,3 +111,44 @@ public class MobileAppConfig : BaseEntity
     public string? MessageAr { get; set; }
     public string? UpdateUrl { get; set; }
 }
+
+/// <summary>Configurable block rendered on the customer application's home page.</summary>
+public class HomeSection : BaseEntity
+{
+    public string Key { get; set; } = string.Empty;
+    public string NameAr { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; } = true;
+    public string? SettingsJson { get; set; }
+}
+
+/// <summary>Scheduled promotional banner, optionally limited to one company.</summary>
+public class HomeBanner : BaseEntity
+{
+    public string TitleAr { get; set; } = string.Empty;
+    public string? SubtitleAr { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+    public string? ActionUrl { get; set; }
+    public Guid? TargetTenantId { get; set; }
+    public DateTime StartsAt { get; set; }
+    public DateTime? EndsAt { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public enum ContentDispatchChannel { AppNotification, InAppMessage }
+public enum ContentDispatchStatus { Draft, Scheduled, Sent, Cancelled }
+
+/// <summary>Administrative broadcast definition and immutable delivery audit.</summary>
+public class ContentDispatch : BaseEntity
+{
+    public ContentDispatchChannel Channel { get; set; }
+    public string TitleAr { get; set; } = string.Empty;
+    public string BodyAr { get; set; } = string.Empty;
+    public string? ActionUrl { get; set; }
+    public Guid? TargetTenantId { get; set; }
+    public DateTime? ScheduledAt { get; set; }
+    public DateTime? SentAt { get; set; }
+    public ContentDispatchStatus Status { get; set; } = ContentDispatchStatus.Draft;
+    public int RecipientCount { get; set; }
+}
