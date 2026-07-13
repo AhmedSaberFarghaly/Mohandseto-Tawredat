@@ -28,7 +28,16 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   Widget build(BuildContext context) {
     final result = ref.watch(orderListProvider(query));
     return Scaffold(
-      appBar: AppBar(title: const Text('طلباتي')),
+      appBar: AppBar(
+        title: const Text('طلباتي'),
+        actions: [
+          IconButton(
+            onPressed: () => context.push('/returns'),
+            icon: const Icon(Icons.assignment_return_outlined),
+            tooltip: 'مركز المرتجعات',
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(

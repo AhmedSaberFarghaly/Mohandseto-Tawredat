@@ -108,6 +108,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<OrderIssue> OrderIssues => Set<OrderIssue>();
     public DbSet<OrderCancellation> OrderCancellations => Set<OrderCancellation>();
     public DbSet<RecurringOrderSchedule> RecurringOrderSchedules => Set<RecurringOrderSchedule>();
+    public DbSet<ReturnRequest> ReturnRequests => Set<ReturnRequest>();
+    public DbSet<ReturnItem> ReturnItems => Set<ReturnItem>();
+    public DbSet<ReturnAttachment> ReturnAttachments => Set<ReturnAttachment>();
+    public DbSet<ReturnStatusHistory> ReturnStatusHistories => Set<ReturnStatusHistory>();
+    public DbSet<RefundTransaction> RefundTransactions => Set<RefundTransaction>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -171,6 +176,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<OrderRating>().HasIndex(x => new { x.OrderId, x.UserId }).IsUnique();
         b.Entity<OrderItemRating>().HasIndex(x => new { x.OrderItemId, x.UserId }).IsUnique();
         b.Entity<DeliveryConfirmation>().HasIndex(x => x.OrderId);
+        b.Entity<ReturnRequest>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<ReturnRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.CreatedAt });
+        b.Entity<ReturnItem>().HasIndex(x => new { x.ReturnRequestId, x.OrderItemId }).IsUnique();
+        b.Entity<RefundTransaction>().HasIndex(x => x.ProviderReference).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -261,6 +270,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<OrderIssue>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderCancellation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<RecurringOrderSchedule>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ReturnRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ReturnItem>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && !e.OrderItem.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ReturnAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ReturnStatusHistory>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<RefundTransaction>().HasQueryFilter(e => !e.IsDeleted && !e.ReturnRequest.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

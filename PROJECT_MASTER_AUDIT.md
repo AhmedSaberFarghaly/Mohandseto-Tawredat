@@ -2,11 +2,11 @@
 
 ## Current execution checkpoint — 2026-07-13
 
-- Overall implementation gate: **54%**.
-- M5 is complete. The Orders & Tracking slice of M6 (client screens 204–235) is complete; returns/replacements, finance and account are next.
-- Database: **12 migrations** through `OrderFulfillment`, verified against a fresh SQLite database.
-- Automated verification: **30 backend tests + 13 Flutter tests**, with clean Flutter static analysis.
-- Implemented order capabilities: search/filter, immutable details, status timeline, split shipments, carrier/driver/ETA/live coordinates, delivery OTP and proofs, issues, cancellation with budget release, ratings, reorder and recurring schedules.
+- Overall implementation gate: **57%**.
+- M5 is complete. Orders/tracking (204–235) and returns/replacements (236–255) are complete inside M6; invoices/payments, budgets and account are next.
+- Database: **13 migrations** through `ReturnsWorkflow`, verified against a fresh SQLite database.
+- Automated verification: **32 backend tests + 15 Flutter tests**, with clean Flutter static analysis.
+- Implemented M6 capabilities now include fulfillment/tracking, secure delivery confirmation, issues and ratings, plus the complete return eligibility, pickup, inspection, refund and replacement lifecycle.
 
 > يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Enterprise Checkout).
 

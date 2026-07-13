@@ -234,26 +234,26 @@
 231,233,تعديل الطلب قبل التجهيز,Edit before preparation,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Safe revision,GET /api/orders/{id},Orders,orders-e2e;flutter-orders,Implemented,Automated,Immutable order uses cancel and reorder path
 232,234,إعادة الطلب,Reorder,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Reorder,POST /api/orders/{id}/reorder,Carts;CartItems;Products,orders-e2e;flutter-orders,Implemented,Automated,Reprices and revalidates stock
 233,235,طلب دوري متكرر,Recurring order,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Recurring dialog,POST /api/orders/{id}/recurring,RecurringOrderSchedules,orders-e2e;flutter-orders,Implemented,Automated,Weekly monthly quarterly and approval policy
-234,236,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-235,237,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-236,238,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-237,239,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-238,240,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-239,241,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-240,242,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-241,243,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-242,244,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-243,245,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-244,246,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-245,247,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-246,248,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-247,249,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-248,250,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-249,251,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-250,252,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-251,253,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-252,254,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
-253,255,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
+234,236,مركز المرتجعات,Returns center,المرتجعات والاستبدال | Returns & Replacement,client,/returns,List and filters,GET /api/returns,ReturnRequests;ReturnItems,returns-e2e;flutter-returns,Implemented,Automated,All return refund replacement and pickup states
+235,237,إنشاء طلب إرجاع,Create return request,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Order selection,GET /api/returns/eligible-orders,Orders;ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Delivered orders within 30-day policy
+236,238,اختيار المنتجات,Select products,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Items step,GET /api/returns/eligible-orders,OrderItems;ReturnItems,returns-e2e;flutter-returns,Implemented,Automated,Partial quantity and prior-return calculation
+237,239,تحديد الكمية,Select quantity,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Quantity controls,POST /api/returns,ReturnItems,returns-e2e;flutter-returns,Implemented,Automated,Validates against remaining eligible quantity
+238,240,اختيار سبب الإرجاع,Return reason,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Reason step,POST /api/returns,ReturnItems,returns-e2e;flutter-returns,Implemented,Automated,Structured reasons with required other description
+239,241,رفع الصور,Upload condition photos,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Evidence,POST /api/returns/{id}/attachments,ReturnAttachments,returns-e2e;flutter-returns,Implemented,Automated,Secure JPG PNG files and mandatory damage evidence
+240,242,إضافة وصف المشكلة,Problem description,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Description,POST /api/returns,ReturnItems,returns-e2e;flutter-returns,Implemented,Automated,Per-item sanitized descriptions
+241,243,اختيار استبدال أو استرداد,Replacement or refund,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Resolution,POST /api/returns,ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Refund methods and replacement path
+242,244,تأكيد طلب الإرجاع,Confirm return,المرتجعات والاستبدال | Returns & Replacement,client,/returns/new,Review,POST /api/returns/{id}/submit,ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Full item total address evidence and settlement review
+243,245,المرتجع تحت المراجعة,Return under review,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Submitted and review,GET /api/returns/{id},ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Chronological owner-scoped status updates
+244,246,الموافقة على الإرجاع,Return approved,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Approved,POST /api/admin/returns/{id}/approve,ReturnRequests;Notifications,returns-e2e;flutter-returns,Implemented,Automated,Role-protected staff decision
+245,247,رفض الإرجاع مع السبب,Return rejected with reason,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Rejected,POST /api/admin/returns/{id}/reject,ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Required rejection reason and released eligibility quantity
+246,248,تحديد موعد الاستلام,Schedule pickup,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Pickup scheduled,POST /api/admin/returns/{id}/pickup,ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Future date window driver and customer notification
+247,249,تتبع مندوب الاستلام,Track pickup driver,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Pickup map,POST /api/admin/returns/{id}/tracking,ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Live coordinates driver and location event
+248,250,تم استلام المرتجع,Return received,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Received,POST /api/admin/returns/{id}/progress,ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Timestamped handover to warehouse
+249,251,فحص المنتج,Product inspection,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Inspection,POST /api/admin/returns/{id}/inspection,ReturnItems;ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Pass fail notes and approved amount
+250,252,إشعار نتيجة الاستبدال,Replacement result notice,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Replacement preparing,GET /api/returns/{id},ReturnRequests;Notifications,returns-e2e;flutter-returns,Implemented,Automated,Preparing shipped and delivered replacement states
+251,253,إشعار رصيد دائن,Credit balance notice,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Credit balance,GET /api/returns/{id},RefundTransactions;Notifications,returns-e2e;flutter-returns,Implemented,Automated,Company credit balance refund method
+252,254,استرداد المبلغ,Refund completed,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Refund success,POST /api/admin/returns/{id}/progress,RefundTransactions;ReturnRequests,returns-e2e;flutter-returns,Implemented,Automated,Provider reference amount method and completion timestamp
+253,255,اكتمال طلب الإرجاع,Return completed,المرتجعات والاستبدال | Returns & Replacement,client,/returns/:id,Completed,GET /api/returns/{id},ReturnRequests;ReturnStatusHistories,returns-e2e;flutter-returns,Implemented,Automated,Terminal refund or replacement completion state
 254,256,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
 255,257,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,
 256,258,,,الفواتير والمدفوعات | Invoices & Payments,client,,,,,,Pending,Pending,

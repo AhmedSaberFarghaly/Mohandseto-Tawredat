@@ -19,6 +19,7 @@ import '../../features/customization/custom_requests_screen.dart';
 import '../../features/approvals/approvals_screen.dart';
 import '../../features/rfq/rfqs_screen.dart';
 import '../../features/orders/orders_screen.dart';
+import '../../features/returns/returns_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -117,6 +118,22 @@ final appRouter = GoRouter(
       name: 'order-detail',
       builder: (context, state) =>
           OrderDetailScreen(id: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/returns',
+      name: 'returns',
+      builder: (context, state) => const ReturnsScreen(),
+    ),
+    GoRoute(
+      path: '/returns/new',
+      name: 'return-new',
+      builder: (context, state) => const CreateReturnScreen(),
+    ),
+    GoRoute(
+      path: '/returns/:id',
+      name: 'return-detail',
+      builder: (context, state) =>
+          ReturnDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/products/:idOrSlug',
