@@ -89,6 +89,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ApprovalAttachment> ApprovalAttachments => Set<ApprovalAttachment>();
     public DbSet<ApprovalDelegation> ApprovalDelegations => Set<ApprovalDelegation>();
     public DbSet<AppNotification> Notifications => Set<AppNotification>();
+    public DbSet<Rfq> Rfqs => Set<Rfq>();
+    public DbSet<RfqItem> RfqItems => Set<RfqItem>();
+    public DbSet<RfqAttachment> RfqAttachments => Set<RfqAttachment>();
+    public DbSet<SupplierQuoteRequest> SupplierQuoteRequests => Set<SupplierQuoteRequest>();
+    public DbSet<SupplierQuote> SupplierQuotes => Set<SupplierQuote>();
+    public DbSet<SupplierQuoteItem> SupplierQuoteItems => Set<SupplierQuoteItem>();
+    public DbSet<CustomerQuote> CustomerQuotes => Set<CustomerQuote>();
+    public DbSet<CustomerQuoteVersion> CustomerQuoteVersions => Set<CustomerQuoteVersion>();
+    public DbSet<CustomerQuoteItem> CustomerQuoteItems => Set<CustomerQuoteItem>();
+    public DbSet<QuoteNegotiation> QuoteNegotiations => Set<QuoteNegotiation>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -143,6 +153,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ApprovalLevel>().HasIndex(x => new { x.PolicyId, x.Sequence }).IsUnique();
         b.Entity<ApprovalStep>().HasIndex(x => new { x.RequestId, x.Sequence }).IsUnique();
         b.Entity<AppNotification>().HasIndex(x => new { x.TenantId, x.UserId, x.ReadAt });
+        b.Entity<Rfq>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<Rfq>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.CreatedAt });
+        b.Entity<CustomerQuote>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<CustomerQuoteVersion>().HasIndex(x => new { x.QuoteId, x.VersionNumber }).IsUnique();
+        b.Entity<SupplierQuote>().HasIndex(x => x.Number).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -214,6 +229,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ApprovalAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ApprovalDelegation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<AppNotification>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Rfq>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<RfqItem>().HasQueryFilter(e => !e.IsDeleted && !e.Rfq.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<RfqAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Rfq.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupplierQuoteRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupplierQuote>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupplierQuoteItem>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CustomerQuote>().HasQueryFilter(e => !e.IsDeleted && !e.Rfq.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CustomerQuoteVersion>().HasQueryFilter(e => !e.IsDeleted && !e.Quote.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CustomerQuoteItem>().HasQueryFilter(e => !e.IsDeleted && !e.Version.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<QuoteNegotiation>().HasQueryFilter(e => !e.IsDeleted && !e.Rfq.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

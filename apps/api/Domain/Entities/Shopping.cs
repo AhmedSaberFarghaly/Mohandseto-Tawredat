@@ -117,6 +117,7 @@ public class Order : TenantEntity
     public decimal Savings { get; set; }
     public string? CouponCode { get; set; }
     public decimal CouponDiscount { get; set; }
+    public Guid? SourceRfqId { get; set; }
     public decimal TaxIncluded { get; set; }
     public decimal Shipping { get; set; }
     public decimal Total { get; set; }

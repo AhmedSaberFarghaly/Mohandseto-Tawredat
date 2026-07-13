@@ -65,6 +65,11 @@ class HomeScreen extends ConsumerWidget {
             ),
             actions: [
               IconButton(
+                tooltip: 'طلبات عروض الأسعار',
+                onPressed: () => context.push('/rfqs'),
+                icon: const Icon(Icons.request_quote_outlined),
+              ),
+              IconButton(
                 tooltip: 'مركز الموافقات',
                 onPressed: () => context.push('/approvals'),
                 icon: const Badge(

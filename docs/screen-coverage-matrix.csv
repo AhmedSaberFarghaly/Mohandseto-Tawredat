@@ -166,42 +166,42 @@
 163,165,تعارض تجاوز الميزانية,Budget conflict,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Budget conflict card,GET /api/approvals/{id},CostCenters;ApprovalRequests,approval-e2e;flutter-approvals,Implemented,Automated,Shows conflict and remaining availability without silently bypassing policy
 164,166,اعتماد تجاوز الصلاحية,Over-authority approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Authority warning,GET /api/approvals/{id},ApprovalSteps;ApprovalLevels,approval-e2e;flutter-approvals,Implemented,Automated,Warns when amount exceeds current authority and continues to next required level
 165,167,إشعار الموافقة بالنجاح,Approval success notification,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Final state and notification,POST /api/approvals/{id}/approve,Notifications;ApprovalRequests,approval-e2e;flutter-approvals,Implemented,Automated,Requester and next actors receive entity-linked notifications
-166,168,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-167,169,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-168,170,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-169,171,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-170,172,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-171,173,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-172,174,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-173,175,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-174,176,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-175,177,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-176,178,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-177,179,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-178,180,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-179,181,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-180,182,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-181,183,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-182,184,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-183,185,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-184,186,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-185,187,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-186,188,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-187,189,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-188,190,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-189,191,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-190,192,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-191,193,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-192,194,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-193,195,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-194,196,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-195,197,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-196,198,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-197,199,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-198,200,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-199,201,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-200,202,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
-201,203,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
+166,168,مركز طلبات عروض الأسعار,RFQ center,طلبات عروض الأسعار | RFQ,client,/rfqs,Filtered RFQ list,GET /api/rfqs,Rfqs;CustomerQuotes,rfq-e2e;flutter-rfq,Implemented,Automated,Draft review quoted negotiating and converted filters with latest quote total
+167,169,إنشاء طلب عرض سعر جديد,Create RFQ,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Three-step wizard,POST /api/rfqs,Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Validated title description location deadline and required date
+168,170,إدخال اسم الطلب,RFQ basic information,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Basic info step,POST /api/rfqs,Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Required title and optional detailed business need
+169,171,تحديد تاريخ الاحتياج,Required date,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Date pickers,POST /api/rfqs,Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Quote deadline must precede future required date
+170,172,إضافة منتجات من المتجر,Add catalog products,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Catalog picker,POST /api/rfqs/{id}/items,RfqItems;Products,rfq-e2e;flutter-rfq,Implemented,Automated,Searchable live catalog picker stores exact product mapping
+171,173,إضافة منتج غير موجود,Add free-text product,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Free item sheet,POST /api/rfqs/{id}/items,RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Free description quantity unit brand and alternatives
+172,174,إضافة مواصفات المنتج,Product specifications,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Item specifications,PUT /api/rfqs/{id}/items/{itemId},RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Per-item specifications brand and alternative permission
+173,175,تحديد الكمية والوحدة,Quantity and unit,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Item quantity,POST /api/rfqs/{id}/items,RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Positive decimal quantity and business unit validation
+174,176,رفع ملف المتطلبات,Upload requirements,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Upload source chooser,POST /api/rfqs/{id}/attachments,RfqAttachments;RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Excel CSV PDF PNG and JPG up to 15MB
+175,177,رفع ملف Excel,Upload Excel,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Excel extraction,POST /api/rfqs/{id}/attachments,RfqAttachments;RfqItems,rfq-e2e,Implemented,Automated,Reads XLSX sheet XML or CSV rows without unsafe macros
+176,178,رفع ملف PDF,Upload PDF,طلبات عروض الأسعار | RFQ,client,/rfqs/new,PDF extraction pipeline,POST /api/rfqs/{id}/attachments,RfqAttachments;RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Secure upload creates low-confidence review item through development extraction adapter
+177,179,تصوير قائمة مشتريات,Capture purchase list,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Image upload,POST /api/rfqs/{id}/attachments,RfqAttachments;RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Camera/gallery image enters the same reviewable extraction pipeline
+178,180,مراجعة العناصر المستخرجة,Review extracted items,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Needs-review cards,GET /api/rfqs/{id},RfqItems,rfq-e2e;flutter-rfq,Implemented,Automated,Confidence and source shown and submission blocked until every extracted item is reviewed
+179,181,تعديل العناصر المستخرجة,Edit extracted items,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Extracted item editor,PUT /api/rfqs/{id}/items/{itemId},RfqItems;Products,rfq-e2e;flutter-rfq,Implemented,Automated,Correct description quantity unit specifications and catalog mapping
+180,182,إضافة مرفقات إضافية,Add RFQ attachments,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Attachment list,POST /api/rfqs/{id}/attachments,RfqAttachments,rfq-e2e;flutter-rfq,Implemented,Automated,Multiple tenant-isolated files with extraction status and errors
+181,183,اختيار عنوان التوريد,Select delivery location,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Delivery governorate,POST /api/rfqs,Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Delivery governorate captured before supplier pricing
+182,184,تفاصيل طلب العرض,RFQ review,طلبات عروض الأسعار | RFQ,client,/rfqs/new,Final review step,GET /api/rfqs/{id},Rfqs;RfqItems;RfqAttachments,rfq-e2e;flutter-rfq,Implemented,Automated,Summary of dates items files and processing behavior
+183,185,نجاح إرسال RFQ,RFQ submitted,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Submitted state,POST /api/rfqs/{id}/submit,Rfqs;Notifications,rfq-e2e;flutter-rfq,Implemented,Automated,Creates notification and moves to under review only after validation
+184,186,RFQ تحت المراجعة,RFQ under review,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Status timeline,GET /api/rfqs/{id},Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Five-stage review quote negotiate accept convert timeline
+185,187,طلب توضيحات من المبيعات,Sales clarification request,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Clarification state,POST /api/rfqs/{id}/negotiate,QuoteNegotiations;Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Typed clarification messages share negotiation history
+186,188,الرد على طلب التوضيح,Reply to clarification,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Negotiation chat,POST /api/rfqs/{id}/negotiate,QuoteNegotiations,rfq-e2e;flutter-rfq,Implemented,Automated,Timestamped customer and staff-side message model
+187,189,استلام عرض السعر,Quote received,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Quoted notification,POST /api/admin/rfqs/{id}/quotes,CustomerQuotes;Notifications,rfq-e2e;flutter-rfq,Implemented,Automated,Role-protected quote publisher creates customer notification
+188,190,تفاصيل عرض السعر,Quote details,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Latest quote,GET /api/rfqs/{id},CustomerQuoteVersions;CustomerQuoteItems,rfq-e2e;flutter-rfq,Implemented,Automated,Items subtotal tax shipping total validity delivery and terms
+189,191,عرض أكثر من بديل,Quote alternatives,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Alternative items,GET /api/rfqs/{id},CustomerQuoteItems,rfq-e2e;flutter-rfq,Implemented,Automated,Alternative product flag and reason per quoted item
+190,192,مقارنة بدائل الأسعار,Alternative price comparison,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Item comparison,GET /api/rfqs/{id},CustomerQuoteItems,rfq-e2e;flutter-rfq,Implemented,Automated,Original RFQ mapping preserved across alternatives
+191,193,مقارنة عروض متعددة,Quote version comparison,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Version comparison table,GET /api/rfqs/{id},CustomerQuoteVersions,rfq-e2e;flutter-rfq,Implemented,Automated,Compares version total lead time and change summary
+192,194,قبول العرض,Accept quote,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Accept confirmation,POST /api/rfqs/{id}/quotes/accept,CustomerQuotes;Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Accepts exact non-expired version and locks accepted version id
+193,195,طلب تعديل السعر,Request price revision,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Requote reason,POST /api/rfqs/{id}/quotes/requote,CustomerQuotes;QuoteNegotiations,rfq-e2e;flutter-rfq,Implemented,Automated,Required reason opens negotiation and revision request
+194,196,إرسال تفاوض أو استفسار,Send negotiation,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Message or counteroffer,POST /api/rfqs/{id}/negotiate,QuoteNegotiations,rfq-e2e;flutter-rfq,Implemented,Automated,Free message and optional proposed total
+195,197,رفض العرض,Reject quote,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Reject confirmation,POST /api/rfqs/{id}/quotes/reject,CustomerQuotes;Rfqs,rfq-e2e;flutter-rfq,Implemented,Automated,Rejects selected valid version with recorded customer decision
+196,198,متابعة النسخ المعدلة للعرض,Quote version history,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Version history,GET /api/rfqs/{id},CustomerQuoteVersions,rfq-e2e;flutter-rfq,Implemented,Automated,Immutable ordered versions with sent dates
+197,199,تفاصيل نسخة عرض معدلة,Revised quote details,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Version details,GET /api/rfqs/{id},CustomerQuoteVersions;CustomerQuoteItems,rfq-e2e;flutter-rfq,Implemented,Automated,Latest version is primary and older versions remain comparable
+198,200,تحويل العرض إلى طلب شراء,Convert quote to order,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Conversion dialog,POST /api/rfqs/{id}/convert,Orders;OrderItems;CostCenters;ApprovalRequests,rfq-e2e;flutter-rfq,Implemented,Automated,Requires catalog mapping then creates immutable order and approval if needed
+199,201,تحميل عرض السعر PDF,Download quote PDF,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,PDF export,GET /api/rfqs/{id}/quotes/{versionId}/pdf,CustomerQuoteVersions,rfq-e2e;flutter-rfq,Implemented,Automated,Valid generated PDF with quote totals items validity and version
+200,202,مشاركة عرض السعر,Share quote,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Share summary,GET /api/rfqs/{id},CustomerQuotes,flutter-rfq,Implemented,Automated,Copies a concise quote number version total and validity summary
+201,203,سجل تحديثات العرض,Quote activity history,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Status and negotiation history,GET /api/rfqs/{id},CustomerQuoteVersions;QuoteNegotiations,rfq-e2e;flutter-rfq,Implemented,Automated,Chronological versions messages counteroffers and state timeline
 202,204,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
 203,205,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
 204,206,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,

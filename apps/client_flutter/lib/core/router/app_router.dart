@@ -17,6 +17,7 @@ import '../../features/customization/custom_product_wizard_screen.dart';
 import '../../features/customization/custom_products_screen.dart';
 import '../../features/customization/custom_requests_screen.dart';
 import '../../features/approvals/approvals_screen.dart';
+import '../../features/rfq/rfqs_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -182,6 +183,22 @@ final appRouter = GoRouter(
       name: 'approval-detail',
       builder: (context, state) =>
           ApprovalDetailScreen(id: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: '/rfqs',
+      name: 'rfqs',
+      builder: (context, state) => const RfqsScreen(),
+    ),
+    GoRoute(
+      path: '/rfqs/new',
+      name: 'rfq-new',
+      builder: (context, state) => const CreateRfqScreen(),
+    ),
+    GoRoute(
+      path: '/rfqs/:id',
+      name: 'rfq-detail',
+      builder: (context, state) =>
+          RfqDetailScreen(id: state.pathParameters['id']!),
     ),
   ],
 );
