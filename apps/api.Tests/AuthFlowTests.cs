@@ -154,6 +154,21 @@ public class AuthFlowTests : IDisposable
     }
 
     [Fact]
+    public async Task Password_reset_uses_otp_consumes_challenge_and_revokes_sessions()
+    {
+        var registration = await RegisterCompanyAsync("01055500014", "reset@test.com");
+        var request = await _auth.RequestPasswordResetAsync("reset@test.com");
+        Assert.True(request.Sent); Assert.NotNull(request.DevelopmentCode); Assert.Equal("رقم الهاتف المسجل", request.MaskedPhone);
+
+        await _auth.ResetPasswordAsync(new PasswordResetDto(request.ResetToken, request.DevelopmentCode!, "NewSecret@456"));
+        await Assert.ThrowsAsync<ApiException>(() => _auth.RefreshAsync(registration.RefreshToken!));
+        await Assert.ThrowsAsync<ApiException>(() => _auth.ResetPasswordAsync(
+            new PasswordResetDto(request.ResetToken, request.DevelopmentCode!, "Another@789")));
+        var login = await _auth.LoginWithEmailAsync("reset@test.com", "NewSecret@456");
+        Assert.NotNull(login.AccessToken);
+    }
+
+    [Fact]
     public async Task Tenant_isolation_filter_hides_other_tenant_branches()
     {
         var a = await RegisterCompanyAsync("01055500004", "e@test.com");

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mohandseto.Api.Infrastructure;
 
@@ -10,9 +11,11 @@ using Mohandseto.Api.Infrastructure;
 namespace Mohandseto.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713104944_AdminIdentitySecurity")]
+    partial class AdminIdentitySecurity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -67,7 +70,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status");
 
-                    b.ToTable("AccountDeletionRequests", (string)null);
+                    b.ToTable("AccountDeletionRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.AppNotification", b =>
@@ -128,7 +131,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "ReadAt");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalAction", b =>
@@ -183,7 +186,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("ApprovalActions", (string)null);
+                    b.ToTable("ApprovalActions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalAssignment", b =>
@@ -226,7 +229,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("LevelId");
 
-                    b.ToTable("ApprovalAssignments", (string)null);
+                    b.ToTable("ApprovalAssignments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalAttachment", b =>
@@ -284,7 +287,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("ApprovalAttachments", (string)null);
+                    b.ToTable("ApprovalAttachments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalDelegation", b =>
@@ -337,7 +340,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApprovalDelegations", (string)null);
+                    b.ToTable("ApprovalDelegations");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalLevel", b =>
@@ -393,7 +396,7 @@ namespace Mohandseto.Api.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = 0");
 
-                    b.ToTable("ApprovalLevels", (string)null);
+                    b.ToTable("ApprovalLevels");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalPolicy", b =>
@@ -442,7 +445,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApprovalPolicies", (string)null);
+                    b.ToTable("ApprovalPolicies");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalRequest", b =>
@@ -514,7 +517,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "Status", "DueAt");
 
-                    b.ToTable("ApprovalRequests", (string)null);
+                    b.ToTable("ApprovalRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalStep", b =>
@@ -581,7 +584,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("RequestId", "Sequence")
                         .IsUnique();
 
-                    b.ToTable("ApprovalSteps", (string)null);
+                    b.ToTable("ApprovalSteps");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.AuditLog", b =>
@@ -618,7 +621,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Brand", b =>
@@ -668,7 +671,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.BudgetAdjustmentRequest", b =>
@@ -737,7 +740,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "CostCenterId", "Status", "CreatedAt");
 
-                    b.ToTable("BudgetAdjustmentRequests", (string)null);
+                    b.ToTable("BudgetAdjustmentRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CallbackRequest", b =>
@@ -791,7 +794,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status", "PreferredAt");
 
-                    b.ToTable("CallbackRequests", (string)null);
+                    b.ToTable("CallbackRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Cart", b =>
@@ -852,7 +855,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CartItem", b =>
@@ -929,7 +932,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("CartId", "ProductId", "VariantId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Category", b =>
@@ -993,7 +996,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CheckoutAttachment", b =>
@@ -1054,7 +1057,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("CheckoutSessionId", "Type");
 
-                    b.ToTable("CheckoutAttachments", (string)null);
+                    b.ToTable("CheckoutAttachments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CheckoutSession", b =>
@@ -1160,7 +1163,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "CartId", "Status");
 
-                    b.ToTable("CheckoutSessions", (string)null);
+                    b.ToTable("CheckoutSessions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Company", b =>
@@ -1241,7 +1244,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TenantId")
                         .IsUnique();
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyBillingProfile", b =>
@@ -1301,7 +1304,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("CompanyId")
                         .IsUnique();
 
-                    b.ToTable("CompanyBillingProfiles", (string)null);
+                    b.ToTable("CompanyBillingProfiles");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyBranch", b =>
@@ -1366,7 +1369,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyBranches", (string)null);
+                    b.ToTable("CompanyBranches");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyBrandProfile", b =>
@@ -1424,7 +1427,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("CompanyId")
                         .IsUnique();
 
-                    b.ToTable("CompanyBrandProfiles", (string)null);
+                    b.ToTable("CompanyBrandProfiles");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyContract", b =>
@@ -1494,7 +1497,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.ToTable("CompanyContracts", (string)null);
+                    b.ToTable("CompanyContracts");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyDocument", b =>
@@ -1558,7 +1561,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyDocuments", (string)null);
+                    b.ToTable("CompanyDocuments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyInvite", b =>
@@ -1633,7 +1636,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "Email", "Status");
 
-                    b.ToTable("CompanyInvites", (string)null);
+                    b.ToTable("CompanyInvites");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyProductPrice", b =>
@@ -1685,7 +1688,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "ProductId", "ValidFrom");
 
-                    b.ToTable("CompanyProductPrices", (string)null);
+                    b.ToTable("CompanyProductPrices");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompanyProject", b =>
@@ -1734,7 +1737,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("CompanyProjects", (string)null);
+                    b.ToTable("CompanyProjects");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CompareItem", b =>
@@ -1780,7 +1783,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("CompareItems", (string)null);
+                    b.ToTable("CompareItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ContentPage", b =>
@@ -1842,7 +1845,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("ContentPages", (string)null);
+                    b.ToTable("ContentPages");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ContractRenewalRequest", b =>
@@ -1903,7 +1906,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ContractId", "Status");
 
-                    b.ToTable("ContractRenewalRequests", (string)null);
+                    b.ToTable("ContractRenewalRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CostCenter", b =>
@@ -1974,7 +1977,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("CostCenters", (string)null);
+                    b.ToTable("CostCenters");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Coupon", b =>
@@ -2050,7 +2053,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.ToTable("Coupons", (string)null);
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CreditLimitRequest", b =>
@@ -2117,7 +2120,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "Status", "CreatedAt");
 
-                    b.ToTable("CreditLimitRequests", (string)null);
+                    b.ToTable("CreditLimitRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomColor", b =>
@@ -2174,7 +2177,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TemplateId", "Code")
                         .IsUnique();
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomMaterial", b =>
@@ -2227,7 +2230,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TemplateId", "Code")
                         .IsUnique();
 
-                    b.ToTable("Materials", (string)null);
+                    b.ToTable("Materials");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomProductRequest", b =>
@@ -2305,7 +2308,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "CreatedAt");
 
-                    b.ToTable("CustomProductRequests", (string)null);
+                    b.ToTable("CustomProductRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomProductTemplate", b =>
@@ -2363,7 +2366,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("ProductId")
                         .IsUnique();
 
-                    b.ToTable("CustomProductTemplates", (string)null);
+                    b.ToTable("CustomProductTemplates");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomRequestItem", b =>
@@ -2439,7 +2442,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("CustomRequestItems", (string)null);
+                    b.ToTable("CustomRequestItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomSize", b =>
@@ -2492,7 +2495,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TemplateId", "Code")
                         .IsUnique();
 
-                    b.ToTable("Sizes", (string)null);
+                    b.ToTable("Sizes");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomerQuote", b =>
@@ -2548,7 +2551,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RfqId");
 
-                    b.ToTable("CustomerQuotes", (string)null);
+                    b.ToTable("CustomerQuotes");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomerQuoteItem", b =>
@@ -2620,7 +2623,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("VersionId");
 
-                    b.ToTable("CustomerQuoteItems", (string)null);
+                    b.ToTable("CustomerQuoteItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomerQuoteVersion", b =>
@@ -2695,7 +2698,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("QuoteId", "VersionNumber")
                         .IsUnique();
 
-                    b.ToTable("CustomerQuoteVersions", (string)null);
+                    b.ToTable("CustomerQuoteVersions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.CustomizationOption", b =>
@@ -2752,7 +2755,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TemplateId", "Code")
                         .IsUnique();
 
-                    b.ToTable("CustomizationOptions", (string)null);
+                    b.ToTable("CustomizationOptions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DeliveryConfirmation", b =>
@@ -2805,7 +2808,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("DeliveryConfirmations", (string)null);
+                    b.ToTable("DeliveryConfirmations");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DeliveryProof", b =>
@@ -2863,7 +2866,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("DeliveryProofs", (string)null);
+                    b.ToTable("DeliveryProofs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DesignApproval", b =>
@@ -2917,7 +2920,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("VersionId");
 
-                    b.ToTable("DesignApprovals", (string)null);
+                    b.ToTable("DesignApprovals");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DesignBrief", b =>
@@ -2977,7 +2980,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("RequestId")
                         .IsUnique();
 
-                    b.ToTable("DesignBriefs", (string)null);
+                    b.ToTable("DesignBriefs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DesignComment", b =>
@@ -3027,7 +3030,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("DesignComments", (string)null);
+                    b.ToTable("DesignComments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DesignMockup", b =>
@@ -3085,7 +3088,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("VersionId");
 
-                    b.ToTable("DesignMockups", (string)null);
+                    b.ToTable("DesignMockups");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.DesignVersion", b =>
@@ -3139,7 +3142,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("RequestId", "VersionNumber")
                         .IsUnique();
 
-                    b.ToTable("DesignVersions", (string)null);
+                    b.ToTable("DesignVersions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Favorite", b =>
@@ -3185,7 +3188,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("Favorites", (string)null);
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Invoice", b =>
@@ -3288,7 +3291,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "Status", "DueAt");
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.InvoiceLine", b =>
@@ -3354,7 +3357,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("InvoiceId");
 
-                    b.ToTable("InvoiceLines", (string)null);
+                    b.ToTable("InvoiceLines");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.InvoicePayment", b =>
@@ -3436,7 +3439,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Reference")
                         .IsUnique();
 
-                    b.ToTable("InvoicePayments", (string)null);
+                    b.ToTable("InvoicePayments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.LogoAsset", b =>
@@ -3494,7 +3497,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("LogoAssets", (string)null);
+                    b.ToTable("LogoAssets");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.MobileAppConfig", b =>
@@ -3550,7 +3553,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Platform")
                         .IsUnique();
 
-                    b.ToTable("MobileAppConfigs", (string)null);
+                    b.ToTable("MobileAppConfigs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.NotificationPreference", b =>
@@ -3615,7 +3618,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TenantId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("NotificationPreferences", (string)null);
+                    b.ToTable("NotificationPreferences");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Order", b =>
@@ -3773,7 +3776,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "CreatedAt");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderCancellation", b =>
@@ -3824,7 +3827,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderCancellations", (string)null);
+                    b.ToTable("OrderCancellations");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderIssue", b =>
@@ -3884,7 +3887,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderIssues", (string)null);
+                    b.ToTable("OrderIssues");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderItem", b =>
@@ -3958,7 +3961,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderItemRating", b =>
@@ -4008,7 +4011,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("OrderItemId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("OrderItemRatings", (string)null);
+                    b.ToTable("OrderItemRatings");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderRating", b =>
@@ -4061,7 +4064,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("OrderId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("OrderRatings", (string)null);
+                    b.ToTable("OrderRatings");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OrderStatusHistory", b =>
@@ -4110,7 +4113,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderStatusHistories", (string)null);
+                    b.ToTable("OrderStatusHistories");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.OtpCode", b =>
@@ -4162,7 +4165,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OtpCodes", (string)null);
+                    b.ToTable("OtpCodes");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.PasswordResetChallenge", b =>
@@ -4212,7 +4215,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetChallenges", (string)null);
+                    b.ToTable("PasswordResetChallenges");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.PaymentAttempt", b =>
@@ -4293,7 +4296,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("ProviderReference")
                         .IsUnique();
 
-                    b.ToTable("PaymentAttempts", (string)null);
+                    b.ToTable("PaymentAttempts");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Permission", b =>
@@ -4319,7 +4322,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.PrintMethod", b =>
@@ -4378,7 +4381,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("TemplateId", "Code")
                         .IsUnique();
 
-                    b.ToTable("PrintMethods", (string)null);
+                    b.ToTable("PrintMethods");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Product", b =>
@@ -4498,7 +4501,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("UnitId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductAttributeValue", b =>
@@ -4546,7 +4549,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductAttributeValues", (string)null);
+                    b.ToTable("ProductAttributeValues");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductDocument", b =>
@@ -4595,7 +4598,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductDocuments", (string)null);
+                    b.ToTable("ProductDocuments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductImage", b =>
@@ -4645,7 +4648,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductVariant", b =>
@@ -4710,7 +4713,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("ProductVariants", (string)null);
+                    b.ToTable("ProductVariants");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionJob", b =>
@@ -4764,7 +4767,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("RequestId")
                         .IsUnique();
 
-                    b.ToTable("ProductionJobs", (string)null);
+                    b.ToTable("ProductionJobs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionSample", b =>
@@ -4838,7 +4841,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("ProductionJobId", "VersionNumber")
                         .IsUnique();
 
-                    b.ToTable("ProductionSamples", (string)null);
+                    b.ToTable("ProductionSamples");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ProductionStage", b =>
@@ -4901,7 +4904,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductionJobId");
 
-                    b.ToTable("ProductionStages", (string)null);
+                    b.ToTable("ProductionStages");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.QualityCheck", b =>
@@ -4957,7 +4960,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductionJobId");
 
-                    b.ToTable("QualityChecks", (string)null);
+                    b.ToTable("QualityChecks");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.QuantityPriceTier", b =>
@@ -5002,7 +5005,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("ProductId", "MinQty")
                         .IsUnique();
 
-                    b.ToTable("QuantityPriceTiers", (string)null);
+                    b.ToTable("QuantityPriceTiers");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.QuoteNegotiation", b =>
@@ -5059,7 +5062,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RfqId");
 
-                    b.ToTable("QuoteNegotiations", (string)null);
+                    b.ToTable("QuoteNegotiations");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RecentSearch", b =>
@@ -5107,7 +5110,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("UserId", "Query")
                         .IsUnique();
 
-                    b.ToTable("RecentSearches", (string)null);
+                    b.ToTable("RecentSearches");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RecentlyViewed", b =>
@@ -5153,7 +5156,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("RecentlyVieweds", (string)null);
+                    b.ToTable("RecentlyVieweds");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RecurringOrderSchedule", b =>
@@ -5213,7 +5216,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RecurringOrderSchedules", (string)null);
+                    b.ToTable("RecurringOrderSchedules");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RefreshToken", b =>
@@ -5266,7 +5269,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RefundTransaction", b =>
@@ -5333,7 +5336,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ReturnRequestId");
 
-                    b.ToTable("RefundTransactions", (string)null);
+                    b.ToTable("RefundTransactions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ReturnAttachment", b =>
@@ -5391,7 +5394,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ReturnRequestId");
 
-                    b.ToTable("ReturnAttachments", (string)null);
+                    b.ToTable("ReturnAttachments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ReturnItem", b =>
@@ -5463,7 +5466,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("ReturnRequestId", "OrderItemId")
                         .IsUnique();
 
-                    b.ToTable("ReturnItems", (string)null);
+                    b.ToTable("ReturnItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ReturnRequest", b =>
@@ -5569,7 +5572,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status", "CreatedAt");
 
-                    b.ToTable("ReturnRequests", (string)null);
+                    b.ToTable("ReturnRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ReturnStatusHistory", b =>
@@ -5618,7 +5621,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ReturnRequestId");
 
-                    b.ToTable("ReturnStatusHistories", (string)null);
+                    b.ToTable("ReturnStatusHistories");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Rfq", b =>
@@ -5690,7 +5693,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status", "CreatedAt");
 
-                    b.ToTable("Rfqs", (string)null);
+                    b.ToTable("Rfqs");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RfqAttachment", b =>
@@ -5755,7 +5758,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RfqId");
 
-                    b.ToTable("RfqAttachments", (string)null);
+                    b.ToTable("RfqAttachments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RfqItem", b =>
@@ -5832,7 +5835,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RfqId");
 
-                    b.ToTable("RfqItems", (string)null);
+                    b.ToTable("RfqItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Role", b =>
@@ -5882,7 +5885,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.RolePermission", b =>
@@ -5897,7 +5900,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("RolePermissions", (string)null);
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Shipment", b =>
@@ -5973,7 +5976,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Shipments", (string)null);
+                    b.ToTable("Shipments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ShipmentEvent", b =>
@@ -6030,7 +6033,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("ShipmentId");
 
-                    b.ToTable("ShipmentEvents", (string)null);
+                    b.ToTable("ShipmentEvents");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupplierQuote", b =>
@@ -6089,7 +6092,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.ToTable("SupplierQuotes", (string)null);
+                    b.ToTable("SupplierQuotes");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupplierQuoteItem", b =>
@@ -6147,7 +6150,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("SupplierQuoteId");
 
-                    b.ToTable("SupplierQuoteItems", (string)null);
+                    b.ToTable("SupplierQuoteItems");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupplierQuoteRequest", b =>
@@ -6198,7 +6201,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SupplierQuoteRequests", (string)null);
+                    b.ToTable("SupplierQuoteRequests");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupportArticle", b =>
@@ -6255,7 +6258,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("SupportArticles", (string)null);
+                    b.ToTable("SupportArticles");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupportAttachment", b =>
@@ -6313,7 +6316,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("SupportAttachments", (string)null);
+                    b.ToTable("SupportAttachments");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupportMessage", b =>
@@ -6366,7 +6369,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TicketId", "CreatedAt");
 
-                    b.ToTable("SupportMessages", (string)null);
+                    b.ToTable("SupportMessages");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.SupportTicket", b =>
@@ -6451,7 +6454,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("TenantId", "UserId", "Status", "CreatedAt");
 
-                    b.ToTable("SupportTickets", (string)null);
+                    b.ToTable("SupportTickets");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.Tenant", b =>
@@ -6493,7 +6496,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tenants", (string)null);
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.TwoFactorChallenge", b =>
@@ -6543,7 +6546,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TwoFactorChallenges", (string)null);
+                    b.ToTable("TwoFactorChallenges");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.UnitOfMeasure", b =>
@@ -6587,7 +6590,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Units", (string)null);
+                    b.ToTable("Units");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.User", b =>
@@ -6684,7 +6687,7 @@ namespace Mohandseto.Api.Migrations
                     b.HasIndex("Phone")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.UserRole", b =>
@@ -6699,7 +6702,7 @@ namespace Mohandseto.Api.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Mohandseto.Api.Domain.Entities.ApprovalAction", b =>

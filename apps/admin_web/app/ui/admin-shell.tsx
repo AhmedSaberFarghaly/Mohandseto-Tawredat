@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const groups = [
-  ["الرئيسية", [["لوحة التحكم", "/dashboard", "⌂"]]],
+  ["الرئيسية", [["لوحة التحكم", "/dashboard", "⌂"], ["التحليلات", "/dashboard/analytics", "⌁"]]],
   ["التشغيل", [["الطلبات", "/dashboard/orders", "▤"], ["عروض الأسعار", "/dashboard/quotes", "◫"], ["الطباعة والتصميم", "/dashboard/printing", "✎"]]],
   ["الكتالوج", [["المنتجات", "/dashboard/products", "◇"], ["الأقسام", "/dashboard/categories", "▦"], ["المحتوى والعروض", "/dashboard/content", "☆"]]],
   ["الإدارة", [["المخزون", "/dashboard/inventory", "▥"], ["الموردون", "/dashboard/suppliers", "♙"], ["الشركات وCRM", "/dashboard/companies", "◉"], ["العقود", "/dashboard/contracts", "▱"]]],

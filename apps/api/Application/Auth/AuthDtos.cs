@@ -5,6 +5,14 @@ public record OtpVerifyDto(string Phone, string Code);
 public record EmailLoginDto(string Email, string Password);
 public record RefreshDto(string RefreshToken);
 public record TwoFactorLoginDto(string ChallengeToken, string Code);
+public record PasswordResetRequestDto(string Email);
+public record PasswordResetDto(string ResetToken, string Code, string NewPassword);
+public record PasswordResetRequestResultDto(
+    bool Sent,
+    string ResetToken,
+    DateTime ExpiresAt,
+    string? MaskedPhone,
+    string? DevelopmentCode);
 
 public record RegisterCompanyDto(
     string Phone,

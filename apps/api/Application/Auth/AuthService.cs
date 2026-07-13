@@ -192,6 +192,62 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         EnsureActive(challenge.User); await otp.VerifyAsync(challenge.User.Phone, dto.Code, OtpPurpose.TwoFactor, ct); challenge.Consumed = true; await db.SaveChangesAsync(ct); return await IssueAsync(challenge.User, ct);
     }
 
+    public async Task<PasswordResetRequestResultDto> RequestPasswordResetAsync(string email, CancellationToken ct = default)
+    {
+        var expires = DateTime.UtcNow.AddMinutes(10);
+        var raw = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        var user = await db.Users.FirstOrDefaultAsync(
+            u => u.Email == email.Trim().ToLowerInvariant() && u.IsActive, ct);
+
+        // Always return the same response shape so this endpoint cannot be used to enumerate accounts.
+        if (user is null)
+            return new(true, raw, expires, "رقم الهاتف المسجل", null);
+
+        foreach (var old in await db.PasswordResetChallenges
+                     .Where(c => c.UserId == user.Id && !c.Consumed).ToListAsync(ct))
+            old.Consumed = true;
+
+        var devCode = await otp.RequestAsync(user.Phone, OtpPurpose.PasswordReset, ct);
+        db.PasswordResetChallenges.Add(new PasswordResetChallenge
+        {
+            UserId = user.Id,
+            TokenHash = TokenService.Hash(raw),
+            ExpiresAt = expires,
+        });
+        await db.SaveChangesAsync(ct);
+        return new(true, raw, expires, "رقم الهاتف المسجل", devCode);
+    }
+
+    public async Task ResetPasswordAsync(PasswordResetDto dto, CancellationToken ct = default)
+    {
+        if (dto.NewPassword.Length < 8)
+            throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+
+        var hash = TokenService.Hash(dto.ResetToken);
+        var challenge = await db.PasswordResetChallenges
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.TokenHash == hash && !c.Consumed, ct)
+            ?? throw ApiException.Unauthorized("رابط استعادة كلمة المرور غير صالح");
+        if (challenge.ExpiresAt < DateTime.UtcNow)
+            throw ApiException.Unauthorized("انتهت مهلة استعادة كلمة المرور");
+
+        await otp.VerifyAsync(challenge.User.Phone, dto.Code, OtpPurpose.PasswordReset, ct);
+        challenge.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        challenge.Consumed = true;
+        foreach (var session in await db.RefreshTokens
+                     .Where(t => t.UserId == challenge.UserId && t.RevokedAt == null).ToListAsync(ct))
+            session.RevokedAt = DateTime.UtcNow;
+        db.AuditLogs.Add(new AuditLog
+        {
+            UserId = challenge.UserId,
+            TenantId = challenge.User.TenantId,
+            Action = "auth.password_reset",
+            EntityType = nameof(User),
+            EntityId = challenge.UserId.ToString(),
+        });
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task<AuthUserDto> MeAsync(Guid userId, CancellationToken ct = default)
     {
         var user = await db.Users.Include(u => u.Roles).ThenInclude(r => r.Role)
@@ -238,4 +294,5 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
             user.IsPlatformStaff, tenantStatus,
             user.Roles.Select(r => r.Role.Code).ToList());
     }
+
 }

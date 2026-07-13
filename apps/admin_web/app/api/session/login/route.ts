@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { eligibleRoles, setSessionCookies, type AuthPayload } from "../session-cookies";
 
 const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:5199";
 
@@ -19,29 +20,31 @@ export async function POST(request: Request) {
     );
   }
 
-  const roles = (data.user?.roles ?? []) as string[];
-  const allowed = roles.some((role) => role.startsWith("platform_") || role === "super_admin");
-  if (!allowed) {
+  if (data.requiresTwoFactor) {
+    const result = NextResponse.json({
+      requiresTwoFactor: true,
+      expiresAt: data.challengeExpiresAt,
+      developmentCode: data.developmentCode,
+    });
+    result.cookies.set("admin_2fa", data.challengeToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/api/session",
+      maxAge: 5 * 60,
+    });
+    return result;
+  }
+
+  const roles = eligibleRoles(data.user?.roles);
+  if (roles.length === 0) {
     return NextResponse.json(
       { message: "هذا الحساب غير مصرح له بدخول لوحة الإدارة" },
       { status: 403 },
     );
   }
 
-  const result = NextResponse.json({ user: data.user });
-  result.cookies.set("admin_access", data.accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 15 * 60,
-  });
-  result.cookies.set("admin_refresh", data.refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/api",
-    maxAge: 30 * 24 * 60 * 60,
-  });
+  const result = NextResponse.json({ user: data.user, roles });
+  setSessionCookies(result, data as AuthPayload);
   return result;
 }

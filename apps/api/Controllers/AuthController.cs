@@ -46,6 +46,20 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     public async Task<ActionResult<AuthResultDto>> VerifyTwoFactor(TwoFactorLoginDto dto, CancellationToken ct) =>
         Ok(await auth.VerifyTwoFactorAsync(dto, ct));
 
+    [HttpPost("password/request")]
+    [EnableRateLimiting("auth")]
+    public async Task<ActionResult<PasswordResetRequestResultDto>> RequestPasswordReset(
+        PasswordResetRequestDto dto, CancellationToken ct) =>
+        Ok(await auth.RequestPasswordResetAsync(dto.Email, ct));
+
+    [HttpPost("password/reset")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> ResetPassword(PasswordResetDto dto, CancellationToken ct)
+    {
+        await auth.ResetPasswordAsync(dto, ct);
+        return Ok(new { reset = true });
+    }
+
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(RefreshDto dto, CancellationToken ct)
     {

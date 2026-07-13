@@ -36,6 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
+    public DbSet<PasswordResetChallenge> PasswordResetChallenges => Set<PasswordResetChallenge>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     public DbSet<Category> Categories => Set<Category>();
@@ -147,6 +148,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<User>().HasIndex(u => u.Phone).IsUnique();
         b.Entity<User>().HasIndex(u => u.Email).IsUnique();
         b.Entity<TwoFactorChallenge>().HasIndex(x => x.TokenHash).IsUnique();
+        b.Entity<PasswordResetChallenge>().HasIndex(x => x.TokenHash).IsUnique();
         b.Entity<Product>().HasIndex(p => p.Sku).IsUnique();
         b.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
         b.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
@@ -253,6 +255,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         // dependents of User share its soft-delete filter to avoid filter-mismatch anomalies
         b.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<TwoFactorChallenge>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
+        b.Entity<PasswordResetChallenge>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<UserRole>().HasQueryFilter(e => !e.User.IsDeleted);
 
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));

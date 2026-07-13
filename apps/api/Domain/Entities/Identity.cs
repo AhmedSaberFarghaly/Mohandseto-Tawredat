@@ -156,6 +156,15 @@ public class TwoFactorChallenge : BaseEntity
     public bool Consumed { get; set; }
 }
 
+public class PasswordResetChallenge : BaseEntity
+{
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
+    public string TokenHash { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public bool Consumed { get; set; }
+}
+
 public class AuditLog
 {
     public long Id { get; set; }
