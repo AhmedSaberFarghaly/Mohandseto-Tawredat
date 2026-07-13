@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../core/api/cart_repository.dart';
 import '../../core/api/checkout_repository.dart';
@@ -22,6 +23,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String? _error;
   String? _branchId;
   String? _payment;
+  String? _costCenterId;
+  String? _projectId;
+  CheckoutPaymentAttempt? _paymentAttempt;
+  CheckoutAttachment? _poAttachment;
+  bool _allowSplit = false;
   String _shipping = 'Standard';
   String _slot = '09:00-12:00';
   DateTime _date = DateTime.now().add(const Duration(days: 2));
@@ -29,6 +35,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _phone = TextEditingController();
   final _po = TextEditingController();
   final _reference = TextEditingController();
+  final _department = TextEditingController();
+  final _orderNote = TextEditingController();
+  final _creditPortion = TextEditingController();
+  final _cardPortion = TextEditingController();
 
   @override
   void initState() {
@@ -42,6 +52,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _phone.dispose();
     _po.dispose();
     _reference.dispose();
+    _department.dispose();
+    _orderNote.dispose();
+    _creditPortion.dispose();
+    _cardPortion.dispose();
     super.dispose();
   }
 
@@ -58,6 +72,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _phone.text = value.receiverPhone ?? '';
         _shipping = value.shippingMethod;
         _payment = value.paymentMethod;
+        _costCenterId =
+            value.costCenterId ??
+            (value.costCenters.isEmpty ? null : value.costCenters.first.id);
+        _projectId = value.projectId;
+        _department.text = value.requestingDepartment ?? '';
+        _orderNote.text = value.orderNote ?? '';
+        _allowSplit = value.allowSplitDelivery;
+        _poAttachment = value.purchaseOrderAttachment;
         _po.text = value.purchaseOrderNumber ?? '';
         _reference.text = value.internalReference ?? '';
       });
@@ -152,6 +174,71 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Text(
+        'الجهة الطالبة والميزانية',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<String>(
+        value: _costCenterId,
+        decoration: const InputDecoration(labelText: 'مركز التكلفة *'),
+        items: _options!.costCenters
+            .map(
+              (center) => DropdownMenuItem(
+                value: center.id,
+                child: Text('${center.code} — ${center.name}'),
+              ),
+            )
+            .toList(),
+        onChanged: (value) => setState(() => _costCenterId = value),
+      ),
+      if (_costCenterId != null) ...[
+        const SizedBox(height: 5),
+        Text(
+          'المتاح: ${_money(_options!.costCenters.firstWhere((x) => x.id == _costCenterId).available)} ج.م',
+          style: const TextStyle(
+            color: AppColors.success,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+      const SizedBox(height: 10),
+      DropdownButtonFormField<String?>(
+        value: _projectId,
+        decoration: const InputDecoration(labelText: 'المشروع (اختياري)'),
+        items: [
+          const DropdownMenuItem<String?>(
+            value: null,
+            child: Text('بدون مشروع محدد'),
+          ),
+          ..._options!.projects.map(
+            (project) => DropdownMenuItem<String?>(
+              value: project.id,
+              child: Text('${project.code} — ${project.name}'),
+            ),
+          ),
+        ],
+        onChanged: (value) => setState(() => _projectId = value),
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: _department,
+        decoration: const InputDecoration(
+          labelText: 'الإدارة الطالبة *',
+          prefixIcon: Icon(Icons.apartment_outlined),
+        ),
+      ),
+      const SizedBox(height: 10),
+      TextField(
+        controller: _orderNote,
+        maxLines: 2,
+        decoration: const InputDecoration(
+          labelText: 'ملاحظات على الطلب',
+          prefixIcon: Icon(Icons.notes_rounded),
+        ),
+      ),
+      const Divider(height: 30),
+      const Text(
         'عناوين شركتكم',
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
       ),
@@ -174,6 +261,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 : null,
           ),
         ),
+      ),
+      OutlinedButton.icon(
+        onPressed: _showAddAddress,
+        icon: const Icon(Icons.add_location_alt_outlined),
+        label: const Text('إضافة عنوان جديد وتحديد الموقع'),
       ),
       const SizedBox(height: 14),
       TextField(
@@ -242,6 +334,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
       ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: _allowSplit,
+        onChanged: (value) => setState(() => _allowSplit = value),
+        title: const Text('السماح بتقسيم التوصيل'),
+        subtitle: const Text(
+          'يمكن شحن الأصناف المتاحة أولًا عند اختلاف مواعيد التوريد',
+        ),
+      ),
     ],
   );
 
@@ -260,7 +361,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             value: payment.code,
             groupValue: _payment,
             onChanged: payment.enabled
-                ? (value) => setState(() => _payment = value)
+                ? (value) {
+                    setState(() {
+                      _payment = value;
+                      _paymentAttempt = null;
+                      if (value == 'Partial') {
+                        final center = _selectedCostCenter;
+                        final credit = center == null
+                            ? 0.0
+                            : center.available.clamp(0, _payable).toDouble();
+                        _creditPortion.text = credit.toStringAsFixed(2);
+                        _cardPortion.text = (_payable - credit).toStringAsFixed(
+                          2,
+                        );
+                      }
+                    });
+                  }
                 : null,
             title: Text(
               payment.name,
@@ -279,6 +395,78 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
       ),
+      if (_payment == 'Card' || _payment == 'Partial') ...[
+        const SizedBox(height: 10),
+        if (_payment == 'Partial') ...[
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _creditPortion,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'من الحد الائتماني',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _cardPortion,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(labelText: 'بالبطاقة'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _paymentAttempt?.status == 'Succeeded'
+                ? AppColors.successTint
+                : AppColors.primaryTint,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _paymentAttempt?.status == 'Succeeded'
+                    ? Icons.verified_rounded
+                    : Icons.credit_card_rounded,
+                color: _paymentAttempt?.status == 'Succeeded'
+                    ? AppColors.success
+                    : AppColors.primary,
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  _paymentAttempt?.status == 'Succeeded'
+                      ? 'تم اعتماد الدفع الإلكتروني — ${_paymentAttempt!.reference}'
+                      : 'بيانات البطاقة تُعالج عبر رمز آمن ولا تُحفظ على خوادمنا.',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: _busy ? null : _preparePayment,
+                child: Text(
+                  _paymentAttempt?.status == 'Succeeded'
+                      ? 'إعادة'
+                      : 'إتمام الدفع',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
       const SizedBox(height: 18),
       TextField(
         controller: _po,
@@ -286,6 +474,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           labelText: 'رقم أمر الشراء الداخلي PO (اختياري)',
           prefixIcon: Icon(Icons.description_outlined),
         ),
+      ),
+      const SizedBox(height: 8),
+      OutlinedButton.icon(
+        onPressed: _pickPurchaseOrder,
+        icon: Icon(
+          _poAttachment == null
+              ? Icons.upload_file_outlined
+              : Icons.check_circle_outline,
+        ),
+        label: Text(_poAttachment?.name ?? 'رفع ملف أمر الشراء PDF أو صورة'),
       ),
       const SizedBox(height: 10),
       TextField(
@@ -352,6 +550,31 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
         _section(
+          'الجهة الطالبة',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                review.costCenterName ?? '—',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              if (review.projectName != null)
+                Text('المشروع: ${review.projectName}'),
+              if (review.requestingDepartment != null)
+                Text('الإدارة: ${review.requestingDepartment}'),
+              if (review.orderNote?.isNotEmpty == true)
+                Text('ملاحظة: ${review.orderNote}'),
+              if (review.purchaseOrderAttachment != null)
+                Text('أمر الشراء: ${review.purchaseOrderAttachment!.name}'),
+              if (review.allowSplitDelivery)
+                const Text(
+                  'مسموح بتقسيم التوصيل',
+                  style: TextStyle(color: AppColors.primary),
+                ),
+            ],
+          ),
+        ),
+        _section(
           'الملخص',
           Column(
             children: [
@@ -371,13 +594,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               color: AppColors.warningTint,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: AppColors.warning),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, color: AppColors.warning),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'سيُرسل هذا الطلب للموافقة الداخلية قبل التنفيذ.',
+                    review.budgetExceeded
+                        ? 'إجمالي الطلب يتجاوز المتاح في الميزانية وسيُرسل للموافقة الداخلية.'
+                        : 'سيُرسل هذا الطلب للموافقة الداخلية قبل التنفيذ.',
                   ),
                 ),
               ],
@@ -469,10 +694,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final repository = ref.read(checkoutRepositoryProvider);
       if (_step == 0) {
         if (_branchId == null ||
+            _costCenterId == null ||
+            _department.text.trim().isEmpty ||
             _receiver.text.trim().isEmpty ||
             _phone.text.trim().isEmpty) {
           throw StateError('أكمل بيانات التوصيل');
         }
+        _options = await repository.context(
+          costCenterId: _costCenterId!,
+          projectId: _projectId,
+          department: _department.text.trim(),
+          orderNote: _orderNote.text.trim().isEmpty
+              ? null
+              : _orderNote.text.trim(),
+          internalReference: _reference.text.trim().isEmpty
+              ? null
+              : _reference.text.trim(),
+        );
         _options = await repository.delivery(
           branchId: _branchId!,
           receiverName: _receiver.text,
@@ -480,16 +718,26 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           requiredDate: _date,
           timeSlot: _slot,
           shippingMethod: _shipping,
+          allowSplitDelivery: _allowSplit,
         );
         setState(() => _step = 1);
       } else if (_step == 1) {
         if (_payment == null) throw StateError('اختر طريقة الدفع');
+        if ((_payment == 'Card' || _payment == 'Partial') &&
+            _paymentAttempt?.status != 'Succeeded') {
+          throw StateError('أكمل عملية الدفع الإلكتروني أولًا');
+        }
         _options = await repository.payment(
           method: _payment!,
           poNumber: _po.text.trim().isEmpty ? null : _po.text,
           internalReference: _reference.text.trim().isEmpty
               ? null
               : _reference.text,
+          paymentAttemptId: _paymentAttempt?.id,
+          creditPortion: double.tryParse(_creditPortion.text),
+          cardPortion: _payment == 'Card'
+              ? _payable
+              : double.tryParse(_cardPortion.text),
         );
         _review = await repository.review();
         setState(() => _step = 2);
@@ -539,6 +787,269 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
+  CheckoutCostCenter? get _selectedCostCenter {
+    if (_costCenterId == null) return null;
+    for (final center in _options!.costCenters) {
+      if (center.id == _costCenterId) return center;
+    }
+    return null;
+  }
+
+  double get _payable {
+    final subtotal = _options!.cart.subtotal;
+    final shipping = switch (_shipping) {
+      'Pickup' => 0.0,
+      'Express' => 150.0,
+      _ => subtotal >= 2000 ? 0.0 : 150.0,
+    };
+    return subtotal + shipping;
+  }
+
+  Future<void> _showAddAddress() async {
+    final name = TextEditingController();
+    final governorate = TextEditingController(text: 'القاهرة');
+    final city = TextEditingController();
+    final address = TextEditingController();
+    final phone = TextEditingController();
+    double? latitude;
+    double? longitude;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('إضافة عنوان توصيل'),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: name,
+                    decoration: const InputDecoration(labelText: 'اسم الفرع *'),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: governorate,
+                          decoration: const InputDecoration(
+                            labelText: 'المحافظة *',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: city,
+                          decoration: const InputDecoration(
+                            labelText: 'المدينة *',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: address,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'العنوان بالتفصيل *',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: phone,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(labelText: 'هاتف الفرع'),
+                  ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTapDown: (details) {
+                      final box = context.findRenderObject() as RenderBox?;
+                      final width = box?.size.width ?? 300;
+                      setDialogState(() {
+                        longitude =
+                            29.8 + (details.localPosition.dx / width) * 1.8;
+                        latitude =
+                            31.0 - (details.localPosition.dy / 140) * 1.5;
+                      });
+                    },
+                    child: Container(
+                      height: 140,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryTint,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: .3),
+                        ),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(
+                            Icons.map_outlined,
+                            size: 72,
+                            color: AppColors.gray300,
+                          ),
+                          if (latitude == null)
+                            const Text(
+                              'اضغط لتحديد الموقع التقريبي على الخريطة',
+                            )
+                          else
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.location_pin,
+                                  color: AppColors.error,
+                                  size: 38,
+                                ),
+                                Text(
+                                  '${latitude!.toStringAsFixed(5)}, ${longitude!.toStringAsFixed(5)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('إلغاء'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('حفظ العنوان'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != true) return;
+    if (name.text.trim().isEmpty ||
+        city.text.trim().isEmpty ||
+        governorate.text.trim().isEmpty ||
+        address.text.trim().isEmpty) {
+      name.dispose();
+      governorate.dispose();
+      city.dispose();
+      address.dispose();
+      phone.dispose();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أكمل بيانات العنوان المطلوبة')),
+        );
+      }
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final updated = await ref
+          .read(checkoutRepositoryProvider)
+          .addAddress(
+            name: name.text.trim(),
+            governorate: governorate.text.trim(),
+            city: city.text.trim(),
+            addressLine: address.text.trim(),
+            phone: phone.text.trim().isEmpty ? null : phone.text.trim(),
+            latitude: latitude,
+            longitude: longitude,
+          );
+      if (!mounted) return;
+      setState(() {
+        _options = updated;
+        _branchId = updated.branches
+            .firstWhere((branch) => branch.name == name.text.trim())
+            .id;
+      });
+    } finally {
+      name.dispose();
+      governorate.dispose();
+      city.dispose();
+      address.dispose();
+      phone.dispose();
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _pickPurchaseOrder() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf', 'png', 'jpg', 'jpeg'],
+      withData: true,
+    );
+    if (result == null) return;
+    setState(() => _busy = true);
+    try {
+      final attachment = await ref
+          .read(checkoutRepositoryProvider)
+          .uploadPurchaseOrder(result.files.single);
+      if (mounted) setState(() => _poAttachment = attachment);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('تعذر رفع أمر الشراء: $error')));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _preparePayment() async {
+    final isPartial = _payment == 'Partial';
+    final credit = double.tryParse(_creditPortion.text) ?? 0;
+    final card = isPartial ? double.tryParse(_cardPortion.text) ?? 0 : _payable;
+    if (card <= 0 ||
+        (isPartial &&
+            (credit <= 0 || (credit + card - _payable).abs() > .01))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('وزّع إجمالي الطلب كاملًا بين الحد الائتماني والبطاقة'),
+        ),
+      );
+      return;
+    }
+    if (isPartial && credit > (_selectedCostCenter?.available ?? 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الجزء الائتماني يتجاوز المتاح في مركز التكلفة'),
+        ),
+      );
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final repository = ref.read(checkoutRepositoryProvider);
+      final created = await repository.createPayment(card);
+      final confirmed = await repository.confirmPayment(created.id);
+      if (!mounted) return;
+      setState(() => _paymentAttempt = confirmed);
+      if (confirmed.status != 'Succeeded') {
+        throw StateError(confirmed.failureMessage ?? 'فشلت عملية الدفع');
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام الدفع: $error')));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _pickDate() async {
     final date = await showDatePicker(
       context: context,
@@ -576,6 +1087,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     'CreditLine' => Icons.account_balance_wallet_outlined,
     'BankTransfer' => Icons.account_balance_outlined,
     'CashOnDelivery' => Icons.payments_outlined,
+    'MonthlyInvoice' => Icons.calendar_month_outlined,
+    'Card' => Icons.credit_card_outlined,
+    'Partial' => Icons.call_split_outlined,
     _ => Icons.receipt_long_outlined,
   };
   String _paymentName(String code) =>

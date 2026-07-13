@@ -75,6 +75,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<ProductionStage> ProductionStages => Set<ProductionStage>();
     public DbSet<ProductionSample> ProductionSamples => Set<ProductionSample>();
     public DbSet<QualityCheck> QualityChecks => Set<QualityCheck>();
+    public DbSet<CostCenter> CostCenters => Set<CostCenter>();
+    public DbSet<CompanyProject> CompanyProjects => Set<CompanyProject>();
+    public DbSet<CheckoutAttachment> CheckoutAttachments => Set<CheckoutAttachment>();
+    public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -116,6 +120,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ProductionJob>().HasIndex(x => x.RequestId).IsUnique();
         b.Entity<ProductionJob>().HasIndex(x => x.Number).IsUnique();
         b.Entity<ProductionSample>().HasIndex(x => new { x.ProductionJobId, x.VersionNumber }).IsUnique();
+        b.Entity<CostCenter>().HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        b.Entity<CompanyProject>().HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        b.Entity<PaymentAttempt>().HasIndex(x => x.IdempotencyKey).IsUnique();
+        b.Entity<PaymentAttempt>().HasIndex(x => x.ProviderReference).IsUnique();
+        b.Entity<PaymentAttempt>().HasOne(x => x.CheckoutSession).WithMany()
+            .HasForeignKey(x => x.CheckoutSessionId).OnDelete(DeleteBehavior.Cascade);
+        b.Entity<CheckoutAttachment>().HasIndex(x => new { x.CheckoutSessionId, x.Type });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -173,6 +184,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<ProductionStage>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ProductionSample>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<QualityCheck>().HasQueryFilter(e => !e.IsDeleted && !e.ProductionJob.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CostCenter>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyProject>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CheckoutAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<PaymentAttempt>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

@@ -9,6 +9,9 @@ public class Cart : TenantEntity
     public Guid UserId { get; set; }
     public CartStatus Status { get; set; } = CartStatus.Active;
     public string? CouponCode { get; set; }
+    public string? OrderNote { get; set; }
+    public string? RequestingDepartment { get; set; }
+    public bool AllowSplitDelivery { get; set; }
     public ICollection<CartItem> Items { get; set; } = [];
 }
 
@@ -30,7 +33,7 @@ public class CartItem : TenantEntity
 
 public enum CheckoutStatus { Draft, Ready, Submitted, Expired }
 public enum ShippingMethod { Standard, Express, Pickup }
-public enum PaymentMethod { CreditLine, BankTransfer, CashOnDelivery, MonthlyInvoice }
+public enum PaymentMethod { CreditLine, BankTransfer, CashOnDelivery, MonthlyInvoice, Card, Partial }
 public enum OrderStatus { PendingApproval, Confirmed, Processing, Cancelled }
 
 public class CheckoutSession : TenantEntity
@@ -48,6 +51,14 @@ public class CheckoutSession : TenantEntity
     public PaymentMethod? PaymentMethod { get; set; }
     public string? PurchaseOrderNumber { get; set; }
     public string? InternalReference { get; set; }
+    public Guid? CostCenterId { get; set; }
+    public Guid? ProjectId { get; set; }
+    public string? RequestingDepartment { get; set; }
+    public string? OrderNote { get; set; }
+    public bool AllowSplitDelivery { get; set; }
+    public Guid? PaymentAttemptId { get; set; }
+    public decimal? CreditPortion { get; set; }
+    public decimal? CardPortion { get; set; }
     public CheckoutStatus Status { get; set; } = CheckoutStatus.Draft;
     public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddHours(2);
 }
@@ -67,6 +78,18 @@ public class Order : TenantEntity
     public PaymentMethod PaymentMethod { get; set; }
     public string? PurchaseOrderNumber { get; set; }
     public string? InternalReference { get; set; }
+    public Guid? CostCenterId { get; set; }
+    public string? CostCenterCode { get; set; }
+    public string? CostCenterName { get; set; }
+    public Guid? ProjectId { get; set; }
+    public string? ProjectCode { get; set; }
+    public string? ProjectName { get; set; }
+    public string? RequestingDepartment { get; set; }
+    public string? OrderNote { get; set; }
+    public bool AllowSplitDelivery { get; set; }
+    public Guid? PaymentAttemptId { get; set; }
+    public decimal? CreditPortion { get; set; }
+    public decimal? CardPortion { get; set; }
     public OrderStatus Status { get; set; }
     public bool RequiresApproval { get; set; }
     public decimal Subtotal { get; set; }

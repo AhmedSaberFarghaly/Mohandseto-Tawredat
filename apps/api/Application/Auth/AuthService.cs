@@ -93,7 +93,21 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         };
         user.Roles.Add(new UserRole { UserId = user.Id, RoleId = ownerRole.Id });
 
-        db.AddRange(tenant, company, branch, user);
+        var generalCostCenter = new CostCenter
+        {
+            TenantId = tenant.Id, Code = "CC-GEN", NameAr = "المصروفات العامة",
+            BudgetAmount = 250000, ApprovalThreshold = 5000,
+        };
+        var operationsCostCenter = new CostCenter
+        {
+            TenantId = tenant.Id, Code = "CC-OPS", NameAr = "التشغيل والمشتريات",
+            BudgetAmount = 500000, ApprovalThreshold = 20000,
+        };
+        var defaultProject = new CompanyProject
+        {
+            TenantId = tenant.Id, Code = "PRJ-GEN", NameAr = "مشتريات الشركة العامة",
+        };
+        db.AddRange(tenant, company, branch, user, generalCostCenter, operationsCostCenter, defaultProject);
         db.AuditLogs.Add(new AuditLog
         {
             TenantId = tenant.Id,
