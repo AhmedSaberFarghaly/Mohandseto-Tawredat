@@ -99,6 +99,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<CustomerQuoteVersion> CustomerQuoteVersions => Set<CustomerQuoteVersion>();
     public DbSet<CustomerQuoteItem> CustomerQuoteItems => Set<CustomerQuoteItem>();
     public DbSet<QuoteNegotiation> QuoteNegotiations => Set<QuoteNegotiation>();
+    public DbSet<Shipment> Shipments => Set<Shipment>();
+    public DbSet<ShipmentEvent> ShipmentEvents => Set<ShipmentEvent>();
+    public DbSet<DeliveryProof> DeliveryProofs => Set<DeliveryProof>();
+    public DbSet<DeliveryConfirmation> DeliveryConfirmations => Set<DeliveryConfirmation>();
+    public DbSet<OrderRating> OrderRatings => Set<OrderRating>();
+    public DbSet<OrderItemRating> OrderItemRatings => Set<OrderItemRating>();
+    public DbSet<OrderIssue> OrderIssues => Set<OrderIssue>();
+    public DbSet<OrderCancellation> OrderCancellations => Set<OrderCancellation>();
+    public DbSet<RecurringOrderSchedule> RecurringOrderSchedules => Set<RecurringOrderSchedule>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -158,6 +167,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CustomerQuote>().HasIndex(x => x.Number).IsUnique();
         b.Entity<CustomerQuoteVersion>().HasIndex(x => new { x.QuoteId, x.VersionNumber }).IsUnique();
         b.Entity<SupplierQuote>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<Shipment>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<OrderRating>().HasIndex(x => new { x.OrderId, x.UserId }).IsUnique();
+        b.Entity<OrderItemRating>().HasIndex(x => new { x.OrderItemId, x.UserId }).IsUnique();
+        b.Entity<DeliveryConfirmation>().HasIndex(x => x.OrderId);
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -239,6 +252,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CustomerQuoteVersion>().HasQueryFilter(e => !e.IsDeleted && !e.Quote.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CustomerQuoteItem>().HasQueryFilter(e => !e.IsDeleted && !e.Version.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<QuoteNegotiation>().HasQueryFilter(e => !e.IsDeleted && !e.Rfq.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<Shipment>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ShipmentEvent>().HasQueryFilter(e => !e.IsDeleted && !e.Shipment.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DeliveryProof>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DeliveryConfirmation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderRating>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderItemRating>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderIssue>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<OrderCancellation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<RecurringOrderSchedule>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

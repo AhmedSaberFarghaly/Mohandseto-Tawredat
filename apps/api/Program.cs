@@ -10,6 +10,7 @@ using Mohandseto.Api.Application.Customization;
 using Mohandseto.Api.Application.Shopping;
 using Mohandseto.Api.Application.Approvals;
 using Mohandseto.Api.Application.Rfq;
+using Mohandseto.Api.Application.Orders;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -66,6 +67,7 @@ builder.Services.AddScoped<CheckoutService>();
 builder.Services.AddScoped<PaymentGatewayService>();
 builder.Services.AddScoped<ApprovalService>();
 builder.Services.AddScoped<RfqService>();
+builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

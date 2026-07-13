@@ -202,38 +202,38 @@
 199,201,تحميل عرض السعر PDF,Download quote PDF,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,PDF export,GET /api/rfqs/{id}/quotes/{versionId}/pdf,CustomerQuoteVersions,rfq-e2e;flutter-rfq,Implemented,Automated,Valid generated PDF with quote totals items validity and version
 200,202,مشاركة عرض السعر,Share quote,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Share summary,GET /api/rfqs/{id},CustomerQuotes,flutter-rfq,Implemented,Automated,Copies a concise quote number version total and validity summary
 201,203,سجل تحديثات العرض,Quote activity history,طلبات عروض الأسعار | RFQ,client,/rfqs/:id,Status and negotiation history,GET /api/rfqs/{id},CustomerQuoteVersions;QuoteNegotiations,rfq-e2e;flutter-rfq,Implemented,Automated,Chronological versions messages counteroffers and state timeline
-202,204,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-203,205,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-204,206,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-205,207,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-206,208,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-207,209,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-208,210,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-209,211,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-210,212,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-211,213,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-212,214,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-213,215,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-214,216,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-215,217,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-216,218,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-217,219,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-218,220,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-219,221,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-220,222,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-221,223,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-222,224,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-223,225,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-224,226,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-225,227,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-226,228,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-227,229,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-228,230,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-229,231,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-230,232,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-231,233,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-232,234,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
-233,235,,,الطلبات والتتبع | Orders & Tracking,client,,,,,,Pending,Pending,
+202,204,طلباتي,Orders list,الطلبات والتتبع | Orders & Tracking,client,/orders,List and tabs,GET /api/orders,Orders;OrderItems,orders-e2e;flutter-orders,Implemented,Automated,Search refresh and business status filters
+203,205,فلترة الطلبات,Order filters,الطلبات والتتبع | Orders & Tracking,client,/orders,Status filter,GET /api/orders?status=,Orders,orders-e2e;flutter-orders,Implemented,Automated,All operational approval delivery and cancellation states
+204,206,البحث عن طلب,Order search,الطلبات والتتبع | Orders & Tracking,client,/orders,Search,GET /api/orders?search=,Orders,orders-e2e;flutter-orders,Implemented,Automated,Immutable order-number search
+205,207,تفاصيل الطلب,Order details,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Details,GET /api/orders/{id},Orders;OrderItems;OrderStatusHistories,orders-e2e;flutter-orders,Implemented,Automated,Commercial company payment delivery and totals snapshot
+206,208,الخط الزمني للحالة,Status timeline,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Timeline,GET /api/orders/{id},OrderStatusHistories,orders-e2e;flutter-orders,Implemented,Automated,Chronological actor note and timestamp history
+207,209,قيد المراجعة,Pending review,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,PendingApproval,GET /api/orders/{id},Orders;ApprovalRequests,orders-e2e;flutter-orders,Implemented,Automated,Approval-linked status and cancellable reservation
+208,210,تم التأكيد والتجهيز,Confirmed and preparing,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Confirmed,GET /api/orders/{id},Orders;OrderStatusHistories,orders-e2e;flutter-orders,Implemented,Automated,State-specific hero and timeline
+209,211,جاري تجهيز الطلب,In preparation,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Processing and Picking,GET /api/orders/{id},Orders;Shipments,orders-e2e;flutter-orders,Implemented,Automated,Warehouse progress in fulfillment history
+210,212,جاهز للشحن,Ready to ship,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Packing,GET /api/orders/{id},Orders;Shipments,orders-e2e;flutter-orders,Implemented,Automated,Packing state before carrier handoff
+211,213,أكثر من شحنة,Split shipments,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Split delivery,GET /api/orders/{id},Shipments;ShipmentEvents,orders-e2e;flutter-orders,Implemented,Automated,Multiple shipments and partial delivery
+212,214,تم الشحن,Shipped,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Shipped,GET /api/orders/{id},Shipments;ShipmentEvents,orders-e2e;flutter-orders,Implemented,Automated,Carrier tracking and latest events
+213,215,تم تعيين السائق,Driver assigned,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Driver assigned,GET /api/orders/{id},Shipments,orders-e2e;flutter-orders,Implemented,Automated,Driver name phone and ETA
+214,216,خرج للتوصيل,Out for delivery,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,OutForDelivery,GET /api/orders/{id},Shipments;ShipmentEvents,orders-e2e;flutter-orders,Implemented,Automated,Enables confirmation and location
+215,217,تتبع مباشر على الخريطة,Live map tracking,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Map,GET /api/orders/{id},Shipments;ShipmentEvents,orders-e2e;flutter-orders,Implemented,Automated,Latest driver coordinates and route visual
+216,218,تفاصيل الشحنة,Shipment details,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Shipment card,GET /api/orders/{id},Shipments;ShipmentEvents,orders-e2e;flutter-orders,Implemented,Automated,Carrier tracking ETA and events
+217,219,متابعة السائق والتواصل,Driver contact,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Driver contact,GET /api/orders/{id},Shipments,orders-e2e;flutter-orders,Implemented,Automated,Owner-scoped driver contact
+218,220,تأكيد التسليم,Delivery confirmation,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Confirmation,POST /api/orders/{id}/confirm-delivery,DeliveryConfirmations;DeliveryProofs,orders-e2e;flutter-orders,Implemented,Automated,Atomically updates order and shipment
+219,221,رمز استلام الطلب,Delivery OTP,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,OTP dialog,POST /api/orders/{id}/delivery-code;POST /confirm-delivery,DeliveryConfirmations,orders-e2e;flutter-orders,Implemented,Automated,Hashed expiring code with attempt limit
+220,222,توقيع المستلم,Signature capture,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Signature,POST /api/orders/{id}/proofs,DeliveryProofs,orders-e2e;flutter-orders,Implemented,Automated,Secure tenant-scoped upload
+221,223,إثبات التسليم,Proof of delivery,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Proof,POST /api/orders/{id}/proofs;GET /api/orders/proofs/{id},DeliveryProofs,orders-e2e;flutter-orders,Implemented,Automated,Photo signature document and OTP types
+222,224,تم التسليم بنجاح,Delivery success,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Delivered,GET /api/orders/{id},Orders;DeliveryProofs,orders-e2e;flutter-orders,Implemented,Automated,Enables ratings issues and reorder
+223,225,تقييم الطلب والخدمة,Rate order and service,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Rating dialog,PUT /api/orders/{id}/rating,OrderRatings,orders-e2e;flutter-orders,Implemented,Automated,Idempotent one-to-five ratings
+224,226,تقييم المنتجات,Rate products,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Item rating,PUT /api/orders/{id}/items/{itemId}/rating,OrderItemRatings,orders-e2e;flutter-orders,Implemented,Automated,Per-item owner-only rating
+225,227,الإبلاغ عن مشكلة توصيل,Report delivery issue,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Issue dialog,POST /api/orders/{id}/issues,OrderIssues,orders-e2e;flutter-orders,Implemented,Automated,Evidence and status workflow
+226,228,صنف ناقص,Missing item issue,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,MissingItem,POST /api/orders/{id}/issues,OrderIssues,orders-e2e;flutter-orders,Implemented,Automated,Validates order item and quantity
+227,229,صنف خاطئ,Wrong item issue,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,WrongItem,POST /api/orders/{id}/issues,OrderIssues,orders-e2e;flutter-orders,Implemented,Automated,Structured issue type and evidence
+228,230,صنف تالف,Damaged item issue,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,DamagedItem,POST /api/orders/{id}/issues,OrderIssues,orders-e2e;flutter-orders,Implemented,Automated,Secure image evidence
+229,231,إلغاء الطلب,Cancel order,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Cancellation,POST /api/orders/{id}/cancel,OrderCancellations;OrderStatusHistories,orders-e2e;flutter-orders,Implemented,Automated,Required reason and audit history
+230,232,الإلغاء قبل الشحن,Cancel before shipping,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Pre-shipping cancellation,POST /api/orders/{id}/cancel,Orders;CostCenters,orders-e2e;flutter-orders,Implemented,Automated,Blocks after shipment and releases budget
+231,233,تعديل الطلب قبل التجهيز,Edit before preparation,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Safe revision,GET /api/orders/{id},Orders,orders-e2e;flutter-orders,Implemented,Automated,Immutable order uses cancel and reorder path
+232,234,إعادة الطلب,Reorder,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Reorder,POST /api/orders/{id}/reorder,Carts;CartItems;Products,orders-e2e;flutter-orders,Implemented,Automated,Reprices and revalidates stock
+233,235,طلب دوري متكرر,Recurring order,الطلبات والتتبع | Orders & Tracking,client,/orders/:id,Recurring dialog,POST /api/orders/{id}/recurring,RecurringOrderSchedules,orders-e2e;flutter-orders,Implemented,Automated,Weekly monthly quarterly and approval policy
 234,236,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
 235,237,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,
 236,238,,,المرتجعات والاستبدال | Returns & Replacement,client,,,,,,Pending,Pending,

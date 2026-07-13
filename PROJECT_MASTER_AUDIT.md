@@ -1,5 +1,13 @@
 # PROJECT MASTER AUDIT — مهندسيتو توريدات
 
+## Current execution checkpoint — 2026-07-13
+
+- Overall implementation gate: **54%**.
+- M5 is complete. The Orders & Tracking slice of M6 (client screens 204–235) is complete; returns/replacements, finance and account are next.
+- Database: **12 migrations** through `OrderFulfillment`, verified against a fresh SQLite database.
+- Automated verification: **30 backend tests + 13 Flutter tests**, with clean Flutter static analysis.
+- Implemented order capabilities: search/filter, immutable details, status timeline, split shipments, carrier/driver/ETA/live coordinates, delivery OTP and proofs, issues, cancellation with budget release, ratings, reorder and recurring schedules.
+
 > يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-13 (Enterprise Checkout).
 
 ## 1. وصف المشروع الحالي

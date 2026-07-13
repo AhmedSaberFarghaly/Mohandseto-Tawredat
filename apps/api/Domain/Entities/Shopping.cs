@@ -55,7 +55,7 @@ public class Coupon : TenantEntity
 public enum CheckoutStatus { Draft, Ready, Submitted, Expired }
 public enum ShippingMethod { Standard, Express, Pickup }
 public enum PaymentMethod { CreditLine, BankTransfer, CashOnDelivery, MonthlyInvoice, Card, Partial }
-public enum OrderStatus { PendingApproval, Confirmed, Processing, Cancelled }
+public enum OrderStatus { PendingApproval, Confirmed, Processing, Picking, Packing, Shipped, OutForDelivery, PartiallyDelivered, Delivered, Completed, Delayed, Cancelled }
 
 public class CheckoutSession : TenantEntity
 {

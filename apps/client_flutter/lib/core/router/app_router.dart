@@ -18,6 +18,7 @@ import '../../features/customization/custom_products_screen.dart';
 import '../../features/customization/custom_requests_screen.dart';
 import '../../features/approvals/approvals_screen.dart';
 import '../../features/rfq/rfqs_screen.dart';
+import '../../features/orders/orders_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -85,11 +86,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/orders',
           name: 'orders',
-          builder: (context, state) => const PlaceholderScreen(
-            title: 'الطلبات',
-            icon: Icons.receipt_long_outlined,
-            message: 'سيتم تنفيذ رحلة الطلبات والتتبع في المرحلة السادسة.',
-          ),
+          builder: (context, state) => const OrdersScreen(),
         ),
         GoRoute(
           path: '/account',
@@ -114,6 +111,12 @@ final appRouter = GoRouter(
           ),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/orders/:id',
+      name: 'order-detail',
+      builder: (context, state) =>
+          OrderDetailScreen(id: state.pathParameters['id']!),
     ),
     GoRoute(
       path: '/products/:idOrSlug',
