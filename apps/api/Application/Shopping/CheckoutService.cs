@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Application.Customization;
+using Mohandseto.Api.Application.Approvals;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
@@ -8,7 +9,7 @@ namespace Mohandseto.Api.Application.Shopping;
 
 public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts,
     PaymentGatewayService payments, IWebHostEnvironment environment, CustomizationService? customization = null,
-    IConfiguration? configuration = null)
+    IConfiguration? configuration = null, ApprovalService? approvals = null)
 {
     private static readonly Dictionary<string, string> AllowedAttachments = new(StringComparer.OrdinalIgnoreCase)
     { ["application/pdf"] = ".pdf", ["image/png"] = ".png", ["image/jpeg"] = ".jpg" };
@@ -229,6 +230,8 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             Note = order.RequiresApproval ? "أرسل الطلب للموافقة الداخلية" : "تم تأكيد الطلب" });
         db.Orders.Add(order); session.Status = CheckoutStatus.Submitted; session.Cart.Status = CartStatus.Converted;
         if (order.RequiresApproval) center.ReservedAmount += order.Total; else center.UsedAmount += order.Total;
+        if (order.RequiresApproval && approvals is not null)
+            await approvals.CreateForOrderAsync(order, review.BudgetExceeded, userId, ct);
         if (!string.IsNullOrWhiteSpace(order.CouponCode))
         {
             var coupon = await db.Coupons.FirstOrDefaultAsync(c => c.Code == order.CouponCode, ct);

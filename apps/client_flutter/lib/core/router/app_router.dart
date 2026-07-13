@@ -16,6 +16,7 @@ import '../../features/cart/checkout_screen.dart';
 import '../../features/customization/custom_product_wizard_screen.dart';
 import '../../features/customization/custom_products_screen.dart';
 import '../../features/customization/custom_requests_screen.dart';
+import '../../features/approvals/approvals_screen.dart';
 import '../api/checkout_repository.dart';
 import '../../features/home/client_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -170,6 +171,17 @@ final appRouter = GoRouter(
       builder: (context, state) => CustomRequestDetailScreen(
         requestId: state.pathParameters['requestId']!,
       ),
+    ),
+    GoRoute(
+      path: '/approvals',
+      name: 'approvals',
+      builder: (context, state) => const ApprovalsScreen(),
+    ),
+    GoRoute(
+      path: '/approvals/:id',
+      name: 'approval-detail',
+      builder: (context, state) =>
+          ApprovalDetailScreen(id: state.pathParameters['id']!),
     ),
   ],
 );

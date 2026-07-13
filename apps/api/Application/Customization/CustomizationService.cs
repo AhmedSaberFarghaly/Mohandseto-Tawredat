@@ -180,6 +180,17 @@ public sealed class CustomizationService(AppDbContext db, ITenantProvider tenant
         }
     }
 
+    public async Task ResolveOrderApprovalAsync(Guid orderId, bool approved, CancellationToken ct = default)
+    {
+        var requests = await db.CustomProductRequests.Include(r => r.ProductionJob)
+            .Where(r => r.OrderId == orderId && r.Status == CustomRequestStatus.AwaitingOrderApproval).ToListAsync(ct);
+        foreach (var request in requests)
+        {
+            if (approved) CreateProductionJob(request);
+            else { request.Status = CustomRequestStatus.DesignApproved; request.OrderId = null; }
+        }
+    }
+
     public async Task<(string Path, string ContentType, string Name)> AssetAsync(Guid assetId, CancellationToken ct = default)
     {
         var asset = await db.LogoAssets.AsNoTracking().FirstOrDefaultAsync(a => a.Id == assetId, ct)

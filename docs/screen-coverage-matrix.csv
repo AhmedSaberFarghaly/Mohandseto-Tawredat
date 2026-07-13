@@ -150,22 +150,22 @@
 147,149,إعادة محاولة الدفع,Retry payment,السلة وإتمام الطلب | Cart & Checkout,client,/checkout,Inline payment retry,POST /api/checkout/payment-attempts/{id}/confirm,PaymentAttempts,api-checkout;flutter-checkout,Implemented,Automated,Failed attempt can be retried safely and succeeded attempt is idempotent
 148,150,طلب في انتظار الموافقة الداخلية,Awaiting internal approval,السلة وإتمام الطلب | Cart & Checkout,client,/checkout/success,Pending approval state,POST /api/checkout/submit,Orders;OrderStatusHistory;CostCenters,api-checkout;flutter-checkout,Implemented,Automated,Pending state history and reserved budget are created atomically; approval action flow is milestone 5
 149,151,طلب أرسل إلى المدير للموافقة,Sent to manager,السلة وإتمام الطلب | Cart & Checkout,client,/checkout/success,Manager submission state,POST /api/checkout/submit,Orders;OrderStatusHistory,flutter-checkout,Implemented,Automated,Approval-required order receives PendingApproval status and confirmation UI
-150,152,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-151,153,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-152,154,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-153,155,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-154,156,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-155,157,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-156,158,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-157,159,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-158,160,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-159,161,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-160,162,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-161,163,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-162,164,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-163,165,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-164,166,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
-165,167,,,الموافقات الداخلية | Internal Approvals,client,,,,,,Pending,Pending,
+150,152,مركز الموافقات,Approval center,الموافقات الداخلية | Internal Approvals,client,/approvals,Filtered inbox,GET /api/approvals,ApprovalRequests;ApprovalSteps,approval-e2e;flutter-approvals,Implemented,Automated,Pending changes approved rejected and all filters with refresh
+151,153,بانتظار موافقتي,Awaiting my approval,الموافقات الداخلية | Internal Approvals,client,/approvals,My pending queue,GET /api/approvals?status=Pending,ApprovalRequests;ApprovalAssignments,approval-e2e,Implemented,Automated,Only requester or assigned approvers can see tenant requests
+152,154,تفاصيل طلب الموافقة,Approval details,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Order approval detail,GET /api/approvals/{id},ApprovalRequests;Orders;CostCenters,approval-e2e;flutter-approvals,Implemented,Automated,Order amount requester department cost center due time and permissions
+153,155,الموافقة على الطلب,Approve request,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Approve sheet,POST /api/approvals/{id}/approve,ApprovalSteps;ApprovalActions;Orders,approval-e2e;flutter-approvals,Implemented,Automated,Advances exactly one assigned level and completes atomically at final level
+154,156,رفض الطلب,Reject request,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Reject reason sheet,POST /api/approvals/{id}/reject,ApprovalRequests;ApprovalActions;Orders;CostCenters,approval-e2e;flutter-approvals,Implemented,Automated,Required reason cancels order releases budget and restores custom request
+155,157,طلب تعديل,Request changes,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Changes reason,POST /api/approvals/{id}/request-changes,ApprovalRequests;ApprovalSteps;ApprovalActions,approval-e2e;flutter-approvals,Implemented,Automated,Pauses chain and supports requester resubmission at same level
+156,158,إرسال تعليق,Send approval comment,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Comment dialog,POST /api/approvals/{id}/comments,ApprovalActions,approval-e2e;flutter-approvals,Implemented,Automated,Authorized participants append immutable timestamped comments
+157,159,إعادة تفويض الموافقة,Delegate approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Delegate dialog,POST /api/approvals/{id}/delegate,ApprovalSteps;ApprovalActions;Notifications,approval-e2e;flutter-approvals,Implemented,Automated,Tenant-active delegate becomes current actor and receives notification
+158,160,سلسلة مراحل الموافقة,Approval chain,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Step timeline,GET /api/approvals/{id},ApprovalPolicies;ApprovalLevels;ApprovalSteps,approval-e2e;flutter-approvals,Implemented,Automated,Waiting current approved rejected and changes states with authority limits
+159,161,موافقة مدير القسم,Department manager approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Level one,POST /api/approvals/{id}/approve,ApprovalLevels;ApprovalSteps,approval-e2e,Implemented,Automated,Seeded first level with 12-hour SLA and 5k authority signal
+160,162,موافقة الميزانيات,Budget approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Level two,POST /api/approvals/{id}/approve,ApprovalLevels;ApprovalSteps;CostCenters,approval-e2e,Implemented,Automated,Second level shows conflict and reserved budget context
+161,163,موافقة المدير المالي,Finance approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Level three,POST /api/approvals/{id}/approve,ApprovalLevels;ApprovalSteps,approval-e2e,Implemented,Automated,Final unlimited authority level seeded for company owner
+162,164,الموافقة النهائية,Final approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Approved state,POST /api/approvals/{id}/approve,ApprovalRequests;Orders;CostCenters;ProductionJobs,approval-e2e,Implemented,Automated,Confirms order commits reserved budget and starts gated custom production
+163,165,تعارض تجاوز الميزانية,Budget conflict,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Budget conflict card,GET /api/approvals/{id},CostCenters;ApprovalRequests,approval-e2e;flutter-approvals,Implemented,Automated,Shows conflict and remaining availability without silently bypassing policy
+164,166,اعتماد تجاوز الصلاحية,Over-authority approval,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Authority warning,GET /api/approvals/{id},ApprovalSteps;ApprovalLevels,approval-e2e;flutter-approvals,Implemented,Automated,Warns when amount exceeds current authority and continues to next required level
+165,167,إشعار الموافقة بالنجاح,Approval success notification,الموافقات الداخلية | Internal Approvals,client,/approvals/:id,Final state and notification,POST /api/approvals/{id}/approve,Notifications;ApprovalRequests,approval-e2e;flutter-approvals,Implemented,Automated,Requester and next actors receive entity-linked notifications
 166,168,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
 167,169,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,
 168,170,,,طلبات عروض الأسعار | RFQ,client,,,,,,Pending,Pending,

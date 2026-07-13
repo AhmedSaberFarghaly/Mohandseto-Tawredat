@@ -114,7 +114,23 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
             MinimumSubtotal = 500, MaximumDiscount = 1000,
             StartsAt = DateTime.UtcNow.Date, ExpiresAt = DateTime.UtcNow.Date.AddYears(1),
         };
-        db.AddRange(tenant, company, branch, user, generalCostCenter, operationsCostCenter, defaultProject, welcomeCoupon);
+        var approvalPolicy = new ApprovalPolicy
+        {
+            TenantId = tenant.Id, NameAr = "سلسلة اعتماد المشتريات", MinimumAmount = 0,
+        };
+        foreach (var level in new[]
+        {
+            (1, "مدير القسم", (decimal?)5000, 12),
+            (2, "مسؤول الميزانية", (decimal?)20000, 12),
+            (3, "المدير المالي", (decimal?)null, 24),
+        })
+        {
+            var approvalLevel = new ApprovalLevel { TenantId = tenant.Id, Sequence = level.Item1,
+                NameAr = level.Item2, AuthorityLimit = level.Item3, SlaHours = level.Item4 };
+            approvalLevel.Assignments.Add(new ApprovalAssignment { TenantId = tenant.Id, UserId = user.Id });
+            approvalPolicy.Levels.Add(approvalLevel);
+        }
+        db.AddRange(tenant, company, branch, user, generalCostCenter, operationsCostCenter, defaultProject, welcomeCoupon, approvalPolicy);
         db.AuditLogs.Add(new AuditLog
         {
             TenantId = tenant.Id,

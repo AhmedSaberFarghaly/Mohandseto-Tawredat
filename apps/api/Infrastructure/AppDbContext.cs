@@ -80,6 +80,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<CheckoutAttachment> CheckoutAttachments => Set<CheckoutAttachment>();
     public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<ApprovalPolicy> ApprovalPolicies => Set<ApprovalPolicy>();
+    public DbSet<ApprovalLevel> ApprovalLevels => Set<ApprovalLevel>();
+    public DbSet<ApprovalAssignment> ApprovalAssignments => Set<ApprovalAssignment>();
+    public DbSet<ApprovalRequest> ApprovalRequests => Set<ApprovalRequest>();
+    public DbSet<ApprovalStep> ApprovalSteps => Set<ApprovalStep>();
+    public DbSet<ApprovalAction> ApprovalActions => Set<ApprovalAction>();
+    public DbSet<ApprovalAttachment> ApprovalAttachments => Set<ApprovalAttachment>();
+    public DbSet<ApprovalDelegation> ApprovalDelegations => Set<ApprovalDelegation>();
+    public DbSet<AppNotification> Notifications => Set<AppNotification>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -129,6 +138,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
             .HasForeignKey(x => x.CheckoutSessionId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<CheckoutAttachment>().HasIndex(x => new { x.CheckoutSessionId, x.Type });
         b.Entity<Coupon>().HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        b.Entity<ApprovalRequest>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<ApprovalRequest>().HasIndex(x => new { x.TenantId, x.Status, x.DueAt });
+        b.Entity<ApprovalLevel>().HasIndex(x => new { x.PolicyId, x.Sequence }).IsUnique();
+        b.Entity<ApprovalStep>().HasIndex(x => new { x.RequestId, x.Sequence }).IsUnique();
+        b.Entity<AppNotification>().HasIndex(x => new { x.TenantId, x.UserId, x.ReadAt });
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -191,6 +205,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CheckoutAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<PaymentAttempt>().HasQueryFilter(e => !e.IsDeleted && !e.CheckoutSession.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<Coupon>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalPolicy>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalLevel>().HasQueryFilter(e => !e.IsDeleted && !e.Policy.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalAssignment>().HasQueryFilter(e => !e.IsDeleted && !e.Level.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalStep>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalAction>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Request.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ApprovalDelegation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<AppNotification>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
