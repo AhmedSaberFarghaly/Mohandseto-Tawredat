@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Printing and design operations for screens 557–580: operational KPIs, design queue, customer brief, secure logo files and print-readiness review, workload-aware designer assignment, immutable design versions, customer dispatch and feedback, approval log, production samples, ordered production stages and quantities, quality gates, packaging, ready-to-ship notifications, late orders, design archive, company logo library and printed-product templates.
+- `PrintingDesignOperations` migration, 56-test backend gate, clean Next.js printing production build, fresh-database verification and authenticated BFF dashboard/template verification.
 - Contract lifecycle operations for screens 540–556: contract KPIs and filters, four-step creation, company eligibility, periods and renewals, included products, fixed or market-discount pricing, quantity tiers, payment and delivery terms, contract credit, attachments, sequential approvals, activation, renewal, scheduled price revisions, expiry alerts and contract-versus-market health.
 - `ContractLifecycleOperations` migration, automatic effective-date price revision worker, 54-test backend gate, clean Next.js contracts production build and authenticated BFF activation verification.
 - Company CRM operations for screens 509–539: company profiles, branches, users, document verification, classification, sales assignment, customer stages, calls, meetings, notes, tasks, commercial history, purchase analytics, upsell opportunities, contracts, special prices, credit, statements, support and account suspension/reactivation.

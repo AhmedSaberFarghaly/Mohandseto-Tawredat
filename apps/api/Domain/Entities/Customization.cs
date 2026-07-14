@@ -24,6 +24,7 @@ public enum CustomRequestStatus
 public enum DesignApprovalDecision { Pending, Approved, RevisionRequested, Rejected }
 public enum ProductionStageStatus { Pending, InProgress, Completed, Blocked }
 public enum SampleApprovalDecision { Pending, Approved, RevisionRequested, Rejected }
+public enum LogoQualityStatus { Pending, Approved, Rejected }
 
 public class CustomProductTemplate : BaseEntity
 {
@@ -110,6 +111,10 @@ public class CustomProductRequest : TenantEntity
     public decimal? QuotedTotal { get; set; }
     public DateTime? QuoteExpiresAt { get; set; }
     public int EstimatedLeadTimeDays { get; set; }
+    public Guid? AssignedDesignerId { get; set; }
+    public DateTime? DesignDueAt { get; set; }
+    public DateTime? DesignSentAt { get; set; }
+    public DateTime? ReadyAt { get; set; }
     public ICollection<CustomRequestItem> Items { get; set; } = [];
     public ICollection<LogoAsset> LogoAssets { get; set; } = [];
     public DesignBrief? DesignBrief { get; set; }
@@ -145,6 +150,16 @@ public class LogoAsset : TenantEntity
     public string ContentType { get; set; } = string.Empty;
     public long SizeBytes { get; set; }
     public bool IsDesignFile { get; set; }
+    public LogoQualityStatus QualityStatus { get; set; } = LogoQualityStatus.Pending;
+    public int? QualityScore { get; set; }
+    public bool IsVector { get; set; }
+    public bool HasTransparentBackground { get; set; }
+    public bool IsCmykReady { get; set; }
+    public bool HasSufficientResolution { get; set; }
+    public bool HasSimpleEffects { get; set; }
+    public Guid? ReviewedBy { get; set; }
+    public DateTime? ReviewedAt { get; set; }
+    public string? ReviewNote { get; set; }
 }
 
 public class DesignBrief : TenantEntity
@@ -167,6 +182,8 @@ public class DesignVersion : TenantEntity
     public string Title { get; set; } = string.Empty;
     public string? ChangeSummary { get; set; }
     public Guid? CreatedByDesignerId { get; set; }
+    public DateTime? SentToCustomerAt { get; set; }
+    public Guid? SentByUserId { get; set; }
     public ICollection<DesignMockup> Mockups { get; set; } = [];
 }
 
@@ -208,6 +225,13 @@ public class ProductionJob : TenantEntity
     public string Number { get; set; } = string.Empty;
     public DateTime? ScheduledStart { get; set; }
     public DateTime? EstimatedCompletion { get; set; }
+    public DateTime? ActualStart { get; set; }
+    public DateTime? ActualCompletion { get; set; }
+    public int ProducedQuantity { get; set; }
+    public string? PackagingType { get; set; }
+    public int UnitsPerPackage { get; set; }
+    public int PackageCount { get; set; }
+    public string? DispatchReference { get; set; }
     public ICollection<ProductionStage> Stages { get; set; } = [];
     public ICollection<ProductionSample> Samples { get; set; } = [];
     public ICollection<QualityCheck> QualityChecks { get; set; } = [];

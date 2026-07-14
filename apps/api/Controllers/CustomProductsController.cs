@@ -98,4 +98,25 @@ public sealed class AdminCustomProductsController(CustomizationService customiza
     [HttpPost("requests/{id:guid}/quality-checks")]
     public Task<CustomRequestDto> AddQualityCheck(Guid id, AddQualityCheckDto dto, CancellationToken ct) =>
         customization.AddQualityCheckAsync(id, UserId, dto, ct);
+
+    [HttpGet("files/{id:guid}")]
+    public async Task<IActionResult> FileAsset(Guid id, CancellationToken ct)
+    {
+        var file = await customization.AssetAsync(id, ct);
+        return PhysicalFile(file.Path, file.ContentType, file.Name, enableRangeProcessing: true);
+    }
+
+    [HttpGet("mockups/{id:guid}")]
+    public async Task<IActionResult> Mockup(Guid id, CancellationToken ct)
+    {
+        var file = await customization.MockupAsync(id, ct);
+        return PhysicalFile(file.Path, file.ContentType, file.Name, enableRangeProcessing: true);
+    }
+
+    [HttpGet("samples/{id:guid}")]
+    public async Task<IActionResult> Sample(Guid id, CancellationToken ct)
+    {
+        var file = await customization.SampleFileAsync(id, ct);
+        return PhysicalFile(file.Path, file.ContentType, file.Name, enableRangeProcessing: true);
+    }
 }

@@ -1,4 +1,5 @@
 @import "./dashboard/contracts/contracts.css";
+@import "./dashboard/printing/printing.css";
 
 :root {
   --color-primary: #023baa;

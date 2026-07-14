@@ -219,6 +219,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CustomSize>().HasIndex(o => new { o.TemplateId, o.Code }).IsUnique();
         b.Entity<CustomProductRequest>().HasIndex(r => r.Number).IsUnique();
         b.Entity<CustomProductRequest>().HasIndex(r => new { r.TenantId, r.UserId, r.CreatedAt });
+        b.Entity<CustomProductRequest>().HasIndex(r => new { r.AssignedDesignerId, r.DesignDueAt });
         b.Entity<DesignBrief>().HasIndex(x => x.RequestId).IsUnique();
         b.Entity<DesignVersion>().HasIndex(x => new { x.RequestId, x.VersionNumber }).IsUnique();
         b.Entity<ProductionJob>().HasIndex(x => x.RequestId).IsUnique();
