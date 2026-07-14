@@ -75,6 +75,12 @@ public class Supplier : BaseEntity
     public int TypicalLeadDays { get; set; } = 3;
     public decimal Rating { get; set; } = 5;
     public bool IsActive { get; set; } = true;
+    public string? Address { get; set; }
+    public string? CommercialRegistrationNo { get; set; }
+    public string? TaxRegistrationNo { get; set; }
+    public int PaymentTermsDays { get; set; } = 30;
+    public decimal CreditLimit { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class SupplierQuote : TenantEntity

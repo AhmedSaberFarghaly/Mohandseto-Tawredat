@@ -92,6 +92,7 @@ public class GoodsReceipt : BaseEntity
     public string Number { get; set; } = string.Empty;
     public Guid WarehouseId { get; set; }
     public Guid? SupplierId { get; set; }
+    public Guid? PurchaseOrderId { get; set; }
     public string SupplierReference { get; set; } = string.Empty;
     public GoodsReceiptStatus Status { get; set; } = GoodsReceiptStatus.Inspection;
     public Guid ReceivedByUserId { get; set; }

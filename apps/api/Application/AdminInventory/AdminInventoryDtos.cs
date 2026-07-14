@@ -22,6 +22,6 @@ public sealed record CreateStockCountDto(Guid WarehouseId);
 public sealed record ReconcileStockItemDto(Guid ProductId, int CountedQty, string? Reason);
 public sealed record ReconcileStockCountDto(IReadOnlyList<ReconcileStockItemDto> Items);
 public sealed record CreateGoodsReceiptItemDto(Guid ProductId, int ReceivedQty, decimal UnitCost, string? BatchNumber, DateTime? ExpiryAt);
-public sealed record CreateGoodsReceiptDto(Guid WarehouseId, Guid? SupplierId, string SupplierReference, IReadOnlyList<CreateGoodsReceiptItemDto> Items);
+public sealed record CreateGoodsReceiptDto(Guid WarehouseId, Guid? SupplierId, string SupplierReference, IReadOnlyList<CreateGoodsReceiptItemDto> Items, Guid? PurchaseOrderId = null);
 public sealed record InspectGoodsReceiptItemDto(Guid ProductId, int AcceptedQty, int DamagedQty);
 public sealed record InspectGoodsReceiptDto(IReadOnlyList<InspectGoodsReceiptItemDto> Items, string? Notes);

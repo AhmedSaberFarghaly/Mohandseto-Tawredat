@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Supplier and procurement operations for screens 490–508: supplier profiles and price lists, comparison, ratings, documents, payables, purchase orders, partial/full receipts, returns, invoices, three-way matching and performance reporting.
+- `SupplierProcurementOperations` migration, inventory-linked procurement lifecycle, 50-test backend gate and authenticated BFF procurement verification.
 - Inventory and warehouse operations for screens 466–489: warehouse balances, immutable movement ledger, adjustments, transfers, reservations, counts and reconciliation, batches, serials, expiry, shelves, barcodes, receiving inspection, damaged rejection and valuation.
 - `InventoryWarehouseOperations` migration, deterministic demo inventory, 49-test backend gate and authenticated BFF inventory HTTP verification.
 - Content and home-page operations for screens 451–465: category and home-section reordering, banner scheduling and company targeting, pages, policies, FAQ, app notifications and in-app messages.

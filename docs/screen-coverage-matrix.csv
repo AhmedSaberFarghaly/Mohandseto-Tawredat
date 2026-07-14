@@ -488,25 +488,25 @@
 485,487,فحص الاستلام,Receiving Inspection,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Inspection editor,POST receipts/inspect,GoodsReceipts;WarehouseStocks,admin-inventory;admin-build,Implemented,Automated,Full-item accepted and damaged quantity validation
 486,488,رفض كمية تالفة,Reject Damaged,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Damaged quantity decision,POST receipts/inspect,GoodsReceiptItems;InventoryMovements,admin-inventory;admin-build,Implemented,Automated,Rejected damaged audit without inflating stock
 487,489,تقرير تقييم المخزون,Inventory Valuation Report,المخزون والمستودعات | Inventory & Warehouses,admin,/dashboard/inventory,Valuation overview,GET admin/inventory,WarehouseStocks;Products,admin-inventory;admin-build,Implemented,Automated,Per-item warehouse and total cost valuation
-488,490,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-489,491,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-490,492,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-491,493,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-492,494,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-493,495,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-494,496,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-495,497,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-496,498,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-497,499,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-498,500,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-499,501,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-500,502,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-501,503,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-502,504,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-503,505,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-504,506,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-505,507,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
-506,508,,,الموردون والمشتريات | Suppliers & Procurement,admin,,,,,,Pending,Pending,
+488,490,قائمة الموردين,Suppliers List,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier cards,GET admin/procurement,Suppliers,admin-procurement;admin-build,Implemented,Automated,Active state rating orders products and payables
+489,491,إضافة مورد,Add Supplier,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier editor,POST procurement/suppliers,Suppliers,admin-procurement;admin-build,Implemented,Automated,Unique code and commercial contact validation
+490,492,تفاصيل المورد,Supplier Details,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier detail workspace,GET admin/procurement,Suppliers;SupplierProducts;SupplierDocuments,admin-procurement;admin-build,Implemented,Automated,Contact commercial terms products and documents
+491,493,المنتجات التي يوفرها,Products Supplied,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier product editor,PUT suppliers/products,SupplierProducts;Products,admin-procurement;admin-build,Implemented,Automated,Unique supplier-product mapping
+492,494,قوائم أسعار المورد,Supplier Price Lists,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Price validity editor,PUT suppliers/products,SupplierProducts,admin-procurement;admin-build,Implemented,Automated,MOQ lead days validity and preferred supplier
+493,495,مقارنة الموردين,Compare Suppliers,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Price comparison tab,GET admin/procurement,SupplierProducts;Suppliers,admin-procurement;admin-build,Implemented,Automated,Best price ranking per product
+494,496,تقييم المورد,Rate Supplier,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Four-axis rating editor,POST suppliers/ratings,SupplierRatingRecords;Suppliers,admin-procurement;admin-build,Implemented,Automated,Quality delivery price communication aggregate
+495,497,المستندات والعقود,Documents & Contracts,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier documents,POST suppliers/documents,SupplierDocuments,admin-procurement;admin-build,Implemented,Automated,Typed documents paths and expiry dates
+496,498,المدفوعات المستحقة للمورد,Supplier Payables,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Invoices and payables tab,GET admin/procurement,SupplierInvoices,admin-procurement;admin-build,Implemented,Automated,Outstanding aggregation by supplier and due date
+497,499,إنشاء طلب شراء للمورد,Create Purchase Order,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Purchase order editor,POST procurement/orders,PurchaseOrders;PurchaseOrderItems,admin-procurement;admin-build,Implemented,Automated,Validated supplier warehouse products tax and shipping
+498,500,مستند أمر الشراء,Purchase Order Document,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Printable PO document,GET admin/procurement,PurchaseOrders;PurchaseOrderItems,admin-procurement;admin-build,Implemented,Automated,Commercial line totals and print PDF layout
+499,501,إرسال أمر الشراء,Send Purchase Order,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Send action,POST orders/send,PurchaseOrders,admin-procurement;admin-build,Implemented,Automated,Draft-only transition and sent timestamp
+500,502,متابعة حالة أمر الشراء,Track Purchase Order,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,PO status table,GET admin/procurement,PurchaseOrders,admin-procurement;admin-build,Implemented,Automated,Draft sent partial received and cancelled states
+501,503,استلام جزئي,Partial Receipt,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Receipt editor,POST orders/receive,PurchaseOrders;GoodsReceipts,admin-procurement;admin-build,Implemented,Automated,Remaining-quantity guard and linked inventory inspection
+502,504,استلام كامل,Full Receipt,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Full receipt transition,POST orders/receive,PurchaseOrders;GoodsReceipts,admin-procurement;admin-build,Implemented,Automated,All-lines completion updates PO status
+503,505,مرتجع مورد,Supplier Return,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier return editor,POST procurement/returns,SupplierReturns;InventoryMovements,admin-procurement;admin-build,Implemented,Automated,Validated return and atomic stock deduction
+504,506,فاتورة مورد,Supplier Invoice,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier invoice editor,POST procurement/invoices,SupplierInvoices,admin-procurement;admin-build,Implemented,Automated,Unique supplier invoice and due tracking
+505,507,مطابقة PO مع الاستلام والفاتورة,3-Way Match,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Invoice matching status,POST procurement/invoices,PurchaseOrders;GoodsReceipts;SupplierInvoices,admin-procurement;admin-build,Implemented,Automated,Matched or variance with exact difference
+506,508,تقرير أداء الموردين,Supplier Performance Report,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Performance cards,GET admin/procurement,Suppliers;PurchaseOrders;GoodsReceipts,admin-procurement;admin-build,Implemented,Automated,Rating on-time acceptance spend orders and payables
 507,509,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
 508,510,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
 509,511,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,

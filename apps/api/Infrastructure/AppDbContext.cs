@@ -155,6 +155,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<StockCountItem> StockCountItems => Set<StockCountItem>();
     public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
     public DbSet<GoodsReceiptItem> GoodsReceiptItems => Set<GoodsReceiptItem>();
+    public DbSet<SupplierProduct> SupplierProducts => Set<SupplierProduct>();
+    public DbSet<SupplierRatingRecord> SupplierRatingRecords => Set<SupplierRatingRecord>();
+    public DbSet<SupplierDocument> SupplierDocuments => Set<SupplierDocument>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
+    public DbSet<SupplierInvoice> SupplierInvoices => Set<SupplierInvoice>();
+    public DbSet<SupplierReturn> SupplierReturns => Set<SupplierReturn>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -272,6 +279,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<StockCountItem>().HasIndex(x => new { x.StockCountId, x.ProductId }).IsUnique();
         b.Entity<GoodsReceipt>().HasIndex(x => x.Number).IsUnique();
         b.Entity<GoodsReceiptItem>().HasIndex(x => new { x.GoodsReceiptId, x.ProductId }).IsUnique();
+        b.Entity<SupplierProduct>().HasIndex(x => new { x.SupplierId, x.ProductId }).IsUnique();
+        b.Entity<SupplierRatingRecord>().HasIndex(x => new { x.SupplierId, x.CreatedAt });
+        b.Entity<SupplierDocument>().HasIndex(x => new { x.SupplierId, x.Type });
+        b.Entity<PurchaseOrder>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<PurchaseOrder>().HasIndex(x => new { x.SupplierId, x.Status, x.ExpectedAt });
+        b.Entity<PurchaseOrderItem>().HasIndex(x => new { x.PurchaseOrderId, x.ProductId }).IsUnique();
+        b.Entity<SupplierInvoice>().HasIndex(x => new { x.SupplierId, x.SupplierInvoiceNumber }).IsUnique();
+        b.Entity<SupplierReturn>().HasIndex(x => x.Number).IsUnique();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {
@@ -409,6 +424,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<StockCountItem>().HasQueryFilter(e => !e.IsDeleted && !e.StockCount.IsDeleted);
         b.Entity<GoodsReceipt>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<GoodsReceiptItem>().HasQueryFilter(e => !e.IsDeleted && !e.GoodsReceipt.IsDeleted);
+        b.Entity<SupplierProduct>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SupplierRatingRecord>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SupplierDocument>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<PurchaseOrder>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<PurchaseOrderItem>().HasQueryFilter(e => !e.IsDeleted && !e.PurchaseOrder.IsDeleted);
+        b.Entity<SupplierInvoice>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SupplierReturn>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

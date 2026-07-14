@@ -1,0 +1,23 @@
+namespace Mohandseto.Api.Application.AdminProcurement;
+
+public sealed record SupplierProductDto(Guid ProductId, string Sku, string Product, string? SupplierSku, decimal UnitPrice, int MinimumQuantity, int LeadDays, DateTime ValidFrom, DateTime? ValidUntil, bool IsPreferred);
+public sealed record SupplierDocumentDto(Guid Id, string NameAr, string Type, string Path, DateTime? ExpiresAt);
+public sealed record SupplierAdminDto(Guid Id, string Code, string NameAr, string? NameEn, string? ContactName, string? Phone, string? Email, string? Address, string? CommercialRegistrationNo, string? TaxRegistrationNo, int TypicalLeadDays, int PaymentTermsDays, decimal CreditLimit, decimal Rating, bool IsActive, string? Notes, IReadOnlyList<SupplierProductDto> Products, IReadOnlyList<SupplierDocumentDto> Documents, int OrderCount, decimal Payables);
+public sealed record PurchaseOrderItemDto(Guid ProductId, string Sku, string Product, int OrderedQty, int ReceivedQty, decimal UnitPrice, decimal LineTotal);
+public sealed record PurchaseOrderDto(Guid Id, string Number, Guid SupplierId, string Supplier, Guid WarehouseId, string Warehouse, string Status, DateTime ExpectedAt, DateTime? SentAt, decimal Subtotal, decimal Tax, decimal Shipping, decimal Total, string? Notes, DateTime CreatedAt, IReadOnlyList<PurchaseOrderItemDto> Items);
+public sealed record SupplierInvoiceDto(Guid Id, string Number, string Supplier, string PurchaseOrder, string SupplierInvoiceNumber, decimal Amount, decimal PaidAmount, decimal Outstanding, DateTime IssuedAt, DateTime DueAt, string Status, decimal VarianceAmount);
+public sealed record SupplierPerformanceDto(Guid SupplierId, string Supplier, decimal Rating, decimal OnTimeRate, decimal AcceptanceRate, int Orders, decimal TotalSpend, decimal Payables);
+public sealed record ProcurementProductOptionDto(Guid Id, string Sku, string Name, decimal Cost);
+public sealed record ProcurementWarehouseOptionDto(Guid Id, string Name);
+public sealed record ProcurementDashboardDto(IReadOnlyList<SupplierAdminDto> Suppliers, IReadOnlyList<PurchaseOrderDto> Orders, IReadOnlyList<SupplierInvoiceDto> Invoices, IReadOnlyList<SupplierPerformanceDto> Performance, IReadOnlyList<ProcurementProductOptionDto> Products, IReadOnlyList<ProcurementWarehouseOptionDto> Warehouses);
+public sealed record SaveSupplierDto(string Code, string NameAr, string? NameEn, string? ContactName, string? Phone, string? Email, string? Address, string? CommercialRegistrationNo, string? TaxRegistrationNo, int TypicalLeadDays, int PaymentTermsDays, decimal CreditLimit, bool IsActive, string? Notes);
+public sealed record SaveSupplierProductDto(Guid ProductId, string? SupplierSku, decimal UnitPrice, int MinimumQuantity, int LeadDays, DateTime ValidFrom, DateTime? ValidUntil, bool IsPreferred);
+public sealed record ReplaceSupplierProductsDto(IReadOnlyList<SaveSupplierProductDto> Products);
+public sealed record RateSupplierDto(int Quality, int Delivery, int Price, int Communication, string? Comment);
+public sealed record AddSupplierDocumentDto(string NameAr, string Type, string Path, DateTime? ExpiresAt);
+public sealed record CreatePurchaseOrderItemDto(Guid ProductId, int Quantity, decimal UnitPrice);
+public sealed record CreatePurchaseOrderDto(Guid SupplierId, Guid WarehouseId, DateTime ExpectedAt, decimal Tax, decimal Shipping, string? Notes, IReadOnlyList<CreatePurchaseOrderItemDto> Items);
+public sealed record ReceivePurchaseOrderItemDto(Guid ProductId, int Quantity, string? BatchNumber, DateTime? ExpiryAt);
+public sealed record ReceivePurchaseOrderDto(IReadOnlyList<ReceivePurchaseOrderItemDto> Items, string SupplierReference);
+public sealed record CreateSupplierInvoiceDto(Guid PurchaseOrderId, string SupplierInvoiceNumber, decimal Amount, DateTime IssuedAt, DateTime DueAt);
+public sealed record CreateSupplierReturnDto(Guid PurchaseOrderId, Guid ProductId, int Quantity, string Reason);
