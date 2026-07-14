@@ -38,6 +38,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     public DbSet<PasswordResetChallenge> PasswordResetChallenges => Set<PasswordResetChallenge>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<CrmActivity> CrmActivities => Set<CrmActivity>();
+    public DbSet<CrmTask> CrmTasks => Set<CrmTask>();
+    public DbSet<CustomerStageHistory> CustomerStageHistories => Set<CustomerStageHistory>();
 
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Brand> Brands => Set<Brand>();
@@ -177,6 +180,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<User>().HasIndex(u => u.Email).IsUnique();
         b.Entity<TwoFactorChallenge>().HasIndex(x => x.TokenHash).IsUnique();
         b.Entity<PasswordResetChallenge>().HasIndex(x => x.TokenHash).IsUnique();
+        b.Entity<CrmActivity>().HasIndex(x => new { x.CompanyId, x.OccurredAt });
+        b.Entity<CrmTask>().HasIndex(x => new { x.CompanyId, x.Status, x.DueAt });
+        b.Entity<CustomerStageHistory>().HasIndex(x => new { x.CompanyId, x.CreatedAt });
         b.Entity<Product>().HasIndex(p => p.Sku).IsUnique();
         b.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
         b.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
@@ -431,6 +437,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<PurchaseOrderItem>().HasQueryFilter(e => !e.IsDeleted && !e.PurchaseOrder.IsDeleted);
         b.Entity<SupplierInvoice>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<SupplierReturn>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<CrmActivity>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
+        b.Entity<CrmTask>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
+        b.Entity<CustomerStageHistory>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

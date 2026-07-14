@@ -30,9 +30,20 @@ public class Company : BaseEntity
     public int EmployeeCountRange { get; set; }
     public decimal CreditLimit { get; set; }
     public decimal CreditUsed { get; set; }
+    public CompanyClassification Classification { get; set; } = CompanyClassification.Standard;
+    public string? Sector { get; set; }
+    public string? Activity { get; set; }
+    public CompanySize Size { get; set; } = CompanySize.Small;
+    public Guid? AssignedSalesRepUserId { get; set; }
+    public string? LeadSource { get; set; }
+    public CustomerStage CustomerStage { get; set; } = CustomerStage.Lead;
     public ICollection<CompanyBranch> Branches { get; set; } = [];
     public ICollection<CompanyDocument> Documents { get; set; } = [];
 }
+
+public enum CompanyClassification { Strategic, KeyAccount, Standard, Prospect }
+public enum CompanySize { Micro, Small, Medium, Large, Enterprise }
+public enum CustomerStage { Lead, Qualified, Proposal, Negotiation, Active, AtRisk, Dormant, Lost }
 
 public class CompanyBranch : TenantEntity
 {

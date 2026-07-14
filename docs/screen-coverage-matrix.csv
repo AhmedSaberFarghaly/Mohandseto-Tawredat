@@ -507,37 +507,37 @@
 504,506,فاتورة مورد,Supplier Invoice,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Supplier invoice editor,POST procurement/invoices,SupplierInvoices,admin-procurement;admin-build,Implemented,Automated,Unique supplier invoice and due tracking
 505,507,مطابقة PO مع الاستلام والفاتورة,3-Way Match,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Invoice matching status,POST procurement/invoices,PurchaseOrders;GoodsReceipts;SupplierInvoices,admin-procurement;admin-build,Implemented,Automated,Matched or variance with exact difference
 506,508,تقرير أداء الموردين,Supplier Performance Report,الموردون والمشتريات | Suppliers & Procurement,admin,/dashboard/suppliers,Performance cards,GET admin/procurement,Suppliers;PurchaseOrders;GoodsReceipts,admin-procurement;admin-build,Implemented,Automated,Rating on-time acceptance spend orders and payables
-507,509,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-508,510,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-509,511,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-510,512,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-511,513,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-512,514,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-513,515,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-514,516,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-515,517,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-516,518,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-517,519,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-518,520,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-519,521,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-520,522,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-521,523,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-522,524,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-523,525,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-524,526,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-525,527,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-526,528,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-527,529,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-528,530,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-529,531,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-530,532,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-531,533,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-532,534,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-533,535,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-534,536,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-535,537,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-536,538,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
-537,539,,,إدارة الشركات CRM | Companies CRM,admin,,,,,,Pending,Pending,
+507,509,قائمة الشركات,Companies List,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Directory filters and KPI cards,GET admin/crm,Companies;Tenants;Orders;CrmTasks,admin-crm;admin-build;crm-http,Implemented,Automated,Search stage status sales and purchasing summary
+508,510,إضافة شركة,Add Company,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Company editor,POST admin/crm/companies,Tenants;Companies;CompanyBranches;Users,admin-crm;admin-build;crm-http,Implemented,Automated,Creates tenant main branch and optional primary contact atomically
+509,511,تفاصيل الشركة,Company Details,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Unified company workspace,GET admin/crm/companies/{id},Companies;Tenants,admin-crm;admin-build;crm-http,Implemented,Automated,Five-tab operational profile with live aggregates
+510,512,بيانات التواصل,Contact Data,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Profile contact section,GET admin/crm/companies/{id},Companies;Users,admin-crm;admin-build,Implemented,Automated,Phone email primary contact and responsible users
+511,513,الفروع والعناوين,Branches & Addresses,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Branches section and editor,POST admin/crm/companies/{id}/branches,CompanyBranches,admin-crm;admin-build,Implemented,Automated,Main-branch exclusivity and location details
+512,514,مستخدمو الشركة,Company Users,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Company users section,GET admin/crm/companies/{id},Users,admin-crm;admin-build,Implemented,Automated,Active state roles job titles and contact data
+513,515,السجلات التجارية والضريبية,Commercial & Tax Records,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Legal profile fields,PUT admin/crm/companies/{id},Companies,admin-crm;admin-build,Implemented,Automated,Commercial registration and tax card persisted
+514,516,المستندات,Documents,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Document cards,GET admin/crm/companies/{id},CompanyDocuments,admin-crm;admin-build,Implemented,Automated,Secure paths types dates and review actions
+515,517,حالة التحقق,Verification Status,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Document verification state,POST admin/crm/companies/{id}/documents/{documentId}/review,CompanyDocuments;AuditLogs,admin-crm;admin-build,Implemented,Automated,Approve or reject with reason
+516,518,تصنيف الشركة,Company Classification,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Classification selector,PUT admin/crm/companies/{id},Companies,admin-crm;admin-build,Implemented,Automated,Strategic key standard and prospect classifications
+517,519,القطاع والنشاط,Sector & Activity,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Commercial profile fields,PUT admin/crm/companies/{id},Companies,admin-crm;admin-build,Implemented,Automated,Sector activity and industry taxonomy fields
+518,520,حجم الشركة,Company Size,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Size selector,PUT admin/crm/companies/{id},Companies,admin-crm;admin-build,Implemented,Automated,Micro through enterprise bands
+519,521,مندوب المبيعات المسؤول,Assigned Sales Rep,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Sales assignment,PUT admin/crm/companies/{id},Companies;Users,admin-crm;admin-build,Implemented,Automated,Validated active platform staff assignment
+520,522,مصدر العميل,Lead Source,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Lead-source field,PUT admin/crm/companies/{id},Companies,admin-crm;admin-build,Implemented,Automated,Attribution persisted on company profile
+521,523,مراحل العميل,Customer Stages,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Stage action and history,POST admin/crm/companies/{id}/stage,Companies;CustomerStageHistories;AuditLogs,admin-crm;admin-build;crm-http,Implemented,Automated,Validated transition history actor reason and timestamp
+522,524,سجل المكالمات,Call Log,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Activity timeline call filter,POST admin/crm/companies/{id}/activities,CrmActivities,admin-crm;admin-build,Implemented,Automated,Call subject details actor contact and follow-up
+523,525,الاجتماعات,Meetings,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Activity timeline meeting filter,POST admin/crm/companies/{id}/activities,CrmActivities,admin-crm;admin-build,Implemented,Automated,Meeting timestamp notes contact and next action
+524,526,الملاحظات,Notes,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Activity timeline notes,POST admin/crm/companies/{id}/activities,CrmActivities,admin-crm;admin-build,Implemented,Automated,Auditable staff-authored customer notes
+525,527,المهام والمتابعات,Tasks & Follow-ups,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Task list and editor,POST admin/crm/companies/{id}/tasks; POST admin/crm/tasks/{id}/complete,CrmTasks;Users,admin-crm;admin-build,Implemented,Automated,Assignee priority due date status and completion timestamp
+526,528,عروض الأسعار السابقة,Past Quotes,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Commerce quotes list,GET admin/crm/companies/{id},CustomerQuotes;CustomerQuoteVersions,admin-crm;admin-build,Implemented,Automated,Latest version total status and date
+527,529,الطلبات السابقة,Past Orders,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Commerce orders list,GET admin/crm/companies/{id},Orders;OrderItems,admin-crm;admin-build,Implemented,Automated,Status total and date from live orders
+528,530,متوسط المشتريات,Average Purchases,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Commerce KPI,GET admin/crm/companies/{id},Orders,admin-crm;admin-build,Implemented,Automated,Cancelled orders excluded from average
+529,531,أكثر المنتجات شراءً,Top Purchased Products,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Top products ranking,GET admin/crm/companies/{id},OrderItems;Products,admin-crm;admin-build,Implemented,Automated,Quantity and revenue aggregation
+530,532,فرص البيع الإضافي,Upsell Opportunities,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Upsell opportunity cards,GET admin/crm/companies/{id},ProductLinks;Products;OrderItems,admin-crm;admin-build,Implemented,Automated,Related-product recommendations with featured fallback
+531,533,العقود,Contracts,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Company contracts summary,GET admin/crm/companies/{id},CompanyContracts,admin-crm;admin-build,Implemented,Automated,Dates status terms credit and auto-renewal
+532,534,قائمة الأسعار الخاصة,Special Price List,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Price list and editor,PUT admin/crm/companies/{id}/prices,CompanyProductPrices;Products,admin-crm;admin-build,Implemented,Automated,Validated replacement with validity periods and base-price comparison
+533,535,حد الائتمان,Credit Limit,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Credit utilization card,PUT admin/crm/companies/{id}/credit-limit,Companies,admin-crm;admin-build,Implemented,Automated,Limit cannot fall below used credit
+534,536,كشف الحساب,Account Statement,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Statement ledger,GET admin/crm/companies/{id},Invoices;InvoicePayments,admin-crm;admin-build,Implemented,Automated,Chronological debit credit running balance and status
+535,537,تذاكر الدعم,Support Tickets,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Support ticket cards,GET admin/crm/companies/{id},SupportTickets,admin-crm;admin-build,Implemented,Automated,Type priority status opened and resolved dates
+536,538,إيقاف الشركة,Suspend Company,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Account danger zone,POST admin/crm/companies/{id}/status,Tenants;AuditLogs,admin-crm;admin-build;crm-http,Implemented,Automated,Suspension reason and actor are audited
+537,539,إعادة تفعيل الشركة,Reactivate Company,إدارة الشركات CRM | Companies CRM,admin,/dashboard/companies,Account status action,POST admin/crm/companies/{id}/status,Tenants;AuditLogs,admin-crm;admin-build;crm-http,Implemented,Automated,Reactivation preserves all historical company data
 538,540,,,العقود والأسعار الخاصة | Contracts & Special Pricing,admin,,,,,,Pending,Pending,
 539,541,,,العقود والأسعار الخاصة | Contracts & Special Pricing,admin,,,,,,Pending,Pending,
 540,542,,,العقود والأسعار الخاصة | Contracts & Special Pricing,admin,,,,,,Pending,Pending,
