@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Contract lifecycle operations for screens 540–556: contract KPIs and filters, four-step creation, company eligibility, periods and renewals, included products, fixed or market-discount pricing, quantity tiers, payment and delivery terms, contract credit, attachments, sequential approvals, activation, renewal, scheduled price revisions, expiry alerts and contract-versus-market health.
+- `ContractLifecycleOperations` migration, automatic effective-date price revision worker, 54-test backend gate, clean Next.js contracts production build and authenticated BFF activation verification.
 - Company CRM operations for screens 509–539: company profiles, branches, users, document verification, classification, sales assignment, customer stages, calls, meetings, notes, tasks, commercial history, purchase analytics, upsell opportunities, contracts, special prices, credit, statements, support and account suspension/reactivation.
 - `CompanyCrmOperations` migration, 52-test backend gate, clean Next.js CRM production build and authenticated BFF lifecycle verification.
 - Supplier and procurement operations for screens 490–508: supplier profiles and price lists, comparison, ratings, documents, payables, purchase orders, partial/full receipts, returns, invoices, three-way matching and performance reporting.

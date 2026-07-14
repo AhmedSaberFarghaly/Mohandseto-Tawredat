@@ -1,3 +1,5 @@
+@import "./dashboard/contracts/contracts.css";
+
 :root {
   --color-primary: #023baa;
   --color-primary-dark: #012e86;

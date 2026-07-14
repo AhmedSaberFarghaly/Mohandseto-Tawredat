@@ -40,7 +40,9 @@ public class CompanyBillingProfile : TenantEntity
     public bool PurchaseOrderRequired { get; set; }
 }
 
-public enum CompanyContractStatus { Draft, Active, Expiring, Expired, Suspended }
+public enum CompanyContractStatus { Draft, Active, Expiring, Expired, Suspended, PendingApproval }
+public enum CompanyContractType { SpecialPrices, AnnualPrinting, ComprehensiveSupply }
+public enum ContractPricingMode { FixedPerProduct, MarketDiscount }
 
 public class CompanyContract : TenantEntity
 {
@@ -49,11 +51,33 @@ public class CompanyContract : TenantEntity
     public DateTime StartsAt { get; set; }
     public DateTime EndsAt { get; set; }
     public CompanyContractStatus Status { get; set; } = CompanyContractStatus.Active;
+    public CompanyContractType Type { get; set; } = CompanyContractType.SpecialPrices;
+    public ContractPricingMode PricingMode { get; set; } = ContractPricingMode.FixedPerProduct;
+    public decimal MarketDiscountPercent { get; set; }
+    public decimal AnnualValue { get; set; }
     public int PaymentTermsDays { get; set; } = 30;
     public decimal CreditLimit { get; set; }
     public bool AutoRenew { get; set; }
+    public bool RenewalRequiresApproval { get; set; } = true;
+    public int ExpiryAlertDays { get; set; } = 30;
+    public decimal EarlyPaymentDiscountPercent { get; set; }
+    public int EarlyPaymentDays { get; set; }
+    public decimal LatePaymentPenaltyPercent { get; set; }
+    public string PaymentMethod { get; set; } = "BankTransfer";
+    public string DeliveryPriority { get; set; } = "Normal";
+    public int DeliveryHours { get; set; } = 48;
+    public decimal DeliveryLatePenaltyPercent { get; set; }
+    public bool FreeShipping { get; set; }
+    public int CreditReviewMonths { get; set; } = 6;
+    public DateTime? ActivatedAt { get; set; }
+    public Guid? ActivatedByUserId { get; set; }
+    public DateTime? CustomerNotifiedAt { get; set; }
     public string? TermsSummary { get; set; }
     public string? DocumentPath { get; set; }
+    public ICollection<CompanyContractProduct> Products { get; set; } = [];
+    public ICollection<CompanyContractQuantityTier> QuantityTiers { get; set; } = [];
+    public ICollection<CompanyContractAttachment> Attachments { get; set; } = [];
+    public ICollection<CompanyContractApproval> Approvals { get; set; } = [];
 }
 
 public enum ContractRenewalStatus { Submitted, UnderReview, Approved, Rejected }

@@ -23,6 +23,7 @@ using Mohandseto.Api.Application.AdminContent;
 using Mohandseto.Api.Application.AdminInventory;
 using Mohandseto.Api.Application.AdminProcurement;
 using Mohandseto.Api.Application.AdminCrm;
+using Mohandseto.Api.Application.AdminContracts;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -95,7 +96,9 @@ builder.Services.AddScoped<AdminContentService>();
 builder.Services.AddScoped<AdminInventoryService>();
 builder.Services.AddScoped<AdminProcurementService>();
 builder.Services.AddScoped<AdminCrmService>();
+builder.Services.AddScoped<AdminContractService>();
 builder.Services.AddHostedService<ContentDispatchWorker>();
+builder.Services.AddHostedService<ContractPriceRevisionWorker>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

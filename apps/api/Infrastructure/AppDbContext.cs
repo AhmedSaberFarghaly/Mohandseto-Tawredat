@@ -137,6 +137,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<CompanyBillingProfile> CompanyBillingProfiles => Set<CompanyBillingProfile>();
     public DbSet<CompanyContract> CompanyContracts => Set<CompanyContract>();
     public DbSet<ContractRenewalRequest> ContractRenewalRequests => Set<ContractRenewalRequest>();
+    public DbSet<CompanyContractProduct> CompanyContractProducts => Set<CompanyContractProduct>();
+    public DbSet<CompanyContractQuantityTier> CompanyContractQuantityTiers => Set<CompanyContractQuantityTier>();
+    public DbSet<CompanyContractAttachment> CompanyContractAttachments => Set<CompanyContractAttachment>();
+    public DbSet<CompanyContractApproval> CompanyContractApprovals => Set<CompanyContractApproval>();
+    public DbSet<ContractPriceRevision> ContractPriceRevisions => Set<ContractPriceRevision>();
+    public DbSet<ContractPriceRevisionItem> ContractPriceRevisionItems => Set<ContractPriceRevisionItem>();
     public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     public DbSet<SupportMessage> SupportMessages => Set<SupportMessage>();
@@ -257,6 +263,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyBrandProfile>().HasIndex(x => x.CompanyId).IsUnique();
         b.Entity<CompanyBillingProfile>().HasIndex(x => x.CompanyId).IsUnique();
         b.Entity<CompanyContract>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<CompanyContractProduct>().HasIndex(x => new { x.ContractId, x.ProductId }).IsUnique();
+        b.Entity<CompanyContractQuantityTier>().HasIndex(x => new { x.ContractId, x.MinQuantity }).IsUnique();
+        b.Entity<CompanyContractApproval>().HasIndex(x => new { x.ContractId, x.Sequence }).IsUnique();
+        b.Entity<ContractPriceRevision>().HasIndex(x => new { x.ContractId, x.EffectiveAt });
+        b.Entity<ContractPriceRevisionItem>().HasIndex(x => new { x.RevisionId, x.ProductId }).IsUnique();
         b.Entity<ContractRenewalRequest>().HasIndex(x => new { x.ContractId, x.Status });
         b.Entity<NotificationPreference>().HasIndex(x => new { x.TenantId, x.UserId }).IsUnique();
         b.Entity<SupportTicket>().HasIndex(x => x.Number).IsUnique();
@@ -409,6 +420,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CompanyBillingProfile>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyContract>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ContractRenewalRequest>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyContractProduct>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyContractQuantityTier>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyContractAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<CompanyContractApproval>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ContractPriceRevision>().HasQueryFilter(e => !e.IsDeleted && !e.Contract.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<ContractPriceRevisionItem>().HasQueryFilter(e => !e.IsDeleted && !e.Revision.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<NotificationPreference>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<SupportTicket>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<SupportMessage>().HasQueryFilter(e => !e.IsDeleted && !e.Ticket.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
