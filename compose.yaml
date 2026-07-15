@@ -1,0 +1,36 @@
+name: mohandseto-tawredat
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: Data Source=/var/lib/mohandseto/data/mohandseto.db
+      DataProtection__KeysPath: /var/lib/mohandseto/keys
+      Cors__Origins__0: http://localhost:3000
+    ports:
+      - "5199:8080"
+    volumes:
+      - api_data:/var/lib/mohandseto/data
+      - data_protection_keys:/var/lib/mohandseto/keys
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin_web/Dockerfile
+    environment:
+      API_BASE_URL: http://api:8080
+      DEPLOYMENT_VERSION: local-compose
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  api_data:
+  data_protection_keys:

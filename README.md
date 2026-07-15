@@ -1,69 +1,71 @@
 # مهندسيتو توريدات — Mohandseto Tawredat
 
-منصة B2B متكاملة لتوريد احتياجات الشركات والمكاتب والمصانع: كتالوج وأسعار خاصة، طلبات عروض أسعار RFQ، موافقات داخلية، منتجات مطبوعة بشعار الشركة، مخزون وشحن وفواتير وCRM.
+منصة B2B متكاملة لتوريد احتياجات الشركات: تطبيق عميل Flutter، لوحة إدارة وCRM عربية RTL، وواجهة API مركزية. يغطي التنفيذ الكتالوج والأسعار الخاصة وRFQ والموافقات والمنتجات المطبوعة والطلبات والمخزون والمشتريات والشحن والحسابات والدعم والتقارير والتكاملات والمراقبة.
 
-> **مصدر الحقيقة:** ملف التصميم `Mohandseto_Tawredat_Final design.pdf` (759 صفحة — 756 شاشة وحالة) + وثيقة المواصفات `Mohandseto_Tawredat_Full_Autonomous_Execution_Spec.md`.
+مصدر الحقيقة هو ملف التصميم `Mohandseto_Tawredat_Final design.pdf` (759 صفحة/756 شاشة وحالة) ووثيقة `Mohandseto_Tawredat_Full_Autonomous_Execution_Spec.md`.
 
-## بنية المشروع (Monorepo)
+## المكونات
 
 ```text
-apps/
-  api/             ASP.NET Core (.NET 10) + EF Core + SQLite (dev) — الـBackend
-  admin_web/       Next.js + TypeScript — لوحة الإدارة والـCRM (RTL)
-  client_flutter/  Flutter — تطبيق العميل (Android / iOS / Web)
-packages/
-  design_tokens/   مصدر الحقيقة للألوان والخطوط والمقاسات (tokens.json)
-  api_contracts/   عقود الـAPI المشتركة
-infrastructure/    Docker، سكربتات، قاعدة البيانات، المراقبة
-docs/              الوثائق: المعمارية، قاعدة البيانات، QA، الأمن، المراحل
-seed/              بيانات الإدخال: base / demo / test
+apps/api/             ASP.NET Core (.NET 10) + EF Core
+apps/admin_web/       Next.js 16 + TypeScript — Admin/CRM RTL
+apps/client_flutter/  Flutter — Android / iOS / Web
+packages/             Design tokens وAPI contracts
+infrastructure/       Docker، reverse proxy، وسكربتات التشغيل
+docs/                 Architecture، Database، Security، QA، Deployment
 ```
 
-## التشغيل محليًا
+## أسرع تشغيل محلي
 
-### الـAPI
+باستخدام Docker Desktop وCompose v2:
 
 ```bash
-cd apps/api
-dotnet run
-# http://localhost:5000 — Swagger على /swagger — الصحة على /health
+docker compose up --build
 ```
 
-قاعدة البيانات SQLite تُنشأ وتُهاجَر تلقائيًا في بيئة التطوير. للإنتاج: SQL Server عبر تغيير الـConnection String.
+- لوحة الإدارة: `http://localhost:3000`
+- الـAPI: `http://localhost:5199`
+- الجاهزية: `http://localhost:5199/health/ready`
 
-### لوحة الإدارة
+أو شغّل المكونات مباشرة:
 
 ```bash
+dotnet run --project apps/api/Mohandseto.Api.csproj
+# http://localhost:5247 — Swagger: /swagger
+
 cd apps/admin_web
-npm install
+npm ci
 npm run dev
-# http://localhost:3000
 ```
 
-### تطبيق العميل
+ومن `apps/client_flutter`: نفّذ `flutter pub get` ثم `flutter run` على الجهاز المطلوب. التفاصيل في [دليل التشغيل المحلي](docs/deployment/local.md).
+
+## التحقق قبل التسليم
 
 ```bash
-cd apps/client_flutter
-flutter pub get
-flutter run -d chrome   # أو جهاز Android
+dotnet test apps/api.Tests/Mohandseto.Api.Tests.csproj -c Release
+
+cd apps/admin_web
+npm run lint
+npm run build
+
+cd ../client_flutter
+flutter analyze
+flutter test
 ```
 
-## خارطة الطريق (10 مراحل × 10%)
+CI يضيف فحص الثغرات والأسرار، بناء صور الحاويات، والتحقق من Compose. سيناريوهات القبول في [E2E](docs/qa/e2e-scenarios.md) وقائمة إطلاق v1.0.0 في [release checklist](docs/release/v1.0.0-checklist.md).
 
-| Tag | المرحلة |
-|---|---|
-| v0.1.0 | الأساس: Monorepo، API skeleton، DB، Design tokens، CI |
-| v0.2.0 | الهوية وتسجيل الشركات والتحقق + نظام التصميم |
-| v0.3.0 | الكتالوج والمنتجات والبحث + بيانات المنتجات |
-| v0.4.0 | المنتجات المطبوعة + السلة + Checkout |
-| v0.5.0 | الموافقات + RFQ |
-| v0.6.0 | الطلبات والتتبع والمرتجعات والفواتير (عميل) |
-| v0.7.0 | إدارة الطلبات والعروض والكتالوج (إدارة) |
-| v0.8.0 | المخزون والموردون وCRM والعقود والطباعة |
-| v0.9.0 | الشحن والحسابات والدعم والتقارير والمراقبة |
-| v1.0.0 | QA شامل + الأمن + الأداء + النشر |
+## حالة الإطلاق
 
-تتبُّع الشاشات: [docs/screen-coverage-matrix.csv](docs/screen-coverage-matrix.csv) — الهدف النهائي: **Missing Screens = 0**.
+- تم تنفيذ **753 من 756** شاشة/حالة بالكامل ومتابعتها في [screen coverage matrix](docs/screen-coverage-matrix.csv). المتبقي الحقيقي: Google، Microsoft، وتبديل المستخدم بين أكثر من Tenant؛ الأولان يحتاجان بيانات OAuth، والثالث يحتاج توسعة صريحة لنموذج العضوية والجلسة.
+- النسخة الحالية Release Candidate وليست GA منشورة بعد؛ النشر العام يحتاج استضافة ودومينات وTLS وأسرار الإنتاج وبيانات مزودي الدفع/SMS والبريد واعتماد تجاري نهائي.
+- سلسلة migrations الحالية مخصصة لـSQLite. مسار v1 المدعوم هو API واحد مع قرص دائم ونسخ احتياطية. الانتقال إلى SQL Server يتطلب migrations واختبار نقل مستقلين؛ تغيير Connection String وحده غير كافٍ.
+- تعليمات Production والـrollback موثقة في [دليل النشر](docs/deployment/production.md).
+
+## الأمان
+
+لا تضع أسرارًا حقيقية في Git. استخدم secret store ومتغيرات البيئة، وراجع [SECURITY.md](SECURITY.md) و[threat model](docs/security/threat-model.md). الإعدادات غير الآمنة تجعل الـAPI يفشل مبكرًا في بيئة Production.
 
 ## الترخيص
 

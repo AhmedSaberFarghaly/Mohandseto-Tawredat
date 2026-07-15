@@ -1,7 +1,13 @@
 using System.Text;
+using System.IO.Compression;
+using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Mohandseto.Api.Application.Auth;
 using Mohandseto.Api.Application.Common;
@@ -41,6 +47,8 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console());
+
+builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 30 * 1024 * 1024);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantProvider, HttpTenantProvider>();
@@ -91,9 +99,28 @@ builder.Services.AddCors(o => o.AddPolicy("app", p => p
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"])
+    .AddDbContextCheck<AppDbContext>("database", tags: ["ready"]);
 builder.Services.AddProblemDetails();
-builder.Services.AddDataProtection();
+var dataProtection = builder.Services.AddDataProtection().SetApplicationName("Mohandseto.Tawredat");
+var dataProtectionPath = builder.Configuration["DataProtection:KeysPath"];
+if (!string.IsNullOrWhiteSpace(dataProtectionPath))
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath));
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    foreach (var raw in builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+        if (IPAddress.TryParse(raw, out var address)) options.KnownProxies.Add(address);
+});
 
 // application services
 builder.Services.AddScoped<TokenService>();
@@ -147,14 +174,27 @@ builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 600,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 20,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            }));
     o.AddPolicy("auth", ctx => RateLimitPartition.GetFixedWindowLimiter(
         ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 var app = builder.Build();
+ProductionReadiness.ThrowIfInvalid(app.Configuration, app.Environment);
 
+app.UseForwardedHeaders();
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseSerilogRequestLogging();
+app.UseResponseCompression();
 
 // map ApiException -> ProblemDetails with Arabic message; hide stack traces
 app.UseExceptionHandler(handler => handler.Run(async ctx =>
@@ -178,7 +218,6 @@ app.UseExceptionHandler(handler => handler.Run(async ctx =>
 app.UseMiddleware<SystemErrorCaptureMiddleware>();
 app.UseMiddleware<RequestMetricsMiddleware>();
 app.UseStatusCodePages();
-app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
@@ -189,19 +228,25 @@ if (app.Environment.IsDevelopment())
 app.UseCors("app");
 app.UseMiddleware<BlockedIpMiddleware>();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
-app.MapGet("/", () => Results.Ok(new { name = "Mohandseto Tawredat API", version = "0.1.0", status = "ok" }));
+app.MapHealthChecks("/health/live", new() { Predicate = check => check.Tags.Contains("live") });
+app.MapHealthChecks("/health/ready", new() { Predicate = check => check.Tags.Contains("ready") });
+app.MapGet("/", () => Results.Ok(new { name = "Mohandseto Tawredat API", version = "1.0.0-rc.1", status = "ok" }));
 
-// apply migrations + seed base data automatically in development
-if (app.Environment.IsDevelopment())
+// Development and single-instance staging can opt into startup migration. Multi-replica production runs it as a release step.
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Database:MigrateOnStartup", false))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-    await DbSeeder.SeedAsync(db, app.Configuration, app.Logger);
+    await db.Database.MigrateAsync();
+    if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Seed:Enabled", false))
+        await DbSeeder.SeedAsync(db, app.Configuration, app.Logger);
 }
 
 app.Run();
+
+public partial class Program;

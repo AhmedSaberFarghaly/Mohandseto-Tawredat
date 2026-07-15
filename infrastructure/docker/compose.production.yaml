@@ -1,0 +1,53 @@
+name: mohandseto-tawredat-production
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Data Source=/var/lib/mohandseto/data/mohandseto.db
+      Jwt__Key: ${JWT_KEY:?JWT_KEY must be at least 48 random characters}
+      AllowedHosts: ${PUBLIC_API_HOST:?Set the public API hostname}
+      Cors__Origins__0: ${PUBLIC_ADMIN_ORIGIN:?Set the HTTPS admin origin}
+      ForwardedHeaders__KnownProxies__0: ${TRUSTED_PROXY_IP:?Set the reverse-proxy IP visible to the API}
+      DataProtection__KeysPath: /var/lib/mohandseto/keys
+      Database__MigrateOnStartup: "true"
+      Seed__Enabled: "false"
+    volumes:
+      - api_data:/var/lib/mohandseto/data
+      - data_protection_keys:/var/lib/mohandseto/keys
+    ports:
+      - "127.0.0.1:5199:8080"
+    restart: unless-stopped
+    networks:
+      - release_network
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: apps/admin_web/Dockerfile
+      args:
+        DEPLOYMENT_VERSION: ${RELEASE_VERSION:-v1.0.0-rc.1}
+    environment:
+      API_BASE_URL: http://api:8080
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - release_network
+
+volumes:
+  api_data:
+  data_protection_keys:
+
+networks:
+  release_network:
+    ipam:
+      config:
+        - subnet: ${RELEASE_NETWORK_SUBNET:-172.31.50.0/24}

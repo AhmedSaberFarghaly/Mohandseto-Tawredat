@@ -2,14 +2,15 @@
 
 ## Current execution checkpoint — 2026-07-15
 
-- Overall implementation gate: **100%** for the 756-screen functional implementation scope; final production hardening remains.
+- Overall screen gate: **753/756 fully implemented (99.6%)**. The remaining screens are Google login, Microsoft login/social confirmation, and multi-company tenant switching; they require OAuth credentials and a deliberate multi-tenant membership/session expansion. Repository-level release hardening is implemented; staging and GA remain externally gated.
 - M6 and M7 are complete. Admin screens 369–756 now include accounting, returns, customer service, marketing, access control, reporting, system settings, integrations, system monitoring and security.
 - Database: **35 migrations** through `AddSystemMonitoring`, verified by the real-SQLite automated test suite.
-- Automated verification: **86 backend tests + 23 Flutter tests**, clean Next.js lint/production build, authenticated monitoring HTTP verification and all 22 built-in report queries executed against the real schema.
+- Automated verification: **90/90 backend tests + 23/23 Flutter tests**, zero .NET build warnings, clean Flutter analysis, clean Next.js lint/production build, empty-database migration verification and authenticated runtime smoke coverage.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
-- Latest delivered slice: admin screens 743–756 (`AddSystemMonitoring`) covering real request/runtime health, service/database/storage/queue telemetry, sanitized error capture, failed-login detection, enforceable IP blocks, verified backup restore requests, version history and runtime-evaluated feature flags.
+- Latest delivered slice: M10 release hardening—production configuration guardrails, containers/Compose, security and health middleware, CI security/container gates, release smoke automation, and architecture/security/QA/deployment/rollback documentation.
+- Dependency evidence: NuGet reports no vulnerable production packages; npm production audit reports no high/critical findings and two moderate transitive PostCSS advisories whose suggested forced fix is an incompatible Next.js downgrade.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (System Monitoring & Security).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (M10 Release Hardening).
 
 ## 1. وصف المشروع الحالي
 
@@ -21,10 +22,10 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 35 migrations حتى `AddSystemMonitoring` ومختبرة على SQLite فعلي |
+| قاعدة البيانات | SQLite (مسار v1 المدعوم) | 35 migrations حتى `AddSystemMonitoring` ومختبرة على SQLite فعلي؛ SQL Server يتطلب migrations ونقل بيانات مستقلين |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | تشغيل وإدارة وCRM وحسابات وخدمة عملاء وحملات تسويقية حية |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
-| CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
+| CI | GitHub Actions | بناء واختبار المكونات + تدقيق dependencies/secrets + بناء containers والتحقق من Compose |
 
 ## 3. مستوى اكتمال الوحدات (756 شاشة)
 
@@ -67,8 +68,8 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع التصلب النهائي | عالية | 86 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ؛ المراقبة والأمان والاستعادة وFeature Flags مختبرة على SQLite فعلي |
-| 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
+| 3 | التحقق على بنية Production فعلية | عالية | اختبارات آلية وSmoke محلي متوفرة؛ الأداء وE2E الكامل واسترجاع النسخة يجب إثباتها على Staging مماثلة للإنتاج |
+| 4 | Docker CLI غير متاح على جهاز التطوير الحالي | منخفضة | Dockerfiles وCompose وبناء الحاويات داخل CI متوفرون؛ التحقق المحلي للحاويات ينتظر Docker Desktop |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
 ## 5. الأمان — الوضع الحالي
@@ -94,7 +95,7 @@
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
 6. **M7 (مكتملة — البوابة العامة 100%):** اكتملت الإدارة التشغيلية وCRM والنظام والأمان حتى الشاشة 756.
-7. **M10:** تصلّب نهائي + E2E إنتاجي + `v1.0.0`.
+7. **M10 (Release Candidate):** التصلّب والـE2E الآلي والـrunbooks وCI gates مكتملة داخل المستودع؛ Staging/Production credentials والبنية واعتماد الإطلاق ثم tag `v1.0.0` ما زالت بوابات خارجية واجبة.
 
 ## 7. معايير الجاهزية للإنتاج
 

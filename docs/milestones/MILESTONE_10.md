@@ -12,7 +12,7 @@
 - إزالة النموذج الأولي القديم (قابل للاسترجاع من `9308ab8`).
 
 ### الـBackend (ASP.NET Core / .NET 10)
-- EF Core + SQLite (جاهز للترقية لـ SQL Server عبر Connection String).
+- EF Core + SQLite. ملاحظة لاحقة: سلسلة migrations الحالية مرتبطة بمزود SQLite؛ الانتقال إلى SQL Server لا يتم بتغيير Connection String فقط ويحتاج migrations واختبار cutover مستقلين.
 - Multi-tenancy: استخراج الـTenant من JWT claims + Global Query Filters تمنع تسرب البيانات بين الشركات.
 - BaseEntity: Guid PK، حقول Audit كاملة (CreatedAt/By، UpdatedAt/By)، Soft Delete تلقائي، RowVersion.
 - كيانات الهوية: Tenant، Company، CompanyBranch، CompanyDocument، User، Role، Permission، RolePermission، UserRole، OtpCode، RefreshToken، AuditLog.

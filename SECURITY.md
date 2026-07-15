@@ -1,18 +1,31 @@
-# Security Policy — Mohandseto Tawredat
+# Security policy — Mohandseto Tawredat
 
-## Principles
+## الإبلاغ عن ثغرة
 
-- **Security by design**: authorization at the API layer (never UI-only), tenant isolation via global query filters, audit logging for sensitive actions.
-- **Secrets are never committed.** All credentials come from environment variables (`Jwt__Key`, connection strings, provider keys). `appsettings.json` contains development-only placeholder values.
-- Passwords hashed with BCrypt; OTP codes stored hashed with expiry + attempt limits; JWT access tokens are short-lived with rotating refresh tokens.
+استخدم GitHub Private Security Advisory أو تواصل مباشرة مع مالك المستودع. لا تنشر تفاصيل الثغرات أو بيانات العملاء في Issue عامة.
 
-## Reporting a Vulnerability
+## الضوابط المطبقة
 
-Open a private security advisory on GitHub or contact the repository owner directly. Do not open public issues for vulnerabilities.
+- Authorization داخل الـAPI مع أدوار وصلاحيات ونطاقات فروع/مخازن، وعزل Tenant عبر EF global query filters.
+- BCrypt لكلمات المرور، OTP محدود الصلاحية والمحاولات، access token قصير، وتدوير refresh token مع اكتشاف إعادة الاستخدام.
+- Rate limiting عام ومشدد لمسارات الدخول، lockout و2FA للإدارة، تعليق الجلسات، وسجل محاولات وتدقيق.
+- تحقق نوع/حجم الملفات وعزل الوصول، حد طلب Kestrel يساوي 30 MB، وعمليات حساسة idempotent حيث يلزم.
+- تشفير بيانات ربط المزودين بواسطة ASP.NET Data Protection، وعرض أسرار API/Webhook مرة واحدة مع تخزين البصمة فقط.
+- رؤوس حماية للـAPI والداشبورد، HSTS في الإنتاج، CORS مقيد، ورفض إعداد Production غير الآمن عند الإقلاع.
+- `/health/live` و`/health/ready`، مراقبة أخطاء/طوابير/تخزين/أمن، ونسخ SQLite بسلامة SHA-256 واسترجاع مضبوط.
+- CI يفحص حزم .NET، وnpm production dependencies، والأسرار، ويبني صور الحاويات.
 
-## Planned hardening per milestone
+التفاصيل في `docs/security/threat-model.md` و`docs/security/permissions-matrix.md`.
 
-- Rate limiting & brute-force protection (Milestone 2 — auth).
-- 2FA for admin console (Milestone 2).
-- File upload validation (MIME/type/size) and signed URLs (Milestone 4).
-- Full threat model & permissions matrix in `docs/security/` (built progressively; finalized Milestone 10).
+## إدارة الأسرار
+
+لا توجد أسرار إنتاج داخل المستودع. القيم الموجودة في ملفات الإعداد Development placeholders فقط. الإنتاج يحقن `Jwt__Key` وConnection String وبيانات المزودين من secret store؛ مفتاح JWT يجب أن يكون عشوائيًا وطوله 48 حرفًا على الأقل. احتفظ بمفاتيح Data Protection على قرص دائم وخذ نسخة متطابقة معها، وإلا قد تصبح بيانات التكامل المشفرة غير قابلة للقراءة.
+
+عند الاشتباه في تسريب: عطّل المفتاح/الحساب، دوّر السر، أبطل الجلسات المتأثرة، احفظ أدلة التدقيق، وراجع النطاق قبل إعادة الخدمة.
+
+## حدود القبول الحالية
+
+- لا يوجد ادعاء باختبار اختراق خارجي أو امتثال تنظيمي مستقل؛ يلزم قبل إطلاق عالي المخاطر بحسب نموذج العمل والجهة القانونية.
+- توجد تنبيهات npm متوسطة عابرة في سلسلة بناء Next.js وقت إعداد المرشح؛ لا يوجد إصلاح مستقر آمن دون تغيير إجباري غير متوافق. CI يمنع high/critical ويجب إعادة تقييمها قبل كل إصدار.
+- مسار SQLite المدعوم يعمل بـAPI writer واحد. التوسع الأفقي أو SQL Server يحتاج تصميم ومهاجرات واختبارات منفصلة.
+- بيانات الاعتماد الحقيقية لمزودي OAuth/SMS/البريد/الدفع والتكاملات مسؤولية بيئة النشر ولا تُنشأ من داخل الكود.

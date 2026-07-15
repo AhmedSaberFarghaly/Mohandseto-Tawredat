@@ -3,9 +3,14 @@
 All notable changes to Mohandseto Tawredat are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Versioning per milestone (v0.1.0 → v1.0.0).
 
-## [Unreleased] — Milestone 7 in progress
+## [Unreleased] — v1.0.0 release candidate hardening
 
 ### Added
+- Release hardening for Milestone 10: production fail-fast configuration validation, persistent Data Protection keys, security headers, forwarded-header handling, response compression, API/body/rate limits and separate live/ready health probes.
+- Multi-stage non-root API and Next.js containers, local and production Compose definitions, loopback-only production bindings, reverse-proxy example, persistent SQLite/key volumes and environment templates.
+- Automated empty-database migration and authenticated platform E2E tests, PowerShell release smoke gate, CI container builds, dependency vulnerability audits and secret scanning.
+- Product, architecture, database, OpenAPI, security, QA, staging/production/rollback and v1.0.0 release-checklist documentation.
+- System monitoring and security for screens 743–756: service/database/storage/queue telemetry, sanitized error capture, security events and enforceable IP blocks, verified restore requests, version history and feature flags.
 - Integrations Hub for screens 735–742: 11 provider cards, encrypted connection configuration, detailed WhatsApp/payment/ETA e-invoice/ERP workspaces, real database-backed operational metrics, manual run and temporary disable controls.
 - Full integration operation lifecycle with server-side search/status/provider/date filters, CSV export, failure detail, error codes and endpoints, maximum-attempt guards, individual/bulk retry and a background due-retry worker.
 - `AddIntegrationHub` migration, 81-test backend gate, clean Next.js lint/production build and fresh-database authenticated configure-test-run-log HTTP verification.

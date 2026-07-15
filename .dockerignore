@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+.vscode
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/.dart_tool
+**/build
+**/*.db
+**/*.db-*
+*.pdf
+tmp
+artifacts

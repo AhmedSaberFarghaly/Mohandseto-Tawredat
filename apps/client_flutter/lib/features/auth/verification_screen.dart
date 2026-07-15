@@ -45,6 +45,7 @@ class VerificationScreen extends ConsumerWidget {
               });
             }
             final rejected = status == 'Rejected';
+            final suspended = status == 'Suspended';
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
@@ -58,22 +59,28 @@ class VerificationScreen extends ConsumerWidget {
                       width: 128,
                       height: 128,
                       decoration: BoxDecoration(
-                        color: rejected
+                        color: rejected || suspended
                             ? AppColors.errorTint
                             : AppColors.primaryTint,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        rejected
+                        suspended
+                            ? Icons.block_rounded
+                            : rejected
                             ? Icons.assignment_late_outlined
                             : Icons.schedule_rounded,
                         size: 64,
-                        color: rejected ? AppColors.error : AppColors.primary,
+                        color: rejected || suspended
+                            ? AppColors.error
+                            : AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 28),
                     Text(
-                      rejected
+                      suspended
+                          ? 'حساب الشركة موقوف مؤقتًا'
+                          : rejected
                           ? 'تحتاج بعض المستندات إلى تعديل'
                           : 'جاري مراجعة حسابك',
                       textAlign: TextAlign.center,
@@ -82,7 +89,9 @@ class VerificationScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      rejected
+                      suspended
+                          ? 'لا يمكن تنفيذ عمليات جديدة حاليًا. تواصل مع الدعم لمعرفة السبب وخطوات إعادة التفعيل.'
+                          : rejected
                           ? 'راجع الملاحظات وأعد رفع المستندات المطلوبة'
                           : 'فريقنا يراجع بيانات شركتك، وسنرسل إليك إشعارًا فور تفعيل الحساب.',
                       textAlign: TextAlign.center,
@@ -114,7 +123,13 @@ class VerificationScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    if (rejected)
+                    if (suspended)
+                      FilledButton.icon(
+                        onPressed: () => context.push('/support'),
+                        icon: const Icon(Icons.support_agent_rounded),
+                        label: const Text('تواصل مع الدعم'),
+                      )
+                    else if (rejected)
                       FilledButton(
                         onPressed: () => context.go('/documents'),
                         child: const Text('تعديل المستندات'),
@@ -125,10 +140,11 @@ class VerificationScreen extends ConsumerWidget {
                         icon: const Icon(Icons.refresh_rounded),
                         label: const Text('تحديث حالة الطلب'),
                       ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('تواصل مع الدعم'),
-                    ),
+                    if (!suspended)
+                      TextButton(
+                        onPressed: () => context.push('/support'),
+                        child: const Text('تواصل مع الدعم'),
+                      ),
                   ],
                 ),
               ),
