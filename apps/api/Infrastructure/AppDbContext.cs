@@ -50,6 +50,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<IntegrationConnection> IntegrationConnections => Set<IntegrationConnection>();
     public DbSet<IntegrationOperationLog> IntegrationOperationLogs => Set<IntegrationOperationLog>();
     public DbSet<SystemBackup> SystemBackups => Set<SystemBackup>();
+    public DbSet<SystemErrorEvent> SystemErrorEvents => Set<SystemErrorEvent>();
+    public DbSet<BlockedIpAddress> BlockedIpAddresses => Set<BlockedIpAddress>();
+    public DbSet<SuspiciousActivity> SuspiciousActivities => Set<SuspiciousActivity>();
+    public DbSet<SystemRestoreRequest> SystemRestoreRequests => Set<SystemRestoreRequest>();
+    public DbSet<SystemVersion> SystemVersions => Set<SystemVersion>();
+    public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
     public DbSet<CrmActivity> CrmActivities => Set<CrmActivity>();
     public DbSet<CrmTask> CrmTasks => Set<CrmTask>();
     public DbSet<CustomerStageHistory> CustomerStageHistories => Set<CustomerStageHistory>();
@@ -216,6 +222,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<IntegrationOperationLog>().HasIndex(x => new { x.Integration, x.StartedAt });
         b.Entity<IntegrationOperationLog>().HasIndex(x => new { x.Status, x.NextRetryAt });
         b.Entity<SystemBackup>().HasIndex(x => x.StartedAt);
+        b.Entity<SystemErrorEvent>().HasIndex(x => new { x.Fingerprint, x.ResolvedAt });
+        b.Entity<SystemErrorEvent>().HasIndex(x => new { x.Severity, x.LastOccurredAt });
+        b.Entity<BlockedIpAddress>().HasIndex(x => new { x.IpAddress, x.IsActive });
+        b.Entity<SuspiciousActivity>().HasIndex(x => new { x.Status, x.DetectedAt });
+        b.Entity<SuspiciousActivity>().HasIndex(x => new { x.Fingerprint, x.Status });
+        b.Entity<SystemRestoreRequest>().HasIndex(x => new { x.Status, x.RequestedAt });
+        b.Entity<SystemVersion>().HasIndex(x => x.Version).IsUnique();
+        b.Entity<FeatureFlag>().HasIndex(x => x.Key).IsUnique();
 
         b.Entity<Tenant>().HasOne(t => t.Company).WithOne(c => c.Tenant)
             .HasForeignKey<Company>(c => c.TenantId);
@@ -534,6 +548,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<CrmActivity>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
         b.Entity<CrmTask>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
         b.Entity<CustomerStageHistory>().HasQueryFilter(e => !e.IsDeleted && !e.Company.IsDeleted);
+        b.Entity<SystemErrorEvent>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<BlockedIpAddress>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SuspiciousActivity>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemRestoreRequest>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemVersion>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<FeatureFlag>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)

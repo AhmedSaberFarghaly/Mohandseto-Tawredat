@@ -1,0 +1,16 @@
+export type Point={at:string;value:number};
+export type Health={uptimePercent:number;uptimeSeconds:number;averageResponseMs:number;activeUsers:number;requestsPerMinute:number;errors24Hours:number;checkedAt:string;responseTrend:Point[]};
+export type Service={code:string;nameAr:string;status:string;uptimePercent:number;responseMs:number;checkedAt:string;message?:string};
+export type Database={provider:string;status:string;activeConnections:number;maxConnections:number;queryLatencyMs:number;sizeBytes:number;slowQueries24Hours:number;successRate:number;lastBackupAt?:string;availableStorageBytes:number;connectionTrend:Point[]};
+export type Storage={capacityBytes:number;usedBytes:number;availableBytes:number;usagePercent:number;warningThresholdPercent:number;autoExpandEnabled:boolean;categories:{code:string;nameAr:string;bytes:number;tone:string}[]};
+export type Queue={code:string;nameAr:string;waiting:number;processing:number;completedToday:number;failed:number;status:string};
+export type ErrorEvent={id:string;number:string;severity:string;service:string;message:string;exceptionType?:string;stackTrace?:string;contextJson?:string;correlationId?:string;path?:string;userId?:string;tenantId?:string;occurrenceCount:number;firstOccurredAt:string;lastOccurredAt:string;resolvedAt?:string;resolutionNote?:string};
+export type ErrorPage={total:number;page:number;pageSize:number;items:ErrorEvent[]};
+export type FailedLogin={identifier:string;ipAddress:string;location?:string;attempts:number;lastAttemptAt:string;failureReason?:string;isBlocked:boolean};
+export type Suspicious={id:string;type:string;severity:string;titleAr:string;descriptionAr:string;identifier?:string;ipAddress?:string;status:string;detectedAt:string;reviewedAt?:string;reviewNote?:string};
+export type BlockedIp={id:string;ipAddress:string;reason:string;location?:string;failedAttempts:number;blockedAt:string;expiresAt?:string;isActive:boolean;unblockedAt?:string};
+export type Backup={id:string;fileName:string;sizeBytes:number;status:string;isAutomatic:boolean;startedAt:string;completedAt?:string;error?:string;sha256?:string};
+export type Restore={id:string;backupId:string;backupFileName:string;environment:string;reason:string;status:string;requestedAt:string;completedAt?:string;error?:string};
+export type Version={id:string;version:string;titleAr:string;notesAr?:string;environment:string;commitSha?:string;isStable:boolean;releasedAt:string};
+export type Flag={id:string;key:string;nameAr:string;descriptionAr:string;isEnabled:boolean;scope:string;rolloutPercent:number;targetTenantIds:string[];targetUserIds:string[];startsAt?:string;endsAt?:string;updatedAt:string};
+export type Dashboard={health:Health;database:Database;storage:Storage;services:Service[];queues:Queue[];errors:ErrorPage;failedLogins:FailedLogin[];suspiciousActivities:Suspicious[];blockedIps:BlockedIp[];backups:{latestAt?:string;totalSizeBytes:number;retainedCount:number;scheduleAr:string;items:Backup[]};restoreRequests:Restore[];versions:Version[];featureFlags:Flag[]};

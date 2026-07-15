@@ -31,6 +31,7 @@ using Mohandseto.Api.Application.AdminSystemAccess;
 using Mohandseto.Api.Application.AdminReports;
 using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Application.AdminIntegrations;
+using Mohandseto.Api.Application.AdminMonitoring;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -44,8 +45,11 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantProvider, HttpTenantProvider>();
 
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddSingleton<RuntimeMetrics>();
+builder.Services.AddSingleton<DatabaseMetricsInterceptor>();
+builder.Services.AddDbContext<AppDbContext>((services, opt) =>
+    opt.UseSqlite(builder.Configuration.GetConnectionString("Default"))
+        .AddInterceptors(services.GetRequiredService<DatabaseMetricsInterceptor>()));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
@@ -125,6 +129,7 @@ builder.Services.AddScoped<AdminSystemAccessService>();
 builder.Services.AddScoped<AdminReportService>();
 builder.Services.AddScoped<AdminSystemSettingsService>();
 builder.Services.AddScoped<AdminIntegrationService>();
+builder.Services.AddScoped<AdminMonitoringService>();
 builder.Services.AddSingleton<IReportDeliverySender, ConsoleReportDeliverySender>();
 builder.Services.AddSingleton<IMarketingChannelSender, ConsoleMarketingChannelSender>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
@@ -170,6 +175,8 @@ app.UseExceptionHandler(handler => handler.Run(async ctx =>
         traceId = ctx.TraceIdentifier,
     });
 }));
+app.UseMiddleware<SystemErrorCaptureMiddleware>();
+app.UseMiddleware<RequestMetricsMiddleware>();
 app.UseStatusCodePages();
 app.UseRateLimiter();
 
@@ -180,6 +187,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("app");
+app.UseMiddleware<BlockedIpMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
