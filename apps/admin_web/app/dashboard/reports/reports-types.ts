@@ -1,0 +1,13 @@
+export type ReportField={code:string;labelAr:string;type:string};
+export type ReportCatalog={code:string;titleAr:string;titleEn:string;category:string;icon:string;descriptionAr:string};
+export type ReportCategory={code:string;nameAr:string;icon:string;count:number;reports:ReportCatalog[]};
+export type ReportSource={code:string;nameAr:string;fields:ReportField[]};
+export type ReportOption={id:string;name:string};
+export type ReportFilter={from?:string;to?:string;companyId?:string|null;warehouseId?:string|null;userId?:string|null;status?:string|null;minValue?:number|null;maxValue?:number|null;search?:string|null};
+export type SavedReport={id:string;name:string;source:string;fields:string[];filters:ReportFilter;groupBy?:string;chartType:string;isFavorite:boolean;scheduleFrequency:string;scheduleDay?:number;scheduleTime?:string;formats:string[];recipients:string[];isScheduleActive:boolean;nextRunAt?:string;lastRunAt?:string};
+export type ReportRun={id:string;savedReportId?:string;reportCode:string;status:string;rowCount:number;formats:string;recipients?:string;startedAt:string;completedAt?:string;error?:string};
+export type ReportsDashboard={categories:ReportCategory[];sources:ReportSource[];savedReports:SavedReport[];recentRuns:ReportRun[];companies:ReportOption[];warehouses:ReportOption[];users:ReportOption[]};
+export type ReportKpi={label:string;value:number;format:string;change?:number};
+export type ReportPoint={label:string;value:number};
+export type ReportBreakdown={label:string;value:number;percent:number};
+export type ReportResult={code:string;titleAr:string;titleEn:string;from:string;to:string;kpis:ReportKpi[];trend:ReportPoint[];breakdown:ReportBreakdown[];columns:ReportField[];rows:Record<string,string>[];totalRows:number};

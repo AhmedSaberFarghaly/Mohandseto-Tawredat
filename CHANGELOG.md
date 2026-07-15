@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Reporting center for screens 671–699: 22 database-backed business reports, KPI/trend/breakdown views, date/company/warehouse/staff/value filters, an eight-source custom report builder, reusable favorite templates, recurring delivery schedules and run history.
+- Real XLSX and PDF generation and browser downloads, `AddReportingEngine` migration, background scheduled-report worker, full report audit trail, 71-test backend gate and clean Next.js lint/production build.
 - Admin identity and access management for screens 656–670: platform users, role creation, permission matrix/module/action views, branch and warehouse scopes, real login-attempt logs, active sessions, suspension/reactivation, administrator password resets and immutable audit details.
 - `AddAdminSystemAccess` migration, immediate JWT rejection for suspended accounts, 66-test backend gate, clean Next.js lint/build and fresh-database authenticated HTTP verification.
 - Accounting operations for screens 600–619: financial KPIs, customer and tax invoices, bank-transfer recording and matching, outstanding balances and aging, statements, credit/debit notes, refunds, expenses, order/product/company profits, sales tax, XLSX export and guarded financial-period close.

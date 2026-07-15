@@ -3,13 +3,13 @@
 ## Current execution checkpoint — 2026-07-15
 
 - Overall implementation gate: **99%**.
-- M6 is complete and M7 is in progress. Admin screens 369–670 now include accounting, returns, customer service, marketing, users, permissions, sessions and audit; reporting and system settings screens 671–756 are next.
-- Database: **31 migrations** through `AddAdminSystemAccess`, verified on a clean SQLite database and by the automated test suite.
-- Automated verification: **66 backend tests + 23 Flutter tests**, clean Flutter analysis, clean Next.js lint/production build and authenticated HTTP verification of the system-access dashboard and API.
+- M6 is complete and M7 is in progress. Admin screens 369–699 now include accounting, returns, customer service, marketing, access control and the complete reporting center; system settings screens 700–756 are next.
+- Database: **32 migrations** through `AddReportingEngine`, verified by the real-SQLite automated test suite.
+- Automated verification: **71 backend tests + 23 Flutter tests**, clean Next.js lint/production build and all 22 built-in report queries executed against the real schema.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
-- Latest delivered slice: admin screens 656–670 (`AddAdminSystemAccess`) covering platform users, roles, permission matrices, branch/warehouse scope, login logs, live sessions, suspension, password reset and audit detail.
+- Latest delivered slice: admin screens 671–699 (`AddReportingEngine`) covering 22 live operational reports, custom report builder, filters, reusable templates, background scheduling and real XLSX/PDF exports.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (Admin Users, Permissions & Audit).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (Reporting Center & Custom Reports).
 
 ## 1. وصف المشروع الحالي
 
@@ -21,7 +21,7 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 31 migrations حتى `AddAdminSystemAccess` مطبقة ومختبرة على قاعدة فارغة |
+| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 32 migrations حتى `AddReportingEngine` ومختبرة على SQLite فعلي |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | تشغيل وإدارة وCRM وحسابات وخدمة عملاء وحملات تسويقية حية |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
@@ -43,6 +43,7 @@
 | الشحن والتوصيل | 100% — شاشات 581–599؛ الشحنات والتقسيم والمندوبون والمسارات والخريطة والتحسين والتسليم والإثبات والفشل وإعادة الجدولة والأداء وتكلفة المناطق |
 | الحملات التسويقية وأكواد الخصم | 100% — شاشات 640–655؛ أربع قنوات وجماهير متعددة وجدولة وتسليم وتتبع فتح ونقر وتحويل وكوبونات قطاعية وتقارير ROI |
 | المستخدمون والصلاحيات والتدقيق | 100% — شاشات 656–670؛ مستخدمون وأدوار ومصفوفات وصلاحيات فروع ومخازن وسجل دخول وجلسات وتعليق وإعادة كلمة مرور وسجل تدقيق |
+| مركز التقارير والتحليلات | 100% — شاشات 671–699؛ 22 تقريرًا حيًا ومنشئ مخصص وفلاتر وقوالب وجدولة وتصدير XLSX/PDF |
 | المنتجات المطبوعة والمخصصة (شاشات 78–108) | 100% — التخصيص والملفات والشعارات المحفوظة والتسعير ونسخ التصميم والاعتماد والسلة والعينة ومراحل الإنتاج تعمل |
 | السلة وCheckout (شاشات 109–151) | 100% — السلال المحفوظة والكوبونات والتوفر وملاحظات الأصناف وسياق الشركة والعناوين والدفع بكل حالاته والمرفقات والمراجعة والطلب تعمل |
 | الموافقات الداخلية (شاشات 152–167) | 100% — السياسات والمستويات والصندوق والقرارات والتعديل والتفويض والتعليقات والمرفقات والميزانية والتصعيد والإشعارات تعمل |
@@ -54,7 +55,7 @@
 | إدارة الطلبات | 100% — شاشات 382–403؛ الفلاتر والتفاصيل والتشغيل والشحنات والتعاون والفواتير والاسترداد والأرشيف والتكرار |
 | إدارة عروض الأسعار | 100% — شاشات 404–425؛ الاستخراج والموردون والمقارنة والهامش والخصومات والنسخ والتفاوض والقبول والتحويل والقوالب |
 | الحسابات وخدمة العملاء | 100% — شاشات 600–639؛ الحسابات والمرتجعات والتذاكر وSLA والتقييمات والمشكلات |
-| التقارير النهائية والإعدادات والتكاملات | قيد التنفيذ — شاشات 671–756 |
+| الإعدادات والتكاملات والمراقبة | قيد التنفيذ — شاشات 700–756 |
 
 التتبع التفصيلي: `docs/screen-coverage-matrix.csv` (756 صفًا).
 
@@ -64,7 +65,7 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 66 اختبار Backend + 23 Flutter + Next build وHTTP integration تغطي النطاق المنفذ |
+| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 71 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ؛ التقارير الـ22 تُنفذ على SQLite فعلي |
 | 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
@@ -86,7 +87,7 @@
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
-6. **M7 (قيد التنفيذ — البوابة العامة 99%):** اكتملت الإدارة التشغيلية وCRM والحسابات وخدمة العملاء والحملات والمستخدمون والصلاحيات والتدقيق حتى الشاشة 670؛ التقارير النهائية والإعدادات هي الحزمة التالية.
+6. **M7 (قيد التنفيذ — البوابة العامة 99%):** اكتملت الإدارة التشغيلية وCRM والحسابات وخدمة العملاء والحملات والمستخدمون والصلاحيات ومركز التقارير حتى الشاشة 699؛ الإعدادات والتكاملات والمراقبة هي الحزمة التالية.
 5. M10: تصلّب نهائي + `v1.0.0`.
 
 ## 7. معايير الجاهزية للإنتاج

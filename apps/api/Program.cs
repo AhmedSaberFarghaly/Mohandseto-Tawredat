@@ -28,6 +28,7 @@ using Mohandseto.Api.Application.AdminPrinting;
 using Mohandseto.Api.Application.AdminShipping;
 using Mohandseto.Api.Application.AdminMarketing;
 using Mohandseto.Api.Application.AdminSystemAccess;
+using Mohandseto.Api.Application.AdminReports;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -118,12 +119,15 @@ builder.Services.AddScoped<AdminPrintingService>();
 builder.Services.AddScoped<AdminShippingService>();
 builder.Services.AddScoped<AdminMarketingService>();
 builder.Services.AddScoped<AdminSystemAccessService>();
+builder.Services.AddScoped<AdminReportService>();
+builder.Services.AddSingleton<IReportDeliverySender, ConsoleReportDeliverySender>();
 builder.Services.AddSingleton<IMarketingChannelSender, ConsoleMarketingChannelSender>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminCustomerService.AdminCustomerServiceService>();
 builder.Services.AddHostedService<ContentDispatchWorker>();
 builder.Services.AddHostedService<MarketingCampaignWorker>();
 builder.Services.AddHostedService<ContractPriceRevisionWorker>();
+builder.Services.AddHostedService<ScheduledReportWorker>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

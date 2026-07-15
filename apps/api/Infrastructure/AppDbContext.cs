@@ -40,6 +40,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     public DbSet<PasswordResetChallenge> PasswordResetChallenges => Set<PasswordResetChallenge>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<SavedReport> SavedReports => Set<SavedReport>();
+    public DbSet<ReportRun> ReportRuns => Set<ReportRun>();
     public DbSet<CrmActivity> CrmActivities => Set<CrmActivity>();
     public DbSet<CrmTask> CrmTasks => Set<CrmTask>();
     public DbSet<CustomerStageHistory> CustomerStageHistories => Set<CustomerStageHistory>();
@@ -193,6 +195,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<UserAccessScope>().HasIndex(x => new { x.UserId, x.ScopeType, x.ScopeId }).IsUnique();
         b.Entity<LoginAudit>().HasIndex(x => new { x.UserId, x.CreatedAt });
         b.Entity<LoginAudit>().HasIndex(x => new { x.Succeeded, x.CreatedAt });
+        b.Entity<SavedReport>().HasIndex(x => new { x.OwnerUserId, x.Name });
+        b.Entity<SavedReport>().HasIndex(x => new { x.IsScheduleActive, x.NextRunAt });
+        b.Entity<ReportRun>().HasIndex(x => new { x.SavedReportId, x.StartedAt });
 
         b.Entity<Tenant>().HasOne(t => t.Company).WithOne(c => c.Tenant)
             .HasForeignKey<Company>(c => c.TenantId);
@@ -373,6 +378,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<UserRole>().HasQueryFilter(e => !e.User.IsDeleted);
         b.Entity<UserAccessScope>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<LoginAudit>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SavedReport>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<ReportRun>().HasQueryFilter(e => !e.IsDeleted);
 
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyDocument>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
