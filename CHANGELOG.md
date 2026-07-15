@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Integrations Hub for screens 735–742: 11 provider cards, encrypted connection configuration, detailed WhatsApp/payment/ETA e-invoice/ERP workspaces, real database-backed operational metrics, manual run and temporary disable controls.
+- Full integration operation lifecycle with server-side search/status/provider/date filters, CSV export, failure detail, error codes and endpoints, maximum-attempt guards, individual/bulk retry and a background due-retry worker.
+- `AddIntegrationHub` migration, 81-test backend gate, clean Next.js lint/production build and fresh-database authenticated configure-test-run-log HTTP verification.
 - System settings for screens 700–734: 29 schema-driven configuration sections plus delivery-zone, bank-account, API-key, Webhook, translation, integration-log and backup workspaces in a unified responsive RTL admin experience.
 - `AddSystemSettings` migration, Data Protection encryption for provider credentials, one-time API/Webhook secret reveal with hash-only persistence, configurable login lockout/admin 2FA/minimum-password enforcement and immediate mobile maintenance/version/link gates.
 - Real SQLite online backups with SHA-256 integrity, scheduled execution and safe retention cleanup; 76-test backend gate, clean Next.js lint/production build and authenticated live HTTP verification.

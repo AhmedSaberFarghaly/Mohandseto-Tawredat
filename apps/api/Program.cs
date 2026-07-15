@@ -30,6 +30,7 @@ using Mohandseto.Api.Application.AdminMarketing;
 using Mohandseto.Api.Application.AdminSystemAccess;
 using Mohandseto.Api.Application.AdminReports;
 using Mohandseto.Api.Application.AdminSystemSettings;
+using Mohandseto.Api.Application.AdminIntegrations;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -123,6 +124,7 @@ builder.Services.AddScoped<AdminMarketingService>();
 builder.Services.AddScoped<AdminSystemAccessService>();
 builder.Services.AddScoped<AdminReportService>();
 builder.Services.AddScoped<AdminSystemSettingsService>();
+builder.Services.AddScoped<AdminIntegrationService>();
 builder.Services.AddSingleton<IReportDeliverySender, ConsoleReportDeliverySender>();
 builder.Services.AddSingleton<IMarketingChannelSender, ConsoleMarketingChannelSender>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
@@ -132,6 +134,7 @@ builder.Services.AddHostedService<MarketingCampaignWorker>();
 builder.Services.AddHostedService<ContractPriceRevisionWorker>();
 builder.Services.AddHostedService<ScheduledReportWorker>();
 builder.Services.AddHostedService<ScheduledSystemBackupWorker>();
+builder.Services.AddHostedService<IntegrationRetryWorker>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

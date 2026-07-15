@@ -1,0 +1,7 @@
+export type IntegrationCard={code:string;nameAr:string;nameEn:string;provider:string;icon:string;tone:string;descriptionAr:string;isConnected:boolean;isEnabled:boolean;status:string;lastHealthCheckAt?:string;lastSuccessfulSyncAt?:string;operationsToday:number;successRate:number};
+export type IntegrationOperation={id:string;number:string;integrationCode:string;integrationName:string;operation:string;reference?:string;status:string;attempt:number;maxAttempts:number;durationMs:number;error?:string;errorCode?:string;endpoint?:string;isRetryable:boolean;nextRetryAt?:string;resolvedAt?:string;startedAt:string;completedAt?:string};
+export type IntegrationDashboard={summary:{total:number;connected:number;disconnected:number;failedToday:number;retryable:number};integrations:IntegrationCard[];recentOperations:IntegrationOperation[]};
+export type IntegrationField={code:string;labelAr:string;type:string;required:boolean;sensitive:boolean;options:string[];help?:string};
+export type IntegrationDetail={integration:IntegrationCard;fields:IntegrationField[];values:Record<string,string>;metrics:{labelAr:string;value:string;hint?:string}[];recentOperations:IntegrationOperation[]};
+export type OperationsPage={total:number;page:number;pageSize:number;retryable:number;items:IntegrationOperation[]};
+export type ActionResult={succeeded:boolean;messageAr:string;integration?:IntegrationCard;operation:IntegrationOperation};

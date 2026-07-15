@@ -3,13 +3,13 @@
 ## Current execution checkpoint — 2026-07-15
 
 - Overall implementation gate: **99%**.
-- M6 is complete and M7 is in progress. Admin screens 369–734 now include accounting, returns, customer service, marketing, access control, reporting and the complete system-settings workspace; integrations and monitoring screens 735–756 are next.
-- Database: **33 migrations** through `AddSystemSettings`, verified by the real-SQLite automated test suite.
-- Automated verification: **76 backend tests + 23 Flutter tests**, clean Next.js lint/production build, authenticated settings HTTP verification and all 22 built-in report queries executed against the real schema.
+- M6 is complete and M7 is in progress. Admin screens 369–742 now include accounting, returns, customer service, marketing, access control, reporting, system settings and the complete integrations hub; system monitoring screens 743–756 are next.
+- Database: **34 migrations** through `AddIntegrationHub`, verified by the real-SQLite automated test suite.
+- Automated verification: **81 backend tests + 23 Flutter tests**, clean Next.js lint/production build, authenticated integration lifecycle HTTP verification and all 22 built-in report queries executed against the real schema.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
-- Latest delivered slice: admin screens 700–734 (`AddSystemSettings`) covering 35 system-settings views, encrypted provider credentials, runtime security/password/app gates, delivery zones, bank accounts, one-time API/Webhook secrets, translations, integration logs and verified SQLite backups.
+- Latest delivered slice: admin screens 735–742 (`AddIntegrationHub`) covering 11 integration connections, encrypted configuration, provider details, operational metrics, filtered logs, failure diagnosis and guarded individual/bulk/background retries.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (System Settings & Runtime Policies).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (Integrations Hub & Retry Operations).
 
 ## 1. وصف المشروع الحالي
 
@@ -21,7 +21,7 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 33 migrations حتى `AddSystemSettings` ومختبرة على SQLite فعلي |
+| قاعدة البيانات | SQLite (تطوير) → SQL Server (إنتاج) | 34 migrations حتى `AddIntegrationHub` ومختبرة على SQLite فعلي |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | تشغيل وإدارة وCRM وحسابات وخدمة عملاء وحملات تسويقية حية |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions (بناء الثلاثة) | مفعل على main/develop |
@@ -45,6 +45,7 @@
 | المستخدمون والصلاحيات والتدقيق | 100% — شاشات 656–670؛ مستخدمون وأدوار ومصفوفات وصلاحيات فروع ومخازن وسجل دخول وجلسات وتعليق وإعادة كلمة مرور وسجل تدقيق |
 | مركز التقارير والتحليلات | 100% — شاشات 671–699؛ 22 تقريرًا حيًا ومنشئ مخصص وفلاتر وقوالب وجدولة وتصدير XLSX/PDF |
 | إعدادات النظام | 100% — شاشات 700–734؛ 35 واجهة إعدادات وموارد وأسرار مشفرة وسياسات تشغيل ونسخ احتياطي |
+| مركز التكاملات | 100% — شاشات 735–742؛ 11 مزودًا وإعدادات مشفرة وفحص جاهزية وتشغيل وسجل وفشل وإعادة محاولة |
 | المنتجات المطبوعة والمخصصة (شاشات 78–108) | 100% — التخصيص والملفات والشعارات المحفوظة والتسعير ونسخ التصميم والاعتماد والسلة والعينة ومراحل الإنتاج تعمل |
 | السلة وCheckout (شاشات 109–151) | 100% — السلال المحفوظة والكوبونات والتوفر وملاحظات الأصناف وسياق الشركة والعناوين والدفع بكل حالاته والمرفقات والمراجعة والطلب تعمل |
 | الموافقات الداخلية (شاشات 152–167) | 100% — السياسات والمستويات والصندوق والقرارات والتعديل والتفويض والتعليقات والمرفقات والميزانية والتصعيد والإشعارات تعمل |
@@ -56,7 +57,7 @@
 | إدارة الطلبات | 100% — شاشات 382–403؛ الفلاتر والتفاصيل والتشغيل والشحنات والتعاون والفواتير والاسترداد والأرشيف والتكرار |
 | إدارة عروض الأسعار | 100% — شاشات 404–425؛ الاستخراج والموردون والمقارنة والهامش والخصومات والنسخ والتفاوض والقبول والتحويل والقوالب |
 | الحسابات وخدمة العملاء | 100% — شاشات 600–639؛ الحسابات والمرتجعات والتذاكر وSLA والتقييمات والمشكلات |
-| التكاملات والمراقبة | قيد التنفيذ — شاشات 735–756؛ إعدادات النظام 700–734 مكتملة |
+| مراقبة النظام والأمان | قيد التنفيذ — شاشات 743–756؛ التكاملات 735–742 مكتملة |
 
 التتبع التفصيلي: `docs/screen-coverage-matrix.csv` (756 صفًا).
 
@@ -66,7 +67,7 @@
 |---|---|---|---|
 | 1 | تحذيرات EF Core للفلاتر على العلاقات المطلوبة | متوسطة | عولجت بفلاتر مطابقة على dependents |
 | 2 | مفتاح JWT تطويري داخل appsettings.json (placeholder موثق) | متوسطة | مقبول للتطوير؛ الإنتاج عبر `Jwt__Key` — موثق في SECURITY.md |
-| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 76 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ؛ إعدادات النظام والنسخ الاحتياطي مختبرة على SQLite فعلي |
+| 3 | تغطية الاختبارات ما زالت تحتاج التوسع مع الوحدات القادمة | عالية | 81 اختبار Backend + 23 Flutter + Next lint/build تغطي النطاق المنفذ؛ دورة التكاملات وإعادة المحاولة مختبرة على SQLite فعلي |
 | 4 | لا يوجد Docker على جهاز التطوير | منخفضة | SQLite بديل مُدار؛ Docker files تُكتب لاحقًا للإنتاج |
 | 5 | صور الـPDF داخل Mockups وليست أصولًا تجارية منفصلة | متوسطة | Product Visual مؤقت موثق في `docs/assets-missing.md` حتى توفير صور مرخصة |
 
@@ -80,6 +81,7 @@
 - ✅ مرفقات أوامر الشراء معزولة حسب Tenant ومساراتها مؤمّنة، ومحاولات الدفع idempotent ولا تُخزّن بيانات بطاقة.
 - ✅ 2FA الفعلي بتحدٍ مؤقت وOTP وإبطال إعادة الاستخدام يعمل للعميل والإدارة.
 - ✅ أسرار المزودين مشفرة عبر Data Protection، ومفاتيح API/Webhook تُعرض مرة واحدة ولا يُحفظ سوى بصمتها، وسياسات القفل وطول كلمة المرور تعمل وقت التشغيل.
+- ✅ إعدادات ربط التكاملات مشفرة بالكامل، ولا تعرض السجلات بيانات الاعتماد أو payload حساسًا، وإعادة المحاولة محدودة ومسجلة وقابلة للتعطيل.
 - ⏳ Google/Microsoft ومزوّد SMS الإنتاجي يحتاجون Credentials قبل الإطلاق.
 
 ## 6. خطة التنفيذ (الترتيب الحالي)
@@ -89,7 +91,7 @@
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
-6. **M7 (قيد التنفيذ — البوابة العامة 99%):** اكتملت الإدارة التشغيلية وCRM والحسابات وخدمة العملاء والحملات والمستخدمون والصلاحيات والتقارير وإعدادات النظام حتى الشاشة 734؛ التكاملات والمراقبة 735–756 هي الحزمة التالية.
+6. **M7 (قيد التنفيذ — البوابة العامة 99%):** اكتملت الإدارة التشغيلية وCRM والحسابات وخدمة العملاء والحملات والمستخدمون والصلاحيات والتقارير والإعدادات والتكاملات حتى الشاشة 742؛ مراقبة النظام والأمان 743–756 هي الحزمة التالية.
 5. M10: تصلّب نهائي + `v1.0.0`.
 
 ## 7. معايير الجاهزية للإنتاج

@@ -11,7 +11,7 @@ const groups = [
   ["الكتالوج", [["المنتجات", "/dashboard/products", "◇"], ["الأقسام", "/dashboard/categories", "▦"], ["المحتوى والعروض", "/dashboard/content", "☆"]]],
   ["الإدارة", [["المخزون", "/dashboard/inventory", "▥"], ["الموردون", "/dashboard/suppliers", "♙"], ["الشركات وCRM", "/dashboard/companies", "◉"], ["العقود", "/dashboard/contracts", "▱"]]],
   ["العملاء", [["الحملات والإشعارات", "/dashboard/marketing", "⌁"]]],
-  ["التحليلات والنظام", [["التقارير", "/dashboard/reports", "⌁"], ["المستخدمون والصلاحيات", "/dashboard/users", "♧"], ["الإعدادات", "/dashboard/settings", "⚙"]]],
+  ["التحليلات والنظام", [["التقارير", "/dashboard/reports", "⌁"], ["المستخدمون والصلاحيات", "/dashboard/users", "♧"], ["الإعدادات", "/dashboard/settings", "⚙"], ["التكاملات", "/dashboard/integrations", "↗"]]],
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

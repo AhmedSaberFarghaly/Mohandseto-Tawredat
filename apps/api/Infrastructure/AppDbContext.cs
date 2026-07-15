@@ -47,6 +47,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<SystemApiKey> SystemApiKeys => Set<SystemApiKey>();
     public DbSet<SystemWebhook> SystemWebhooks => Set<SystemWebhook>();
     public DbSet<SystemTranslation> SystemTranslations => Set<SystemTranslation>();
+    public DbSet<IntegrationConnection> IntegrationConnections => Set<IntegrationConnection>();
     public DbSet<IntegrationOperationLog> IntegrationOperationLogs => Set<IntegrationOperationLog>();
     public DbSet<SystemBackup> SystemBackups => Set<SystemBackup>();
     public DbSet<CrmActivity> CrmActivities => Set<CrmActivity>();
@@ -210,7 +211,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<SystemApiKey>().HasIndex(x => x.KeyHash).IsUnique();
         b.Entity<SystemWebhook>().HasIndex(x => new { x.Event, x.Url }).IsUnique();
         b.Entity<SystemTranslation>().HasIndex(x => x.Key).IsUnique();
+        b.Entity<IntegrationConnection>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<IntegrationConnection>().Property(x => x.Code).HasMaxLength(50);
         b.Entity<IntegrationOperationLog>().HasIndex(x => new { x.Integration, x.StartedAt });
+        b.Entity<IntegrationOperationLog>().HasIndex(x => new { x.Status, x.NextRetryAt });
         b.Entity<SystemBackup>().HasIndex(x => x.StartedAt);
 
         b.Entity<Tenant>().HasOne(t => t.Company).WithOne(c => c.Tenant)
@@ -399,6 +403,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<SystemApiKey>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<SystemWebhook>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<SystemTranslation>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<IntegrationConnection>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<IntegrationOperationLog>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<SystemBackup>().HasQueryFilter(e => !e.IsDeleted);
 

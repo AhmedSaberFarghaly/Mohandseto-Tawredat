@@ -52,6 +52,20 @@ public class SystemTranslation : BaseEntity
     public string? French { get; set; }
 }
 
+public class IntegrationConnection : BaseEntity
+{
+    public string Code { get; set; } = string.Empty;
+    public string Provider { get; set; } = string.Empty;
+    public string ProtectedConfigJson { get; set; } = string.Empty;
+    public bool IsConnected { get; set; }
+    public bool IsEnabled { get; set; } = true;
+    public string? Environment { get; set; }
+    public string? StatusMessage { get; set; }
+    public DateTime? LastHealthCheckAt { get; set; }
+    public DateTime? LastSuccessfulSyncAt { get; set; }
+    public DateTime? NextSyncAt { get; set; }
+}
+
 public enum IntegrationOperationStatus { Processing, Succeeded, Failed, Retrying }
 public class IntegrationOperationLog : BaseEntity
 {
@@ -60,9 +74,15 @@ public class IntegrationOperationLog : BaseEntity
     public string? Reference { get; set; }
     public IntegrationOperationStatus Status { get; set; }
     public int Attempt { get; set; } = 1;
+    public int MaxAttempts { get; set; } = 3;
     public int DurationMs { get; set; }
     public string? Error { get; set; }
+    public string? ErrorCode { get; set; }
+    public string? Endpoint { get; set; }
     public string? CorrelationId { get; set; }
+    public bool IsRetryable { get; set; } = true;
+    public DateTime? NextRetryAt { get; set; }
+    public DateTime? ResolvedAt { get; set; }
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; set; }
 }
