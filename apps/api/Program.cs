@@ -25,6 +25,7 @@ using Mohandseto.Api.Application.AdminProcurement;
 using Mohandseto.Api.Application.AdminCrm;
 using Mohandseto.Api.Application.AdminContracts;
 using Mohandseto.Api.Application.AdminPrinting;
+using Mohandseto.Api.Application.AdminShipping;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -99,6 +100,7 @@ builder.Services.AddScoped<AdminProcurementService>();
 builder.Services.AddScoped<AdminCrmService>();
 builder.Services.AddScoped<AdminContractService>();
 builder.Services.AddScoped<AdminPrintingService>();
+builder.Services.AddScoped<AdminShippingService>();
 builder.Services.AddHostedService<ContentDispatchWorker>();
 builder.Services.AddHostedService<ContractPriceRevisionWorker>();
 builder.Services.AddScoped<CustomizationService>();

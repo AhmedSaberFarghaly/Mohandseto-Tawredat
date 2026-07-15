@@ -12,8 +12,22 @@ public class Shipment : TenantEntity
     public string Status { get; set; } = "Created";
     public string? DriverName { get; set; }
     public string? DriverPhone { get; set; }
+    public Guid? DriverUserId { get; set; }
     public double? DriverLatitude { get; set; }
     public double? DriverLongitude { get; set; }
+    public double? DestinationLatitude { get; set; }
+    public double? DestinationLongitude { get; set; }
+    public string? DeliveryZone { get; set; }
+    public decimal WeightKg { get; set; }
+    public decimal DeliveryCost { get; set; }
+    public int DeliveryAttempt { get; set; }
+    public DateTime? ScheduledAt { get; set; }
+    public DateTime? StartedAt { get; set; }
+    public DateTime? FailedAt { get; set; }
+    public DateTime? RescheduledAt { get; set; }
+    public string? FailureReason { get; set; }
+    public DateTime? CustomerContactedAt { get; set; }
+    public string? CustomerContactChannel { get; set; }
     public DateTime? EstimatedArrival { get; set; }
     public DateTime? DeliveredAt { get; set; }
     public ICollection<ShipmentEvent> Events { get; set; } = [];
@@ -35,12 +49,15 @@ public class DeliveryProof : TenantEntity
 {
     public Guid OrderId { get; set; }
     public Order Order { get; set; } = null!;
+    public Guid? ShipmentId { get; set; }
     public DeliveryProofType Type { get; set; }
     public string? RecipientName { get; set; }
     public string? StoredPath { get; set; }
     public string? OriginalName { get; set; }
     public string? ContentType { get; set; }
     public string? Note { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 public class DeliveryConfirmation : TenantEntity

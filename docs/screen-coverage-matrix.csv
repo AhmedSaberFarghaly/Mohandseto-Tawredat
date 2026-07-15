@@ -579,25 +579,25 @@
 576,578,أرشيف التصاميم,Designs Archive,إدارة الطباعة والتصميم | Printing & Design Management,admin,/dashboard/printing,Completed rejected and cancelled archive,GET admin/printing,CustomProductRequests;DesignVersions;DesignMockups,admin-printing;admin-build,Implemented,Automated,Historical requests remain searchable and reopenable
 577,579,مكتبة شعارات الشركات,Company Logos Library,إدارة الطباعة والتصميم | Printing & Design Management,admin,/dashboard/printing,Central company logo library,GET admin/printing;GET admin/custom-products/files/{id},LogoAssets;Companies,admin-printing;admin-build;printing-http,Implemented,Automated,Reusable logo files with quality state score company and secure download
 578,580,قوالب المنتجات المطبوعة,Printed Product Templates,إدارة الطباعة والتصميم | Printing & Design Management,admin,/dashboard/printing,Template grid and editor,GET admin/printing;PUT admin/printing/templates/{id},CustomProductTemplates;PrintMethods;CustomizationOptions;CustomMaterials;CustomColors;CustomSizes,admin-printing;admin-build;printing-http,Implemented,Automated,Product setup price minimum quantity lead time options and active state
-579,581,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-580,582,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-581,583,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-582,584,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-583,585,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-584,586,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-585,587,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-586,588,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-587,589,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-588,590,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-589,591,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-590,592,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-591,593,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-592,594,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-593,595,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-594,596,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-595,597,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-596,598,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
-597,599,,,الشحن والتوصيل | Shipping & Delivery,admin,,,,,,Pending,Pending,
+579,581,لوحة التوصيل,Delivery Dashboard,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Live KPIs shipment queue couriers and map,GET admin/shipping,Shipments;DeliveryRoutes;Users,admin-shipping;admin-build;shipping-http,Implemented,Automated,Operational overview with on-time and first-attempt performance
+580,582,الشحنات الجاهزة,Ready Shipments,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Ready shipments and unshipped order queue,GET admin/shipping,Orders;Shipments;ShipmentItems,admin-shipping;admin-build,Implemented,Automated,Orders without shipments can be converted directly
+581,583,إنشاء شحنة,Create Shipment,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Create shipment from remaining order quantities,POST admin/shipping/shipments,Shipments;ShipmentItems;ShipmentEvents,admin-shipping;shipping-http,Implemented,Automated,Validates order state remaining allocation weight zone cost and coordinates
+582,584,تقسيم الشحنة,Split Shipment,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Exact item allocation into two or more shipments,POST admin/shipping/shipments/{id}/split,Shipments;ShipmentItems,admin-shipping,Implemented,Automated,Rejects missing duplicate and excessive quantities
+583,585,تعيين مندوب,Assign Courier,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Workload-aware courier assignment,PUT admin/shipping/shipments/{id}/courier,Users;Roles;Shipments,admin-shipping,Implemented,Automated,Only active delivery driver or super admin accounts are accepted
+584,586,مسارات التوصيل,Delivery Routes,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Route cards stops distance and ETA,GET admin/shipping;POST admin/shipping/routes,DeliveryRoutes;DeliveryRouteStops,admin-shipping,Implemented,Automated,One driver and validated active shipments per route
+585,587,خريطة الشحنات,Shipments Map,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Live courier and shipment coordinate map,GET admin/shipping,Shipments;DeliveryRoutes,admin-shipping;admin-build,Implemented,Automated,Operational map degrades safely when coordinates are missing
+586,588,تحسين المسار,Optimize Route,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Nearest-stop route optimization with distance and duration,POST admin/shipping/routes/{id}/optimize,DeliveryRoutes;DeliveryRouteStops;Shipments,admin-shipping,Implemented,Automated,Haversine routing cannot change started or completed routes
+587,589,تفاصيل الشحنة,Shipment Details,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Shipment items facts timeline and proofs,GET admin/shipping/shipments/{id},Shipments;ShipmentItems;ShipmentEvents;DeliveryProofs,admin-shipping;admin-build,Implemented,Automated,Unified operational workspace
+588,590,بدء التوصيل,Start Delivery,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Start delivery with geolocation and attempt counter,POST admin/shipping/shipments/{id}/start,Shipments;Orders;DeliveryRouteStops,admin-shipping,Implemented,Automated,Requires an assigned courier and valid state
+589,591,التواصل مع العميل,Contact Customer,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Log phone WhatsApp or SMS contact,POST admin/shipping/shipments/{id}/contact,Shipments;ShipmentEvents,admin-shipping,Implemented,Automated,Contact timestamp channel and audit are persisted
+590,592,تأكيد الاستلام,Confirm Receipt,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Close delivery and update partial or full order state,POST admin/shipping/shipments/{id}/confirm,Shipments;Orders;DeliveryRouteStops,admin-shipping,Implemented,Automated,Photo or signature proof is mandatory
+591,593,التوقيع الإلكتروني,E-Signature,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Secure signature evidence upload,POST admin/shipping/shipments/{id}/proofs,DeliveryProofs,admin-shipping,Implemented,Automated,Isolated randomized storage with content validation
+592,594,صورة إثبات التسليم,Proof of Delivery Photo,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Photo proof with recipient note and GPS,POST admin/shipping/shipments/{id}/proofs,DeliveryProofs;ShipmentEvents,admin-shipping,Implemented,Automated,PNG JPEG and PDF limited to 10MB
+593,595,فشل التسليم,Failed Delivery,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Mark failed attempt and delayed order,POST admin/shipping/shipments/{id}/failed,Shipments;Orders;DeliveryRouteStops,admin-shipping,Implemented,Automated,Failure location reason and notes are audited
+594,596,سبب الفشل,Failure Reason,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Required failure reason capture,POST admin/shipping/shipments/{id}/failed,Shipments;ShipmentEvents,admin-shipping,Implemented,Automated,Reason is shown in the shipment workspace
+595,597,إعادة جدولة التوصيل,Reschedule Delivery,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Schedule a future retry after failure,POST admin/shipping/shipments/{id}/reschedule,Shipments;ShipmentEvents,admin-shipping,Implemented,Automated,Only failed shipments can be rescheduled
+596,598,أداء المندوبين,Courier Performance,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Delivery completion failure on-time and rating metrics,GET admin/shipping,Users;Shipments;OrderRatings,admin-shipping;admin-build,Implemented,Automated,Live aggregates per courier
+597,599,تكلفة التوصيل حسب المنطقة,Delivery Cost by Area,الشحن والتوصيل | Shipping & Delivery,admin,/dashboard/shipping,Zone rates chart and editor,GET admin/shipping;POST admin/shipping/zones;PUT admin/shipping/zones/{id},DeliveryZones;Shipments,admin-shipping;shipping-http,Implemented,Automated,Base per-kg per-km duration active state and revenue
 598,600,,,الحسابات وخدمة العملاء | Accounts & Customer Service,admin,,,,,,Pending,Pending,
 599,601,,,الحسابات وخدمة العملاء | Accounts & Customer Service,admin,,,,,,Pending,Pending,
 600,602,,,الحسابات وخدمة العملاء | Accounts & Customer Service,admin,,,,,,Pending,Pending,

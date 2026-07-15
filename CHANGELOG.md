@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Shipping and delivery operations for screens 581–599: live KPIs and map, ready-order shipment creation, exact splitting, role-validated courier assignment, route planning and optimization, shipment timeline, delivery start and customer contact, mandatory photo/signature proof, receipt confirmation, partial delivery, failed attempts, rescheduling, courier performance and editable zone pricing.
+- `ShippingDeliveryOperations` migration, secure GPS-aware proof storage, 58-test backend gate, clean Next.js shipping production build and fresh-database authenticated HTTP verification.
 - Printing and design operations for screens 557–580: operational KPIs, design queue, customer brief, secure logo files and print-readiness review, workload-aware designer assignment, immutable design versions, customer dispatch and feedback, approval log, production samples, ordered production stages and quantities, quality gates, packaging, ready-to-ship notifications, late orders, design archive, company logo library and printed-product templates.
 - `PrintingDesignOperations` migration, 56-test backend gate, clean Next.js printing production build, fresh-database verification and authenticated BFF dashboard/template verification.
 - Contract lifecycle operations for screens 540–556: contract KPIs and filters, four-step creation, company eligibility, periods and renewals, included products, fixed or market-discount pricing, quantity tiers, payment and delivery terms, contract credit, attachments, sequential approvals, activation, renewal, scheduled price revisions, expiry alerts and contract-versus-market health.

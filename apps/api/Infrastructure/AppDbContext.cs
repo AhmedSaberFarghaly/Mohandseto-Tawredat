@@ -116,6 +116,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<Shipment> Shipments => Set<Shipment>();
     public DbSet<ShipmentEvent> ShipmentEvents => Set<ShipmentEvent>();
     public DbSet<DeliveryProof> DeliveryProofs => Set<DeliveryProof>();
+    public DbSet<DeliveryRoute> DeliveryRoutes => Set<DeliveryRoute>();
+    public DbSet<DeliveryRouteStop> DeliveryRouteStops => Set<DeliveryRouteStop>();
+    public DbSet<DeliveryZone> DeliveryZones => Set<DeliveryZone>();
     public DbSet<DeliveryConfirmation> DeliveryConfirmations => Set<DeliveryConfirmation>();
     public DbSet<OrderRating> OrderRatings => Set<OrderRating>();
     public DbSet<OrderItemRating> OrderItemRatings => Set<OrderItemRating>();
@@ -246,6 +249,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Supplier>().HasIndex(x => x.Code).IsUnique();
         b.Entity<RfqTemporaryProduct>().HasIndex(x => x.RfqItemId).IsUnique();
         b.Entity<Shipment>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<Shipment>().HasIndex(x => new { x.DriverUserId, x.Status, x.ScheduledAt });
+        b.Entity<DeliveryRoute>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<DeliveryRoute>().HasIndex(x => new { x.DriverUserId, x.RouteDate });
+        b.Entity<DeliveryRouteStop>().HasIndex(x => new { x.RouteId, x.Sequence }).IsUnique();
+        b.Entity<DeliveryRouteStop>().HasIndex(x => x.ShipmentId);
+        b.Entity<DeliveryZone>().HasIndex(x => new { x.Governorate, x.NameAr }).IsUnique();
         b.Entity<OrderRating>().HasIndex(x => new { x.OrderId, x.UserId }).IsUnique();
         b.Entity<OrderItemRating>().HasIndex(x => new { x.OrderItemId, x.UserId }).IsUnique();
         b.Entity<DeliveryConfirmation>().HasIndex(x => x.OrderId);
@@ -400,6 +409,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Shipment>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<ShipmentEvent>().HasQueryFilter(e => !e.IsDeleted && !e.Shipment.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<DeliveryProof>().HasQueryFilter(e => !e.IsDeleted && !e.Order.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<DeliveryRoute>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<DeliveryRouteStop>().HasQueryFilter(e => !e.IsDeleted && !e.Route.IsDeleted);
+        b.Entity<DeliveryZone>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<DeliveryConfirmation>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderRating>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<OrderItemRating>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));

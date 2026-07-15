@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const groups = [
   ["الرئيسية", [["لوحة التحكم", "/dashboard", "⌂"], ["التحليلات", "/dashboard/analytics", "⌁"]]],
-  ["التشغيل", [["الطلبات", "/dashboard/orders", "▤"], ["عروض الأسعار", "/dashboard/quotes", "◫"], ["الطباعة والتصميم", "/dashboard/printing", "✎"]]],
+  ["التشغيل", [["الطلبات", "/dashboard/orders", "▤"], ["عروض الأسعار", "/dashboard/quotes", "◫"], ["الطباعة والتصميم", "/dashboard/printing", "✎"], ["الشحن والتوصيل", "/dashboard/shipping", "⌖"]]],
   ["الكتالوج", [["المنتجات", "/dashboard/products", "◇"], ["الأقسام", "/dashboard/categories", "▦"], ["المحتوى والعروض", "/dashboard/content", "☆"]]],
   ["الإدارة", [["المخزون", "/dashboard/inventory", "▥"], ["الموردون", "/dashboard/suppliers", "♙"], ["الشركات وCRM", "/dashboard/companies", "◉"], ["العقود", "/dashboard/contracts", "▱"]]],
   ["التحليلات والنظام", [["التقارير", "/dashboard/reports", "⌁"], ["المستخدمون والصلاحيات", "/dashboard/users", "♧"], ["الإعدادات", "/dashboard/settings", "⚙"]]],
