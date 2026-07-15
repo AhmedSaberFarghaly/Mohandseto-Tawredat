@@ -9,7 +9,7 @@ namespace Mohandseto.Api.Application.Auth;
 public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
 {
     /// <summary>Phone + OTP login. If the phone is unknown, signals the client to start company registration.</summary>
-    public async Task<AuthResultDto> LoginWithOtpAsync(string phone, string code, CancellationToken ct = default)
+    public async Task<AuthResultDto> LoginWithOtpAsync(string phone, string code, CancellationToken ct = default, LoginContext? context = null)
     {
         phone = OtpService.NormalizePhone(phone);
         await otp.VerifyAsync(phone, code, OtpPurpose.Login, ct);
@@ -20,22 +20,39 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         if (user is null)
             return new AuthResultDto(IsNewUser: true, null, null, null, null, null);
 
+        if (!user.IsActive && (user.SuspendedUntil is null || user.SuspendedUntil > DateTime.UtcNow))
+        {
+            db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = phone, Succeeded = false, FailureReason = "account_suspended", IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
+            await db.SaveChangesAsync(ct); EnsureActive(user);
+        }
         EnsureActive(user);
         user.PhoneVerified = true;
-        return await IssueAsync(user, ct);
+        db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = phone, Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
+        return await IssueAsync(user, ct, context);
     }
 
-    public async Task<AuthResultDto> LoginWithEmailAsync(string email, string password, CancellationToken ct = default)
+    public async Task<AuthResultDto> LoginWithEmailAsync(string email, string password, CancellationToken ct = default, LoginContext? context = null)
     {
+        email = email.Trim().ToLowerInvariant();
         var user = await db.Users.Include(u => u.Roles).ThenInclude(r => r.Role)
-            .FirstOrDefaultAsync(u => u.Email == email.Trim().ToLowerInvariant(), ct);
+            .FirstOrDefaultAsync(u => u.Email == email, ct);
 
         if (user?.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+        {
+            db.LoginAudits.Add(new LoginAudit { UserId = user?.Id, Identifier = email, Succeeded = false, FailureReason = "invalid_credentials", IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
+            await db.SaveChangesAsync(ct);
             throw ApiException.Unauthorized("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        }
 
+        if (!user.IsActive && (user.SuspendedUntil is null || user.SuspendedUntil > DateTime.UtcNow))
+        {
+            db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = email, Succeeded = false, FailureReason = "account_suspended", IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
+            await db.SaveChangesAsync(ct); EnsureActive(user);
+        }
         EnsureActive(user);
+        db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = email, Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
         if (user.TwoFactorEnabled) return await CreateTwoFactorChallengeAsync(user, ct);
-        return await IssueAsync(user, ct);
+        return await IssueAsync(user, ct, context);
     }
 
     public async Task<AuthResultDto> RegisterCompanyAsync(RegisterCompanyDto dto, CancellationToken ct = default)
@@ -169,8 +186,8 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         }
 
         EnsureActive(stored.User);
-        stored.RevokedAt = DateTime.UtcNow;
-        var result = await IssueAsync(stored.User, ct);
+        stored.RevokedAt = DateTime.UtcNow; stored.LastSeenAt = DateTime.UtcNow;
+        var result = await IssueAsync(stored.User, ct, new LoginContext(stored.IpAddress, stored.UserAgent));
         stored.ReplacedByTokenHash = TokenService.Hash(result.RefreshToken!);
         await db.SaveChangesAsync(ct);
         return result;
@@ -183,13 +200,13 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         if (stored is { RevokedAt: null }) { stored.RevokedAt = DateTime.UtcNow; await db.SaveChangesAsync(ct); }
     }
 
-    public async Task<AuthResultDto> VerifyTwoFactorAsync(TwoFactorLoginDto dto, CancellationToken ct = default)
+    public async Task<AuthResultDto> VerifyTwoFactorAsync(TwoFactorLoginDto dto, CancellationToken ct = default, LoginContext? context = null)
     {
         var hash = TokenService.Hash(dto.ChallengeToken);
         var challenge = await db.TwoFactorChallenges.Include(c => c.User).ThenInclude(u => u.Roles).ThenInclude(r => r.Role).FirstOrDefaultAsync(c => c.TokenHash == hash && !c.Consumed, ct)
             ?? throw ApiException.Unauthorized("جلسة التحقق غير صالحة");
         if (challenge.ExpiresAt < DateTime.UtcNow) throw ApiException.Unauthorized("انتهت مهلة التحقق، سجل الدخول من جديد");
-        EnsureActive(challenge.User); await otp.VerifyAsync(challenge.User.Phone, dto.Code, OtpPurpose.TwoFactor, ct); challenge.Consumed = true; await db.SaveChangesAsync(ct); return await IssueAsync(challenge.User, ct);
+        EnsureActive(challenge.User); await otp.VerifyAsync(challenge.User.Phone, dto.Code, OtpPurpose.TwoFactor, ct); challenge.Consumed = true; await db.SaveChangesAsync(ct); return await IssueAsync(challenge.User, ct, context);
     }
 
     public async Task<PasswordResetRequestResultDto> RequestPasswordResetAsync(string email, CancellationToken ct = default)
@@ -258,10 +275,14 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
 
     private static void EnsureActive(User user)
     {
+        if (!user.IsActive && user.SuspendedUntil is { } until && until <= DateTime.UtcNow)
+        {
+            user.IsActive = true; user.SuspendedAt = null; user.SuspendedUntil = null; user.SuspensionReason = null;
+        }
         if (!user.IsActive) throw ApiException.Forbidden("تم تعطيل هذا الحساب، تواصل مع الدعم");
     }
 
-    private async Task<AuthResultDto> IssueAsync(User user, CancellationToken ct)
+    private async Task<AuthResultDto> IssueAsync(User user, CancellationToken ct, LoginContext? context = null)
     {
         var roles = user.Roles.Select(r => r.Role.Code).ToList();
         var pair = tokens.Issue(user, roles);
@@ -270,10 +291,20 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
             UserId = user.Id,
             TokenHash = TokenService.Hash(pair.RefreshToken),
             ExpiresAt = pair.RefreshExpiresAt,
+            Device = DeviceName(context?.UserAgent), IpAddress = context?.IpAddress, UserAgent = context?.UserAgent,
+            LastSeenAt = DateTime.UtcNow,
         });
         await db.SaveChangesAsync(ct);
         var dto = await ToDtoAsync(user, ct);
         return new AuthResultDto(false, dto, pair.AccessToken, pair.AccessExpiresAt, pair.RefreshToken, pair.RefreshExpiresAt);
+    }
+
+    private static string? DeviceName(string? userAgent)
+    {
+        if (string.IsNullOrWhiteSpace(userAgent)) return null;
+        var browser = userAgent.Contains("Edg/", StringComparison.OrdinalIgnoreCase) ? "Edge" : userAgent.Contains("Chrome", StringComparison.OrdinalIgnoreCase) ? "Chrome" : userAgent.Contains("Safari", StringComparison.OrdinalIgnoreCase) ? "Safari" : "Browser";
+        var os = userAgent.Contains("Windows", StringComparison.OrdinalIgnoreCase) ? "Windows" : userAgent.Contains("Android", StringComparison.OrdinalIgnoreCase) ? "Android" : userAgent.Contains("iPhone", StringComparison.OrdinalIgnoreCase) ? "iPhone" : userAgent.Contains("Mac", StringComparison.OrdinalIgnoreCase) ? "macOS" : "Unknown";
+        return $"{os} · {browser}";
     }
 
     private async Task<AuthResultDto> CreateTwoFactorChallengeAsync(User user, CancellationToken ct)

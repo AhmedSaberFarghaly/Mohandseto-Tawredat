@@ -35,6 +35,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<UserAccessScope> UserAccessScopes => Set<UserAccessScope>();
+    public DbSet<LoginAudit> LoginAudits => Set<LoginAudit>();
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
     public DbSet<PasswordResetChallenge> PasswordResetChallenges => Set<PasswordResetChallenge>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
@@ -188,6 +190,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
 
         b.Entity<RolePermission>().HasKey(x => new { x.RoleId, x.PermissionId });
         b.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
+        b.Entity<UserAccessScope>().HasIndex(x => new { x.UserId, x.ScopeType, x.ScopeId }).IsUnique();
+        b.Entity<LoginAudit>().HasIndex(x => new { x.UserId, x.CreatedAt });
+        b.Entity<LoginAudit>().HasIndex(x => new { x.Succeeded, x.CreatedAt });
 
         b.Entity<Tenant>().HasOne(t => t.Company).WithOne(c => c.Tenant)
             .HasForeignKey<Company>(c => c.TenantId);
@@ -366,6 +371,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<TwoFactorChallenge>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<PasswordResetChallenge>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
         b.Entity<UserRole>().HasQueryFilter(e => !e.User.IsDeleted);
+        b.Entity<UserAccessScope>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
+        b.Entity<LoginAudit>().HasQueryFilter(e => !e.IsDeleted);
 
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyDocument>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));

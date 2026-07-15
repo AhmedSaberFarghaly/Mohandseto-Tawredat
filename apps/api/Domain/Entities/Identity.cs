@@ -92,6 +92,9 @@ public class User : BaseEntity
     public string PreferredTheme { get; set; } = "system";
     public bool TwoFactorEnabled { get; set; }
     public string? TwoFactorChannel { get; set; }
+    public DateTime? SuspendedAt { get; set; }
+    public DateTime? SuspendedUntil { get; set; }
+    public string? SuspensionReason { get; set; }
     public Guid? DefaultBranchId { get; set; }
     public string? JobTitle { get; set; }
     public string? Department { get; set; }
@@ -156,6 +159,32 @@ public class RefreshToken : BaseEntity
     public DateTime? RevokedAt { get; set; }
     public string? ReplacedByTokenHash { get; set; }
     public string? Device { get; set; }
+    public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
+    public DateTime? LastSeenAt { get; set; }
+}
+
+public enum UserAccessScopeType { Branch, Warehouse }
+
+/// <summary>Limits a platform user to specific operational branches or warehouses.</summary>
+public class UserAccessScope : BaseEntity
+{
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
+    public UserAccessScopeType ScopeType { get; set; }
+    public Guid ScopeId { get; set; }
+}
+
+/// <summary>Authentication attempt audit retained independently from successful refresh-token sessions.</summary>
+public class LoginAudit : BaseEntity
+{
+    public Guid? UserId { get; set; }
+    public string Identifier { get; set; } = string.Empty;
+    public bool Succeeded { get; set; }
+    public string? FailureReason { get; set; }
+    public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
+    public string? Location { get; set; }
 }
 
 public class TwoFactorChallenge : BaseEntity

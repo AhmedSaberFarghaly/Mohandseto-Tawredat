@@ -25,12 +25,12 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     [HttpPost("otp/verify")]
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResultDto>> VerifyOtp(OtpVerifyDto dto, CancellationToken ct) =>
-        Ok(await auth.LoginWithOtpAsync(dto.Phone, dto.Code, ct));
+        Ok(await auth.LoginWithOtpAsync(dto.Phone, dto.Code, ct, Context()));
 
     [HttpPost("login")]
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResultDto>> Login(EmailLoginDto dto, CancellationToken ct) =>
-        Ok(await auth.LoginWithEmailAsync(dto.Email, dto.Password, ct));
+        Ok(await auth.LoginWithEmailAsync(dto.Email, dto.Password, ct, Context()));
 
     [HttpPost("register-company")]
     [EnableRateLimiting("auth")]
@@ -44,7 +44,7 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     [HttpPost("2fa/verify")]
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResultDto>> VerifyTwoFactor(TwoFactorLoginDto dto, CancellationToken ct) =>
-        Ok(await auth.VerifyTwoFactorAsync(dto, ct));
+        Ok(await auth.VerifyTwoFactorAsync(dto, ct, Context()));
 
     [HttpPost("password/request")]
     [EnableRateLimiting("auth")]
@@ -76,4 +76,6 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
             ?? throw ApiException.Unauthorized());
         return Ok(await auth.MeAsync(id, ct));
     }
+
+    private LoginContext Context() => new(HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent.ToString());
 }

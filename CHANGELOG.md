@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Admin identity and access management for screens 656–670: platform users, role creation, permission matrix/module/action views, branch and warehouse scopes, real login-attempt logs, active sessions, suspension/reactivation, administrator password resets and immutable audit details.
+- `AddAdminSystemAccess` migration, immediate JWT rejection for suspended accounts, 66-test backend gate, clean Next.js lint/build and fresh-database authenticated HTTP verification.
 - Accounting operations for screens 600–619: financial KPIs, customer and tax invoices, bank-transfer recording and matching, outstanding balances and aging, statements, credit/debit notes, refunds, expenses, order/product/company profits, sales tax, XLSX export and guarded financial-period close.
 - Returns and customer-service operations for screens 620–639: cross-company return review, secure photos, decisions, pickup and inspection, restock/dispose/replacement/credit-note dispositions, ticket chat and assignment, SLA policies, escalation, reply templates, staff ratings and issue-type reporting.
 - `AccountingCustomerServiceOperations` migration, seeded SLA/templates, 60-test backend gate, clean Next.js production build/lint and authenticated dashboard/API HTTP verification.

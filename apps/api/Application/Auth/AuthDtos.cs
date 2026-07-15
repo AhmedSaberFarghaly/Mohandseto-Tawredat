@@ -3,6 +3,7 @@ namespace Mohandseto.Api.Application.Auth;
 public record OtpRequestDto(string Phone, string Purpose);
 public record OtpVerifyDto(string Phone, string Code);
 public record EmailLoginDto(string Email, string Password);
+public record LoginContext(string? IpAddress, string? UserAgent, string? Location = null);
 public record RefreshDto(string RefreshToken);
 public record TwoFactorLoginDto(string ChallengeToken, string Code);
 public record PasswordResetRequestDto(string Email);

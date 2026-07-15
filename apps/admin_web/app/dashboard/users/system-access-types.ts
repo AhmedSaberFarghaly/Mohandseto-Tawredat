@@ -1,0 +1,10 @@
+export type SystemUser={id:string;fullName:string;phone:string;email?:string;jobTitle?:string;department?:string;isActive:boolean;twoFactorEnabled:boolean;suspendedAt?:string;suspendedUntil?:string;suspensionReason?:string;createdAt:string;roles:string[];activeSessions:number};
+export type SystemRole={id:string;code:string;nameAr:string;nameEn:string;isSystem:boolean;userCount:number;permissionIds:number[]};
+export type Permission={id:number;code:string;module:string;descriptionAr:string;action:string};
+export type ScopeOption={id:string;name:string;context?:string};
+export type UserScope={userId:string;branchIds:string[];warehouseIds:string[]};
+export type LoginAudit={id:string;userId?:string;userName?:string;identifier:string;succeeded:boolean;failureReason?:string;ipAddress?:string;device?:string;location?:string;at:string};
+export type ActiveSession={id:string;userId:string;userName:string;device?:string;ipAddress?:string;createdAt:string;lastSeenAt:string;expiresAt:string;isCurrent:boolean};
+export type AuditRow={id:number;at:string;actorId?:string;actorName?:string;action:string;entityType:string;entityId?:string;ip?:string};
+export type AuditDetail=AuditRow&{dataJson?:string};
+export type AccessDashboard={kpis:{activeUsers:number;roles:number;activeSessions:number;suspendedUsers:number};users:SystemUser[];roles:SystemRole[];permissions:Permission[];branches:ScopeOption[];warehouses:ScopeOption[];scopes:UserScope[];loginAudits:LoginAudit[];sessions:ActiveSession[];auditLogs:AuditRow[]};

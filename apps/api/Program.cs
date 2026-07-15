@@ -27,6 +27,7 @@ using Mohandseto.Api.Application.AdminContracts;
 using Mohandseto.Api.Application.AdminPrinting;
 using Mohandseto.Api.Application.AdminShipping;
 using Mohandseto.Api.Application.AdminMarketing;
+using Mohandseto.Api.Application.AdminSystemAccess;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -58,6 +59,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwt["Key"] ?? throw new InvalidOperationException("Jwt:Key missing"))),
             ClockSkew = TimeSpan.FromSeconds(30),
+        };
+        opt.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var raw = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? context.Principal?.FindFirst("sub")?.Value;
+                if (!Guid.TryParse(raw, out var userId)) { context.Fail("Invalid user"); return; }
+                var db = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var user = await db.Users.FirstOrDefaultAsync(x => x.Id == userId, context.HttpContext.RequestAborted);
+                if (user is null || !user.IsActive && (user.SuspendedUntil is null || user.SuspendedUntil > DateTime.UtcNow))
+                    context.Fail("Inactive user");
+            },
         };
     });
 builder.Services.AddAuthorization();
@@ -103,6 +117,7 @@ builder.Services.AddScoped<AdminContractService>();
 builder.Services.AddScoped<AdminPrintingService>();
 builder.Services.AddScoped<AdminShippingService>();
 builder.Services.AddScoped<AdminMarketingService>();
+builder.Services.AddScoped<AdminSystemAccessService>();
 builder.Services.AddSingleton<IMarketingChannelSender, ConsoleMarketingChannelSender>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminCustomerService.AdminCustomerServiceService>();
