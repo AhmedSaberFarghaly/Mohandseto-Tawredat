@@ -39,6 +39,8 @@ public enum CouponDiscountType { Percentage, Fixed }
 
 public class Coupon : TenantEntity
 {
+    /// <summary>Groups the per-tenant copies of one platform-managed coupon.</summary>
+    public Guid? CampaignGroupId { get; set; }
     public string Code { get; set; } = string.Empty;
     public string NameAr { get; set; } = string.Empty;
     public CouponDiscountType DiscountType { get; set; }
@@ -49,6 +51,11 @@ public class Coupon : TenantEntity
     public DateTime? ExpiresAt { get; set; }
     public int? UsageLimit { get; set; }
     public int UsedCount { get; set; }
+    public bool OncePerCompany { get; set; }
+    public bool NewCustomersOnly { get; set; }
+    public bool ExcludeDiscountedProducts { get; set; }
+    public bool CanCombine { get; set; } = true;
+    public string? ApplicableCategoryIds { get; set; }
     public bool IsActive { get; set; } = true;
 }
 

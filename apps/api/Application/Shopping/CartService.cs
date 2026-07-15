@@ -137,6 +137,13 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
             ?? throw ApiException.BadRequest("كود الخصم غير صالح");
         if (coupon.StartsAt > now || coupon.ExpiresAt < now || coupon.UsageLimit is { } limit && coupon.UsedCount >= limit)
             throw ApiException.Conflict("كود الخصم غير متاح حاليًا");
+        if (coupon.OncePerCompany && await db.Orders.AnyAsync(x => x.CouponCode == normalized && x.Status != OrderStatus.Cancelled, ct))
+            throw ApiException.Conflict("تم استخدام هذا الكوبون للشركة من قبل");
+        if (coupon.NewCustomersOnly && await db.Orders.AnyAsync(x => x.Status != OrderStatus.Cancelled, ct))
+            throw ApiException.Conflict("هذا الكوبون متاح للعملاء الجدد فقط");
+        var categoryIds = ParseCategoryIds(coupon.ApplicableCategoryIds);
+        if (categoryIds.Count > 0 && !cart.Items.Any(x => !x.IsSavedForLater && categoryIds.Contains(x.Product.CategoryId)))
+            throw ApiException.Conflict("الكوبون لا ينطبق على أصناف السلة الحالية");
         decimal subtotal = 0;
         foreach (var item in cart.Items.Where(i => !i.IsSavedForLater))
             subtotal += item.CustomLineTotal ?? await CurrentUnitPriceAsync(item.Product, item.Variant, item.Quantity, ct) * item.Quantity;
@@ -249,7 +256,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         var active = mapped.Where(i => !i.IsSavedForLater).ToList();
         var beforeSavings = active.Sum(i => i.LineTotal + i.Savings);
         var productSavings = active.Sum(i => i.Savings); var productSubtotal = active.Sum(i => i.LineTotal);
-        var couponDiscount = await CouponDiscountAsync(cart.CouponCode, productSubtotal, ct);
+        var couponDiscount = await CouponDiscountAsync(cart.CouponCode, productSubtotal, active, cart, ct);
         var savings = productSavings + couponDiscount; var subtotal = Math.Max(0, productSubtotal - couponDiscount);
         var shipping = productSubtotal == 0 || productSubtotal >= 2000 ? 0 : 150;
         var total = subtotal + shipping;
@@ -269,7 +276,7 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
         return (contract ?? tier?.UnitPrice ?? product.BasePrice) + (variant?.PriceAdjustment ?? 0);
     }
 
-    private async Task<decimal> CouponDiscountAsync(string? code, decimal subtotal, CancellationToken ct)
+    private async Task<decimal> CouponDiscountAsync(string? code, decimal subtotal, IReadOnlyList<CartItemDto> active, Cart cart, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(code)) return 0;
         var now = DateTime.UtcNow;
@@ -277,8 +284,23 @@ public sealed class CartService(AppDbContext db, ITenantProvider tenantProvider)
             (c.StartsAt == null || c.StartsAt <= now) && (c.ExpiresAt == null || c.ExpiresAt >= now) &&
             (c.UsageLimit == null || c.UsedCount < c.UsageLimit) && subtotal >= c.MinimumSubtotal, ct);
         if (coupon is null) return 0;
-        var discount = coupon.DiscountType == CouponDiscountType.Percentage ? subtotal * coupon.DiscountValue / 100 : coupon.DiscountValue;
-        return Math.Min(subtotal, coupon.MaximumDiscount is { } max ? Math.Min(discount, max) : discount);
+        if (coupon.OncePerCompany && await db.Orders.AnyAsync(x => x.CouponCode == code && x.Status != OrderStatus.Cancelled, ct)) return 0;
+        if (coupon.NewCustomersOnly && await db.Orders.AnyAsync(x => x.Status != OrderStatus.Cancelled, ct)) return 0;
+        if (!coupon.CanCombine && active.Any(x => x.Savings > 0)) return 0;
+        var categoryIds = ParseCategoryIds(coupon.ApplicableCategoryIds);
+        var eligibleIds = cart.Items.Where(x => !x.IsSavedForLater && (categoryIds.Count == 0 || categoryIds.Contains(x.Product.CategoryId)))
+            .Select(x => x.Id).ToHashSet();
+        var eligibleSubtotal = active.Where(x => eligibleIds.Contains(x.Id) && (!coupon.ExcludeDiscountedProducts || x.Savings == 0)).Sum(x => x.LineTotal);
+        if (eligibleSubtotal <= 0 || subtotal < coupon.MinimumSubtotal) return 0;
+        var discount = coupon.DiscountType == CouponDiscountType.Percentage ? eligibleSubtotal * coupon.DiscountValue / 100 : coupon.DiscountValue;
+        return Math.Min(eligibleSubtotal, coupon.MaximumDiscount is { } max ? Math.Min(discount, max) : discount);
+    }
+
+    private static HashSet<Guid> ParseCategoryIds(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return [];
+        try { return JsonSerializer.Deserialize<Guid[]>(json)?.ToHashSet() ?? []; }
+        catch (JsonException) { return []; }
     }
 
     private Guid TenantId() => tenantProvider.TenantId ?? throw ApiException.Forbidden("الحساب غير مرتبط بشركة");

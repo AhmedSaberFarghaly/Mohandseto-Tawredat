@@ -162,6 +162,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<HomeSection> HomeSections => Set<HomeSection>();
     public DbSet<HomeBanner> HomeBanners => Set<HomeBanner>();
     public DbSet<ContentDispatch> ContentDispatches => Set<ContentDispatch>();
+    public DbSet<MarketingCampaign> MarketingCampaigns => Set<MarketingCampaign>();
+    public DbSet<MarketingCampaignTenant> MarketingCampaignTenants => Set<MarketingCampaignTenant>();
+    public DbSet<MarketingDelivery> MarketingDeliveries => Set<MarketingDelivery>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<WarehouseStock> WarehouseStocks => Set<WarehouseStock>();
     public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
@@ -303,6 +306,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<HomeBanner>().HasIndex(x => new { x.TargetTenantId, x.SortOrder });
         b.Entity<ContentDispatch>().HasIndex(x => new { x.Status, x.ScheduledAt });
         b.Entity<ContentDispatch>().HasIndex(x => new { x.TargetTenantId, x.CreatedAt });
+        b.Entity<MarketingCampaign>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<MarketingCampaign>().HasIndex(x => new { x.Status, x.ScheduledAt });
+        b.Entity<MarketingCampaignTenant>().HasIndex(x => new { x.CampaignId, x.TenantId }).IsUnique();
+        b.Entity<MarketingDelivery>().HasIndex(x => new { x.CampaignId, x.UserId }).IsUnique();
+        b.Entity<MarketingDelivery>().HasIndex(x => new { x.CampaignId, x.Status, x.DeliveredAt });
         b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique();
         b.Entity<WarehouseStock>().HasIndex(x => new { x.WarehouseId, x.ProductId }).IsUnique();
         b.Entity<WarehouseStock>().HasIndex(x => x.Barcode).IsUnique();
@@ -464,6 +472,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<HomeSection>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<HomeBanner>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<ContentDispatch>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<MarketingCampaign>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<MarketingCampaignTenant>().HasQueryFilter(e => !e.IsDeleted && !e.Campaign.IsDeleted);
+        b.Entity<MarketingDelivery>().HasQueryFilter(e => !e.IsDeleted && !e.Campaign.IsDeleted);
         b.Entity<Warehouse>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<WarehouseStock>().HasQueryFilter(e => !e.IsDeleted && !e.Warehouse.IsDeleted && !e.Product.IsDeleted);
         b.Entity<InventoryMovement>().HasQueryFilter(e => !e.IsDeleted);

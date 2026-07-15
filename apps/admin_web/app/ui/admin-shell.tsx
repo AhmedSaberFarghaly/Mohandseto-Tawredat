@@ -10,6 +10,7 @@ const groups = [
   ["التشغيل", [["الطلبات", "/dashboard/orders", "▤"], ["عروض الأسعار", "/dashboard/quotes", "◫"], ["الطباعة والتصميم", "/dashboard/printing", "✎"], ["الشحن والتوصيل", "/dashboard/shipping", "⌖"]]],
   ["الكتالوج", [["المنتجات", "/dashboard/products", "◇"], ["الأقسام", "/dashboard/categories", "▦"], ["المحتوى والعروض", "/dashboard/content", "☆"]]],
   ["الإدارة", [["المخزون", "/dashboard/inventory", "▥"], ["الموردون", "/dashboard/suppliers", "♙"], ["الشركات وCRM", "/dashboard/companies", "◉"], ["العقود", "/dashboard/contracts", "▱"]]],
+  ["العملاء", [["الحملات والإشعارات", "/dashboard/marketing", "⌁"]]],
   ["التحليلات والنظام", [["التقارير", "/dashboard/reports", "⌁"], ["المستخدمون والصلاحيات", "/dashboard/users", "♧"], ["الإعدادات", "/dashboard/settings", "⚙"]]],
 ] as const;
 
