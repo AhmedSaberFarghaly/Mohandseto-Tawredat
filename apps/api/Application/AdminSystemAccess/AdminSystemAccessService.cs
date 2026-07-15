@@ -1,12 +1,13 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Application.AdminSystemAccess;
 
-public sealed class AdminSystemAccessService(AppDbContext db)
+public sealed class AdminSystemAccessService(AppDbContext db, AdminSystemSettingsService? systemSettings = null)
 {
     private static readonly string[] PlatformSystemRoleCodes = ["super_admin", "sales_manager", "sales_agent", "quotes_officer",
         "products_manager", "inventory_manager", "warehouse_manager", "procurement_officer", "accountant", "support_agent",
@@ -60,7 +61,7 @@ public sealed class AdminSystemAccessService(AppDbContext db)
 
     public async Task<Guid> CreateUserAsync(Guid actorId, string? ip, SaveSystemUserDto dto, CancellationToken ct = default)
     {
-        ValidateUser(dto, requirePassword: true);
+        ValidateUser(dto, requirePassword: true, systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct));
         var email = dto.Email.Trim().ToLowerInvariant(); var phone = dto.Phone.Trim();
         if (await db.Users.IgnoreQueryFilters().AnyAsync(x => x.Email == email || x.Phone == phone, ct))
             throw ApiException.Conflict("البريد الإلكتروني أو رقم الهاتف مستخدم بالفعل");
@@ -81,7 +82,7 @@ public sealed class AdminSystemAccessService(AppDbContext db)
 
     public async Task UpdateUserAsync(Guid actorId, string? ip, Guid id, SaveSystemUserDto dto, CancellationToken ct = default)
     {
-        ValidateUser(dto, requirePassword: false);
+        ValidateUser(dto, requirePassword: false, systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct));
         var user = await db.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Id == id && x.IsPlatformStaff && x.TenantId == null, ct)
             ?? throw ApiException.NotFound("المستخدم غير موجود");
         var email = dto.Email.Trim().ToLowerInvariant(); var phone = dto.Phone.Trim();
@@ -161,7 +162,7 @@ public sealed class AdminSystemAccessService(AppDbContext db)
 
     public async Task ResetPasswordAsync(Guid actorId, string? ip, Guid userId, AdminResetPasswordDto dto, CancellationToken ct = default)
     {
-        if (dto.NewPassword.Length < 8) throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+        var minimum=systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct);if (dto.NewPassword.Length < minimum) throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimum} أحرف");
         var user = await db.Users.Include(x => x.Roles).ThenInclude(x => x.Role).FirstOrDefaultAsync(x => x.Id == userId && x.IsPlatformStaff, ct) ?? throw ApiException.NotFound("المستخدم غير موجود");
         if (user.Roles.Any(x => x.Role.Code == "super_admin")) await EnsureActorIsSuperAdmin(actorId, ct);
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword); user.UpdatedAt = DateTime.UtcNow; user.UpdatedBy = actorId;
@@ -193,10 +194,10 @@ public sealed class AdminSystemAccessService(AppDbContext db)
     private static object RoleSnapshot(Role x) => new { x.Id, x.Code, x.NameAr, x.NameEn, x.IsSystem,
         PermissionIds = x.Permissions.Select(p => p.PermissionId).Order().ToList() };
     private static string? Device(string? ua) => string.IsNullOrWhiteSpace(ua) ? null : ua.Length <= 80 ? ua : ua[..80];
-    private static void ValidateUser(SaveSystemUserDto dto, bool requirePassword)
+    private static void ValidateUser(SaveSystemUserDto dto, bool requirePassword, int minimumPasswordLength)
     {
         if (string.IsNullOrWhiteSpace(dto.FullName) || string.IsNullOrWhiteSpace(dto.Phone) || string.IsNullOrWhiteSpace(dto.Email)) throw ApiException.BadRequest("الاسم والهاتف والبريد الإلكتروني مطلوبة");
-        if ((requirePassword || !string.IsNullOrWhiteSpace(dto.Password)) && (dto.Password?.Length ?? 0) < 8) throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+        if ((requirePassword || !string.IsNullOrWhiteSpace(dto.Password)) && (dto.Password?.Length ?? 0) < minimumPasswordLength) throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimumPasswordLength} أحرف");
         if (dto.RoleIds.Count == 0) throw ApiException.BadRequest("اختر دورًا واحدًا على الأقل");
     }
     private static void ValidateRole(SaveSystemRoleDto dto)

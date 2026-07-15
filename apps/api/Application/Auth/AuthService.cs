@@ -1,12 +1,13 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Application.Auth;
 
-public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
+public class AuthService(AppDbContext db, TokenService tokens, OtpService otp, AdminSystemSettingsService? systemSettings = null)
 {
     /// <summary>Phone + OTP login. If the phone is unknown, signals the client to start company registration.</summary>
     public async Task<AuthResultDto> LoginWithOtpAsync(string phone, string code, CancellationToken ct = default, LoginContext? context = null)
@@ -37,6 +38,8 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         var user = await db.Users.Include(u => u.Roles).ThenInclude(r => r.Role)
             .FirstOrDefaultAsync(u => u.Email == email, ct);
 
+        await EnsureNotLockedAsync(user, ct);
+
         if (user?.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
         {
             db.LoginAudits.Add(new LoginAudit { UserId = user?.Id, Identifier = email, Succeeded = false, FailureReason = "invalid_credentials", IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
@@ -51,7 +54,8 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         }
         EnsureActive(user);
         db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = email, Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
-        if (user.TwoFactorEnabled) return await CreateTwoFactorChallengeAsync(user, ct);
+        var requireAdminTwoFactor = user.IsPlatformStaff && systemSettings is not null && await systemSettings.BoolAsync("security", "requireAdmin2fa", false, ct);
+        if (user.TwoFactorEnabled || requireAdminTwoFactor) return await CreateTwoFactorChallengeAsync(user, ct);
         return await IssueAsync(user, ct, context);
     }
 
@@ -64,8 +68,9 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
             throw ApiException.BadRequest("اسم الشركة مطلوب");
         if (string.IsNullOrWhiteSpace(dto.AdminFullName))
             throw ApiException.BadRequest("اسم المستخدم الإداري مطلوب");
-        if (dto.AdminPassword.Length < 8)
-            throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+        var minimumPasswordLength = await MinimumPasswordLengthAsync(ct);
+        if (dto.AdminPassword.Length < minimumPasswordLength)
+            throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimumPasswordLength} أحرف");
         if (await db.Users.AnyAsync(u => u.Phone == phone, ct))
             throw ApiException.Conflict("يوجد حساب مسجل بهذا الرقم بالفعل، سجّل الدخول بدلًا من ذلك");
 
@@ -237,8 +242,9 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
 
     public async Task ResetPasswordAsync(PasswordResetDto dto, CancellationToken ct = default)
     {
-        if (dto.NewPassword.Length < 8)
-            throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+        var minimumPasswordLength = await MinimumPasswordLengthAsync(ct);
+        if (dto.NewPassword.Length < minimumPasswordLength)
+            throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimumPasswordLength} أحرف");
 
         var hash = TokenService.Hash(dto.ResetToken);
         var challenge = await db.PasswordResetChallenges
@@ -281,6 +287,20 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp)
         }
         if (!user.IsActive) throw ApiException.Forbidden("تم تعطيل هذا الحساب، تواصل مع الدعم");
     }
+
+    private async Task EnsureNotLockedAsync(User? user, CancellationToken ct)
+    {
+        if (user is null || systemSettings is null) return;
+        var attempts = await systemSettings.IntAsync("security", "lockAttempts", 5, ct);
+        var minutes = await systemSettings.IntAsync("security", "lockoutMinutes", 15, ct);
+        var since = DateTime.UtcNow.AddMinutes(-minutes);
+        var lastSuccess = await db.LoginAudits.AsNoTracking().Where(x => x.UserId == user.Id && x.Succeeded).OrderByDescending(x => x.CreatedAt).Select(x => (DateTime?)x.CreatedAt).FirstOrDefaultAsync(ct);
+        var lastSuccessAt = lastSuccess ?? DateTime.MinValue;
+        var failures = await db.LoginAudits.AsNoTracking().CountAsync(x => x.UserId == user.Id && !x.Succeeded && x.CreatedAt >= since && x.CreatedAt > lastSuccessAt, ct);
+        if (failures >= attempts) throw ApiException.Unauthorized($"تم قفل الحساب مؤقتًا. حاول بعد {minutes} دقيقة");
+    }
+
+    private Task<int> MinimumPasswordLengthAsync(CancellationToken ct) => systemSettings?.IntAsync("password-policy", "minLength", 8, ct) ?? Task.FromResult(8);
 
     private async Task<AuthResultDto> IssueAsync(User user, CancellationToken ct, LoginContext? context = null)
     {

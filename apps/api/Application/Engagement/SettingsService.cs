@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Auth;
 using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Application.Engagement;
 
-public sealed class SettingsService(AppDbContext db, ITenantProvider tenantProvider, OtpService otp)
+public sealed class SettingsService(AppDbContext db, ITenantProvider tenantProvider, OtpService otp, AdminSystemSettingsService? systemSettings = null)
 {
     public async Task<UserSettingsDto> GetAsync(Guid userId, CancellationToken ct = default)
     {
@@ -22,7 +23,7 @@ public sealed class SettingsService(AppDbContext db, ITenantProvider tenantProvi
 
     public async Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto, CancellationToken ct = default)
     {
-        var user = await User(userId, ct); if (user.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash)) throw ApiException.BadRequest("كلمة المرور الحالية غير صحيحة"); if (dto.NewPassword.Length < 8 || !dto.NewPassword.Any(char.IsUpper) || !dto.NewPassword.Any(char.IsDigit)) throw ApiException.BadRequest("كلمة المرور الجديدة يجب أن تكون 8 أحرف وتضم رقمًا وحرفًا كبيرًا");
+        var minimum=systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct);var user = await User(userId, ct); if (user.PasswordHash is null || !BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash)) throw ApiException.BadRequest("كلمة المرور الحالية غير صحيحة"); if (dto.NewPassword.Length < minimum || !dto.NewPassword.Any(char.IsUpper) || !dto.NewPassword.Any(char.IsDigit)) throw ApiException.BadRequest($"كلمة المرور الجديدة يجب أن تكون {minimum} أحرف على الأقل وتضم رقمًا وحرفًا كبيرًا");
         if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.PasswordHash)) throw ApiException.BadRequest("اختر كلمة مرور مختلفة"); user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword); await RevokeAll(userId, ct); Audit(userId, "settings.password_changed", user.Id); await db.SaveChangesAsync(ct);
     }
 

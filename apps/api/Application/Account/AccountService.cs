@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Mohandseto.Api.Application.Auth;
 using Mohandseto.Api.Application.Common;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Application.Account;
 
-public sealed class AccountService(AppDbContext db, ITenantProvider tenantProvider, IWebHostEnvironment env)
+public sealed class AccountService(AppDbContext db, ITenantProvider tenantProvider, IWebHostEnvironment env, AdminSystemSettingsService? systemSettings = null)
 {
     private static readonly HashSet<string> ClientSystemRoles =
     ["company_owner", "purchasing_officer", "company_admin", "finance_manager", "warehouse_officer", "department_manager", "approver", "billing_officer", "requester"];
@@ -98,7 +99,7 @@ public sealed class AccountService(AppDbContext db, ITenantProvider tenantProvid
 
     public async Task<CompanyUserDto> CreateUserAsync(Guid actorId, CreateCompanyUserDto dto, CancellationToken ct = default)
     {
-        if (dto.Password.Length < 8) throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف");
+        var minimum=systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct);if (dto.Password.Length < minimum) throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimum} أحرف");
         var phone = OtpService.NormalizePhone(dto.Phone); var email = Clean(dto.Email, 200)?.ToLowerInvariant();
         if (await db.Users.IgnoreQueryFilters().AnyAsync(u => u.Phone == phone || (email != null && u.Email == email), ct)) throw ApiException.Conflict("رقم الهاتف أو البريد مسجل بالفعل");
         await ValidateBranch(dto.DefaultBranchId, ct); var roles = await ValidRoles(dto.RoleIds, ct); if (roles.Count == 0 || roles.Count != dto.RoleIds.Distinct().Count()) throw ApiException.BadRequest("اختر أدوارًا صالحة");
@@ -144,7 +145,7 @@ public sealed class AccountService(AppDbContext db, ITenantProvider tenantProvid
 
     public async Task<ProfileDto> AcceptInviteAsync(AcceptInviteDto dto, CancellationToken ct = default)
     {
-        if (dto.Password.Length < 8) throw ApiException.BadRequest("كلمة المرور يجب ألا تقل عن 8 أحرف"); var now = DateTime.UtcNow;
+        var minimum=systemSettings is null?8:await systemSettings.IntAsync("password-policy","minLength",8,ct);if (dto.Password.Length < minimum) throw ApiException.BadRequest($"كلمة المرور يجب ألا تقل عن {minimum} أحرف"); var now = DateTime.UtcNow;
         var invite = await db.CompanyInvites.IgnoreQueryFilters().FirstOrDefaultAsync(i => i.TokenHash == Hash(dto.Token) && !i.IsDeleted, ct) ?? throw ApiException.NotFound("الدعوة غير صالحة");
         if (invite.Status != CompanyInviteStatus.Pending || invite.ExpiresAt <= now) { invite.Status = CompanyInviteStatus.Expired; await db.SaveChangesAsync(ct); throw ApiException.Conflict("انتهت صلاحية الدعوة"); }
         if (await db.Users.IgnoreQueryFilters().AnyAsync(u => (invite.Email != null && u.Email == invite.Email) || (invite.Phone != null && u.Phone == invite.Phone), ct)) throw ApiException.Conflict("الحساب مسجل بالفعل");

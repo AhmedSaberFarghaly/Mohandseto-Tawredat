@@ -3,6 +3,7 @@ using Mohandseto.Api.Application.Common;
 using Mohandseto.Api.Application.Customization;
 using Mohandseto.Api.Application.Approvals;
 using Mohandseto.Api.Application.Finance;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Domain.Entities;
 using Mohandseto.Api.Infrastructure;
 
@@ -10,7 +11,8 @@ namespace Mohandseto.Api.Application.Shopping;
 
 public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvider, CartService carts,
     PaymentGatewayService payments, IWebHostEnvironment environment, CustomizationService? customization = null,
-    IConfiguration? configuration = null, ApprovalService? approvals = null, FinanceService? finance = null)
+    IConfiguration? configuration = null, ApprovalService? approvals = null, FinanceService? finance = null,
+    AdminSystemSettingsService? systemSettings = null)
 {
     private static readonly Dictionary<string, string> AllowedAttachments = new(StringComparer.OrdinalIgnoreCase)
     { ["application/pdf"] = ".pdf", ["image/png"] = ".png", ["image/jpeg"] = ".jpg" };
@@ -31,23 +33,28 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             .OrderBy(u => u.FullName).Select(u => new CheckoutReceiverDto(u.Id, u.FullName, u.Phone)).ToListAsync(ct);
         var company = await db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.TenantId == tenantId, ct);
         var availableCredit = (company?.CreditLimit ?? 0) - (company?.CreditUsed ?? 0);
-        var total = TotalFor(cart, session.ShippingMethod);
-        var bank = BankInstructions();
-        var bankConfigured = environment.IsDevelopment() || !string.IsNullOrWhiteSpace(configuration?["Payments:BankIban"]);
+        var total = await TotalForAsync(cart, session.ShippingMethod, ct);
+        var bank = await BankInstructionsAsync(ct);
+        var bankConfigured = await db.SystemBankAccounts.AsNoTracking().AnyAsync(x => x.IsActive, ct) || environment.IsDevelopment() || !string.IsNullOrWhiteSpace(configuration?["Payments:BankIban"]);
+        var creditEnabled = await PaymentEnabledAsync("credit", true, ct);
+        var transferEnabled = await PaymentEnabledAsync("bankTransfer", true, ct);
+        var cashEnabled = await PaymentEnabledAsync("cashOnDelivery", true, ct);
+        var invoiceEnabled = await PaymentEnabledAsync("monthlyInvoice", true, ct);
+        var cardEnabled = await PaymentEnabledAsync("card", true, ct);
         var paymentOptions = new List<CheckoutPaymentOptionDto>
         {
-            new(nameof(PaymentMethod.CreditLine), "الشراء الآجل - الحد الائتماني", availableCredit >= total,
-                availableCredit >= total ? null : "الرصيد الائتماني المتاح غير كافٍ"),
-            new(nameof(PaymentMethod.BankTransfer), "تحويل بنكي", bankConfigured,
-                bankConfigured ? null : "بيانات الحساب البنكي غير مهيأة"),
-            new(nameof(PaymentMethod.CashOnDelivery), "نقدي عند الاستلام", total <= 20000,
-                total <= 20000 ? null : "الحد الأقصى للدفع النقدي 20,000 ج.م"),
-            new(nameof(PaymentMethod.MonthlyInvoice), "فاتورة شهرية مجمعة", availableCredit >= total,
-                availableCredit >= total ? null : "الخدمة تحتاج حدًا ائتمانيًا متاحًا"),
-            new(nameof(PaymentMethod.Card), "الدفع الإلكتروني", payments.IsAvailable,
-                payments.IsAvailable ? null : "بوابة الدفع الإلكتروني غير مهيأة"),
-            new(nameof(PaymentMethod.Partial), "دفع جزئي بالحد الائتماني والبطاقة", payments.IsAvailable && availableCredit > 0 && availableCredit < total,
-                payments.IsAvailable ? "يتاح عندما يغطي الحد الائتماني جزءًا من الإجمالي" : "بوابة الدفع الإلكتروني غير مهيأة"),
+            new(nameof(PaymentMethod.CreditLine), "الشراء الآجل - الحد الائتماني", creditEnabled && availableCredit >= total,
+                !creditEnabled ? "طريقة الدفع معطلة من إعدادات النظام" : availableCredit >= total ? null : "الرصيد الائتماني المتاح غير كافٍ"),
+            new(nameof(PaymentMethod.BankTransfer), "تحويل بنكي", transferEnabled && bankConfigured,
+                !transferEnabled ? "طريقة الدفع معطلة من إعدادات النظام" : bankConfigured ? null : "بيانات الحساب البنكي غير مهيأة"),
+            new(nameof(PaymentMethod.CashOnDelivery), "نقدي عند الاستلام", cashEnabled && total <= 20000,
+                !cashEnabled ? "طريقة الدفع معطلة من إعدادات النظام" : total <= 20000 ? null : "الحد الأقصى للدفع النقدي 20,000 ج.م"),
+            new(nameof(PaymentMethod.MonthlyInvoice), "فاتورة شهرية مجمعة", invoiceEnabled && availableCredit >= total,
+                !invoiceEnabled ? "طريقة الدفع معطلة من إعدادات النظام" : availableCredit >= total ? null : "الخدمة تحتاج حدًا ائتمانيًا متاحًا"),
+            new(nameof(PaymentMethod.Card), "الدفع الإلكتروني", cardEnabled && payments.IsAvailable,
+                !cardEnabled ? "طريقة الدفع معطلة من إعدادات النظام" : payments.IsAvailable ? null : "بوابة الدفع الإلكتروني غير مهيأة"),
+            new(nameof(PaymentMethod.Partial), "دفع جزئي بالحد الائتماني والبطاقة", creditEnabled && cardEnabled && payments.IsAvailable && availableCredit > 0 && availableCredit < total,
+                !creditEnabled || !cardEnabled ? "الدفع الائتماني أو الإلكتروني معطل من إعدادات النظام" : payments.IsAvailable ? "يتاح عندما يغطي الحد الائتماني جزءًا من الإجمالي" : "بوابة الدفع الإلكتروني غير مهيأة"),
         };
         var attachments = await db.CheckoutAttachments.AsNoTracking().Where(a => a.CheckoutSessionId == session.Id)
             .OrderByDescending(a => a.CreatedAt).ToListAsync(ct);
@@ -113,7 +120,7 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         var option = options.PaymentOptions.First(p => p.Code == method.ToString());
         if (!option.Enabled) throw ApiException.Conflict(option.Reason ?? "طريقة الدفع غير متاحة");
         var session = await db.CheckoutSessions.FirstAsync(s => s.Id == options.SessionId, ct);
-        var total = TotalFor(options.Cart, session.ShippingMethod);
+        var total = await TotalForAsync(options.Cart, session.ShippingMethod, ct);
         if (method == PaymentMethod.Card)
         {
             if (dto.PaymentAttemptId is not { } attemptId) throw ApiException.BadRequest("عملية الدفع الإلكتروني مطلوبة");
@@ -163,7 +170,7 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
     public async Task<PaymentAttemptDto> CreatePaymentAsync(Guid userId, CreatePaymentAttemptDto dto, CancellationToken ct = default)
     {
         var options = await OptionsAsync(userId, ct);
-        if (dto.Amount > TotalFor(options.Cart, Enum.Parse<ShippingMethod>(options.ShippingMethod)))
+        if (dto.Amount > await TotalForAsync(options.Cart, Enum.Parse<ShippingMethod>(options.ShippingMethod), ct))
             throw ApiException.BadRequest("مبلغ الدفع يتجاوز إجمالي الطلب");
         return await payments.CreateAsync(userId, options.SessionId, dto.IdempotencyKey, dto.Amount, ct);
     }
@@ -185,7 +192,7 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
             .OrderByDescending(a => a.CreatedAt).ToListAsync(ct);
         var attachment = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.PurchaseOrder);
         var bankReceipt = attachments.FirstOrDefault(a => a.Type == CheckoutAttachmentType.BankTransferReceipt);
-        var shipping = ShippingCost(session.ShippingMethod, cart.Subtotal); var total = cart.Subtotal + shipping;
+        var shipping = await ShippingCostAsync(session.ShippingMethod, cart.Subtotal, ct); var total = cart.Subtotal + shipping;
         var available = center.BudgetAmount - center.UsedAmount - center.ReservedAmount; var exceeded = total > available;
         var requiresApproval = exceeded || total >= (center.ApprovalThreshold ?? 5000);
         return new(session.Id, cart.Items, session.Branch.Name, JoinAddress(session.Branch.Governorate, session.Branch.City, session.Branch.AddressLine),
@@ -273,14 +280,27 @@ public sealed class CheckoutService(AppDbContext db, ITenantProvider tenantProvi
         return path;
     }
     private Guid TenantId() => tenantProvider.TenantId ?? throw ApiException.Forbidden("الحساب غير مرتبط بشركة");
-    private static decimal ShippingCost(ShippingMethod method, decimal subtotal) => method switch { ShippingMethod.Express => 150, ShippingMethod.Pickup => 0, _ => subtotal >= 2000 ? 0 : 150 };
-    private static decimal TotalFor(CartDto cart, ShippingMethod method) => cart.Subtotal + ShippingCost(method, cart.Subtotal);
+    private async Task<decimal> ShippingCostAsync(ShippingMethod method, decimal subtotal, CancellationToken ct)
+    {
+        if (method == ShippingMethod.Pickup) return 0;
+        if (systemSettings is null) return method == ShippingMethod.Express ? 150 : subtotal >= 2000 ? 0 : 150;
+        var threshold = decimal.TryParse(await (systemSettings?.ValueAsync("shipping", "freeThreshold", "2000", ct) ?? Task.FromResult("2000")), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var free) ? free : 2000;
+        if (method != ShippingMethod.Express && subtotal >= threshold) return 0;
+        var section = method == ShippingMethod.Express ? "shipping" : "delivery-cost";
+        var key = method == ShippingMethod.Express ? "expressFee" : "baseFee";
+        var fallback = method == ShippingMethod.Express ? "150" : "75";
+        return decimal.TryParse(await (systemSettings?.ValueAsync(section, key, fallback, ct) ?? Task.FromResult(fallback)), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var fee) ? fee : decimal.Parse(fallback, System.Globalization.CultureInfo.InvariantCulture);
+    }
+    private async Task<decimal> TotalForAsync(CartDto cart, ShippingMethod method, CancellationToken ct) => cart.Subtotal + await ShippingCostAsync(method, cart.Subtotal, ct);
+    private Task<bool> PaymentEnabledAsync(string key, bool fallback, CancellationToken ct) => systemSettings?.BoolAsync("payment-methods", key, fallback, ct) ?? Task.FromResult(fallback);
     private static CheckoutAttachmentDto Attachment(CheckoutAttachment a) => new(a.Id, a.OriginalName, a.ContentType, a.SizeBytes, $"/api/checkout/attachments/{a.Id}");
-    private BankTransferInstructionsDto BankInstructions() => new(
-        configuration?["Payments:BankName"] ?? "بنك التطوير التجريبي",
-        configuration?["Payments:BankAccountName"] ?? "شركة مهندسيتو توريدات",
-        configuration?["Payments:BankIban"] ?? "EG00 0000 0000 0000 0000 0000 000",
-        "EGP");
+    private async Task<BankTransferInstructionsDto> BankInstructionsAsync(CancellationToken ct)
+    {
+        var account = await db.SystemBankAccounts.AsNoTracking().Where(x => x.IsActive).OrderByDescending(x => x.IsPrimary).ThenBy(x => x.CreatedAt).FirstOrDefaultAsync(ct);
+        return account is not null
+            ? new(account.BankName, account.AccountName, account.Iban ?? account.AccountNumber, account.Currency)
+            : new(configuration?["Payments:BankName"] ?? "بنك التطوير التجريبي", configuration?["Payments:BankAccountName"] ?? "شركة مهندسيتو توريدات", configuration?["Payments:BankIban"] ?? "EG00 0000 0000 0000 0000 0000 000", "EGP");
+    }
     private static string JoinAddress(params string?[] parts) => string.Join(" - ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
     private static string CleanRequired(string? value, int max) => string.IsNullOrWhiteSpace(value) ? throw ApiException.BadRequest("البيان المطلوب غير مكتمل") : value.Trim()[..Math.Min(value.Trim().Length, max)];
     private static string? Clean(string? value, int max) => string.IsNullOrWhiteSpace(value) ? null : value.Trim()[..Math.Min(value.Trim().Length, max)];

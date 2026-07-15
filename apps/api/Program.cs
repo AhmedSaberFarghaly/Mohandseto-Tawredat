@@ -29,6 +29,7 @@ using Mohandseto.Api.Application.AdminShipping;
 using Mohandseto.Api.Application.AdminMarketing;
 using Mohandseto.Api.Application.AdminSystemAccess;
 using Mohandseto.Api.Application.AdminReports;
+using Mohandseto.Api.Application.AdminSystemSettings;
 using Mohandseto.Api.Infrastructure;
 using Serilog;
 
@@ -87,6 +88,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>("database");
 builder.Services.AddProblemDetails();
+builder.Services.AddDataProtection();
 
 // application services
 builder.Services.AddScoped<TokenService>();
@@ -120,6 +122,7 @@ builder.Services.AddScoped<AdminShippingService>();
 builder.Services.AddScoped<AdminMarketingService>();
 builder.Services.AddScoped<AdminSystemAccessService>();
 builder.Services.AddScoped<AdminReportService>();
+builder.Services.AddScoped<AdminSystemSettingsService>();
 builder.Services.AddSingleton<IReportDeliverySender, ConsoleReportDeliverySender>();
 builder.Services.AddSingleton<IMarketingChannelSender, ConsoleMarketingChannelSender>();
 builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
@@ -128,6 +131,7 @@ builder.Services.AddHostedService<ContentDispatchWorker>();
 builder.Services.AddHostedService<MarketingCampaignWorker>();
 builder.Services.AddHostedService<ContractPriceRevisionWorker>();
 builder.Services.AddHostedService<ScheduledReportWorker>();
+builder.Services.AddHostedService<ScheduledSystemBackupWorker>();
 builder.Services.AddScoped<CustomizationService>();
 builder.Services.AddSingleton<ISmsSender, ConsoleSmsSender>();
 

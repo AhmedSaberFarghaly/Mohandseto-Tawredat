@@ -42,6 +42,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SavedReport> SavedReports => Set<SavedReport>();
     public DbSet<ReportRun> ReportRuns => Set<ReportRun>();
+    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+    public DbSet<SystemBankAccount> SystemBankAccounts => Set<SystemBankAccount>();
+    public DbSet<SystemApiKey> SystemApiKeys => Set<SystemApiKey>();
+    public DbSet<SystemWebhook> SystemWebhooks => Set<SystemWebhook>();
+    public DbSet<SystemTranslation> SystemTranslations => Set<SystemTranslation>();
+    public DbSet<IntegrationOperationLog> IntegrationOperationLogs => Set<IntegrationOperationLog>();
+    public DbSet<SystemBackup> SystemBackups => Set<SystemBackup>();
     public DbSet<CrmActivity> CrmActivities => Set<CrmActivity>();
     public DbSet<CrmTask> CrmTasks => Set<CrmTask>();
     public DbSet<CustomerStageHistory> CustomerStageHistories => Set<CustomerStageHistory>();
@@ -198,6 +205,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<SavedReport>().HasIndex(x => new { x.OwnerUserId, x.Name });
         b.Entity<SavedReport>().HasIndex(x => new { x.IsScheduleActive, x.NextRunAt });
         b.Entity<ReportRun>().HasIndex(x => new { x.SavedReportId, x.StartedAt });
+        b.Entity<SystemSetting>().HasIndex(x => new { x.Section, x.Key }).IsUnique();
+        b.Entity<SystemBankAccount>().HasIndex(x => x.AccountNumber).IsUnique();
+        b.Entity<SystemApiKey>().HasIndex(x => x.KeyHash).IsUnique();
+        b.Entity<SystemWebhook>().HasIndex(x => new { x.Event, x.Url }).IsUnique();
+        b.Entity<SystemTranslation>().HasIndex(x => x.Key).IsUnique();
+        b.Entity<IntegrationOperationLog>().HasIndex(x => new { x.Integration, x.StartedAt });
+        b.Entity<SystemBackup>().HasIndex(x => x.StartedAt);
 
         b.Entity<Tenant>().HasOne(t => t.Company).WithOne(c => c.Tenant)
             .HasForeignKey<Company>(c => c.TenantId);
@@ -380,6 +394,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<LoginAudit>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<SavedReport>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<ReportRun>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemSetting>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemBankAccount>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemApiKey>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemWebhook>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemTranslation>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<IntegrationOperationLog>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SystemBackup>().HasQueryFilter(e => !e.IsDeleted);
 
         b.Entity<CompanyBranch>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyDocument>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));

@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- System settings for screens 700–734: 29 schema-driven configuration sections plus delivery-zone, bank-account, API-key, Webhook, translation, integration-log and backup workspaces in a unified responsive RTL admin experience.
+- `AddSystemSettings` migration, Data Protection encryption for provider credentials, one-time API/Webhook secret reveal with hash-only persistence, configurable login lockout/admin 2FA/minimum-password enforcement and immediate mobile maintenance/version/link gates.
+- Real SQLite online backups with SHA-256 integrity, scheduled execution and safe retention cleanup; 76-test backend gate, clean Next.js lint/production build and authenticated live HTTP verification.
 - Reporting center for screens 671–699: 22 database-backed business reports, KPI/trend/breakdown views, date/company/warehouse/staff/value filters, an eight-source custom report builder, reusable favorite templates, recurring delivery schedules and run history.
 - Real XLSX and PDF generation and browser downloads, `AddReportingEngine` migration, background scheduled-report worker, full report audit trail, 71-test backend gate and clean Next.js lint/production build.
 - Admin identity and access management for screens 656–670: platform users, role creation, permission matrix/module/action views, branch and warehouse scopes, real login-attempt logs, active sessions, suspension/reactivation, administrator password resets and immutable audit details.

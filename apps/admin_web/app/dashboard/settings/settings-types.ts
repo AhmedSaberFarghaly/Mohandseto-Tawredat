@@ -1,0 +1,10 @@
+export type SettingField={code:string;labelAr:string;type:string;required:boolean;options:string[];help?:string;sensitive:boolean};
+export type SettingSection={code:string;nameAr:string;nameEn:string;category:string;icon:string;descriptionAr:string;fields:SettingField[];values:Record<string,string>};
+export type DeliveryZone={id:string;name:string;governorate:string;cities?:string;baseFee:number;feePerKg:number;feePerKm:number;estimatedDays:number;isActive:boolean};
+export type BankAccount={id:string;bankName:string;accountName:string;accountNumber:string;iban?:string;currency:string;isPrimary:boolean;isActive:boolean};
+export type ApiKey={id:string;name:string;maskedKey:string;scopes:string[];isActive:boolean;expiresAt?:string;lastUsedAt?:string;createdAt:string;secret?:string};
+export type Webhook={id:string;event:string;url:string;isActive:boolean;lastTriggeredAt?:string;failureCount:number;createdAt:string;secret?:string};
+export type Translation={id:string;key:string;arabic:string;english:string;french?:string};
+export type IntegrationLog={id:string;integration:string;operation:string;reference?:string;status:string;attempt:number;durationMs:number;error?:string;startedAt:string;completedAt?:string};
+export type Backup={id:string;fileName:string;sizeBytes:number;status:string;isAutomatic:boolean;startedAt:string;completedAt?:string;error?:string};
+export type SettingsDashboard={sections:SettingSection[];deliveryZones:DeliveryZone[];bankAccounts:BankAccount[];apiKeys:ApiKey[];webhooks:Webhook[];translations:Translation[];integrationLogs:IntegrationLog[];backups:Backup[]};
