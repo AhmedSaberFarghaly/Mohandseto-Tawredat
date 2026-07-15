@@ -101,6 +101,8 @@ builder.Services.AddScoped<AdminCrmService>();
 builder.Services.AddScoped<AdminContractService>();
 builder.Services.AddScoped<AdminPrintingService>();
 builder.Services.AddScoped<AdminShippingService>();
+builder.Services.AddScoped<Mohandseto.Api.Application.AdminAccounting.AdminAccountingService>();
+builder.Services.AddScoped<Mohandseto.Api.Application.AdminCustomerService.AdminCustomerServiceService>();
 builder.Services.AddHostedService<ContentDispatchWorker>();
 builder.Services.AddHostedService<ContractPriceRevisionWorker>();
 builder.Services.AddScoped<CustomizationService>();

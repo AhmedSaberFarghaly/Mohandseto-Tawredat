@@ -20,7 +20,7 @@ public sealed class FinanceController(FinanceService finance) : ControllerBase
     [HttpPost("credit-limit-requests")] public Task<CreditLimitRequestResultDto> Credit(CreditLimitRequestDto dto, CancellationToken ct) => finance.RequestCreditAsync(UserId, dto, ct);
 }
 
-[ApiController, Authorize(Roles = "platform_admin,finance_manager,accountant"), Route("api/admin/finance")]
+[ApiController, Authorize(Roles = "super_admin,accountant,auditor"), Route("api/admin/finance")]
 public sealed class AdminFinanceController(FinanceService finance) : ControllerBase
 {
     private Guid UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub"), out var id) ? id : throw ApiException.Unauthorized();

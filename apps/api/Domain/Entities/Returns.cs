@@ -12,6 +12,7 @@ public enum ReturnResolution { Refund, Replacement }
 public enum RefundMethod { OriginalPayment, BankTransfer, CreditBalance }
 public enum ReturnReason { Damaged, WrongItem, MissingParts, NotAsDescribed, ExcessQuantity, QualityIssue, Other }
 public enum RefundTransactionStatus { Pending, Processing, Completed, Failed }
+public enum ReturnDisposition { Restock, Dispose, Replace, CreditNote }
 
 public class ReturnRequest : TenantEntity
 {
@@ -55,6 +56,10 @@ public class ReturnItem : TenantEntity
     public bool IsEligible { get; set; } = true;
     public string? EligibilityNote { get; set; }
     public bool? InspectionPassed { get; set; }
+    public string? InspectedCondition { get; set; }
+    public ReturnDisposition? Disposition { get; set; }
+    public DateTime? DispositionAt { get; set; }
+    public Guid? DispositionBy { get; set; }
 }
 
 public class ReturnAttachment : TenantEntity

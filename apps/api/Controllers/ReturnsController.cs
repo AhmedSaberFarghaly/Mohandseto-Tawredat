@@ -20,7 +20,7 @@ public sealed class ReturnsController(ReturnService returns) : ControllerBase
     [HttpPost("{id:guid}/cancel")] public Task<ReturnDetailDto> Cancel(Guid id, CancellationToken ct) => returns.CancelAsync(UserId, id, ct);
 }
 
-[ApiController, Authorize(Roles = "platform_admin,returns_manager,customer_service,warehouse_manager,delivery_agent"), Route("api/admin/returns")]
+[ApiController, Authorize(Roles = "super_admin,support_agent,warehouse_manager,operations_manager,delivery_driver"), Route("api/admin/returns")]
 public sealed class AdminReturnsController(ReturnService returns) : ControllerBase
 {
     private Guid UserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub"), out var id) ? id : throw ApiException.Unauthorized();

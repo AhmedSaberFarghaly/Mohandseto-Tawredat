@@ -134,6 +134,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
     public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     public DbSet<CreditLimitRequest> CreditLimitRequests => Set<CreditLimitRequest>();
+    public DbSet<AccountingEntry> AccountingEntries => Set<AccountingEntry>();
+    public DbSet<FinancialPeriod> FinancialPeriods => Set<FinancialPeriod>();
     public DbSet<BudgetAdjustmentRequest> BudgetAdjustmentRequests => Set<BudgetAdjustmentRequest>();
     public DbSet<CompanyInvite> CompanyInvites => Set<CompanyInvite>();
     public DbSet<CompanyBrandProfile> CompanyBrandProfiles => Set<CompanyBrandProfile>();
@@ -152,6 +154,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<SupportAttachment> SupportAttachments => Set<SupportAttachment>();
     public DbSet<CallbackRequest> CallbackRequests => Set<CallbackRequest>();
     public DbSet<SupportArticle> SupportArticles => Set<SupportArticle>();
+    public DbSet<SupportSlaPolicy> SupportSlaPolicies => Set<SupportSlaPolicy>();
+    public DbSet<SupportReplyTemplate> SupportReplyTemplates => Set<SupportReplyTemplate>();
     public DbSet<ContentPage> ContentPages => Set<ContentPage>();
     public DbSet<AccountDeletionRequest> AccountDeletionRequests => Set<AccountDeletionRequest>();
     public DbSet<MobileAppConfig> MobileAppConfigs => Set<MobileAppConfig>();
@@ -267,6 +271,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Invoice>().HasIndex(x => new { x.TenantId, x.Status, x.DueAt });
         b.Entity<InvoicePayment>().HasIndex(x => x.Reference).IsUnique();
         b.Entity<CreditLimitRequest>().HasIndex(x => new { x.TenantId, x.Status, x.CreatedAt });
+        b.Entity<AccountingEntry>().HasIndex(x => x.Number).IsUnique();
+        b.Entity<AccountingEntry>().HasIndex(x => new { x.Type, x.Status, x.OccurredAt });
+        b.Entity<FinancialPeriod>().HasIndex(x => new { x.StartsAt, x.EndsAt }).IsUnique();
         b.Entity<BudgetAdjustmentRequest>().HasIndex(x => new { x.TenantId, x.CostCenterId, x.Status, x.CreatedAt });
         b.Entity<CompanyInvite>().HasIndex(x => x.TokenHash).IsUnique();
         b.Entity<CompanyInvite>().HasIndex(x => new { x.TenantId, x.Email, x.Status });
@@ -283,6 +290,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<SupportTicket>().HasIndex(x => x.Number).IsUnique();
         b.Entity<SupportTicket>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.CreatedAt });
         b.Entity<SupportMessage>().HasIndex(x => new { x.TicketId, x.CreatedAt });
+        b.Entity<SupportSlaPolicy>().HasIndex(x => new { x.Type, x.Priority }).IsUnique();
+        b.Entity<SupportReplyTemplate>().HasIndex(x => new { x.Type, x.Title });
         b.Entity<CallbackRequest>().HasIndex(x => new { x.TenantId, x.UserId, x.Status, x.PreferredAt });
         b.Entity<SupportArticle>().HasIndex(x => x.Slug).IsUnique();
         b.Entity<ContentPage>().HasIndex(x => x.Slug).IsUnique();
@@ -427,6 +436,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<InvoiceLine>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<InvoicePayment>().HasQueryFilter(e => !e.IsDeleted && !e.Invoice.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CreditLimitRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<AccountingEntry>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<FinancialPeriod>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<BudgetAdjustmentRequest>().HasQueryFilter(e => !e.IsDeleted && !e.CostCenter.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyInvite>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<CompanyBrandProfile>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
@@ -443,6 +454,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<SupportTicket>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<SupportMessage>().HasQueryFilter(e => !e.IsDeleted && !e.Ticket.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<SupportAttachment>().HasQueryFilter(e => !e.IsDeleted && !e.Ticket.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
+        b.Entity<SupportSlaPolicy>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<SupportReplyTemplate>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<CallbackRequest>().HasQueryFilter(e => !e.IsDeleted && (tenantProvider.TenantId == null || e.TenantId == tenantProvider.TenantId));
         b.Entity<SupportArticle>().HasQueryFilter(e => !e.IsDeleted && e.IsPublished);
         b.Entity<ContentPage>().HasQueryFilter(e => !e.IsDeleted && e.IsPublished);

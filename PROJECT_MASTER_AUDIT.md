@@ -2,11 +2,12 @@
 
 ## Current execution checkpoint — 2026-07-15
 
-- Overall implementation gate: **98%**.
-- M6 is complete and M7 is in progress. Admin screens 369–599 now cover dashboards, orders, quotes, commercial products, content, inventory, procurement, company CRM, contracts, printing/design and the complete shipping/delivery lifecycle; accounts and customer service are next.
-- Database: **28 migrations** through `ShippingDeliveryOperations`, verified against a fresh SQLite database.
-- Automated verification: **58 backend tests + 23 Flutter tests**, clean Flutter analysis, a clean Next.js production build/lint and authenticated HTTP verification.
+- Overall implementation gate: **99%**.
+- M6 is complete and M7 is in progress. Admin screens 369–639 now include the complete accounting, returns and customer-service lifecycle in addition to all previously delivered operational modules; campaigns, permissions and final reporting screens 640–756 are next.
+- Database: **29 migrations** through `AccountingCustomerServiceOperations`, verified by the automated SQLite test suite and development migration startup.
+- Automated verification: **60 backend tests + 23 Flutter tests**, clean Flutter analysis, a clean Next.js production build/lint and authenticated HTTP verification for both new dashboards.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
+- Latest delivered slice: admin screens 600–639 (`AccountingCustomerServiceOperations`) covering accounting, returns, support tickets, SLA, ratings and issue reporting.
 
 > يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (Shipping & Delivery Operations).
 

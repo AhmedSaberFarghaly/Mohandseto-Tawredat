@@ -37,6 +37,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               ))}
             </div>
           ))}
+          <div className="nav-group">
+            <p>المالية وخدمة العملاء</p>
+            <Link href="/dashboard/accounting" onClick={() => setOpen(false)} className={pathname === "/dashboard/accounting" ? "active" : ""}>
+              <i>▤</i><span>الحسابات</span>
+            </Link>
+            <Link href="/dashboard/customer-service" onClick={() => setOpen(false)} className={pathname === "/dashboard/customer-service" ? "active" : ""}>
+              <i>◎</i><span>خدمة العملاء</span>
+            </Link>
+          </div>
         </nav>
         <div className="sidebar-user"><span>م</span><div><b>مدير النظام</b><small>admin@mohandseto.com</small></div><button aria-label="تسجيل الخروج" title="تسجيل الخروج" onClick={logout}>↪</button></div>
       </aside>

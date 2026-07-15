@@ -30,9 +30,14 @@ public class SupportTicket : TenantEntity
     public string Description { get; set; } = string.Empty;
     public Guid? OrderId { get; set; }
     public Guid? AssignedStaffUserId { get; set; }
+    public DateTime? FirstResponseDueAt { get; set; }
+    public DateTime? ResolutionDueAt { get; set; }
     public DateTime? FirstResponseAt { get; set; }
     public DateTime? ResolvedAt { get; set; }
     public DateTime? ClosedAt { get; set; }
+    public DateTime? EscalatedAt { get; set; }
+    public Guid? EscalatedBy { get; set; }
+    public string? EscalationReason { get; set; }
     public int? Rating { get; set; }
     public string? RatingComment { get; set; }
     public ICollection<SupportMessage> Messages { get; set; } = [];

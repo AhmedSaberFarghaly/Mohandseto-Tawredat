@@ -6,6 +6,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — Milestone 7 in progress
 
 ### Added
+- Accounting operations for screens 600–619: financial KPIs, customer and tax invoices, bank-transfer recording and matching, outstanding balances and aging, statements, credit/debit notes, refunds, expenses, order/product/company profits, sales tax, XLSX export and guarded financial-period close.
+- Returns and customer-service operations for screens 620–639: cross-company return review, secure photos, decisions, pickup and inspection, restock/dispose/replacement/credit-note dispositions, ticket chat and assignment, SLA policies, escalation, reply templates, staff ratings and issue-type reporting.
+- `AccountingCustomerServiceOperations` migration, seeded SLA/templates, 60-test backend gate, clean Next.js production build/lint and authenticated dashboard/API HTTP verification.
 - Shipping and delivery operations for screens 581–599: live KPIs and map, ready-order shipment creation, exact splitting, role-validated courier assignment, route planning and optimization, shipment timeline, delivery start and customer contact, mandatory photo/signature proof, receipt confirmation, partial delivery, failed attempts, rescheduling, courier performance and editable zone pricing.
 - `ShippingDeliveryOperations` migration, secure GPS-aware proof storage, 58-test backend gate, clean Next.js shipping production build and fresh-database authenticated HTTP verification.
 - Printing and design operations for screens 557–580: operational KPIs, design queue, customer brief, secure logo files and print-readiness review, workload-aware designer assignment, immutable design versions, customer dispatch and feedback, approval log, production samples, ordered production stages and quantities, quality gates, packaging, ready-to-ship notifications, late orders, design archive, company logo library and printed-product templates.

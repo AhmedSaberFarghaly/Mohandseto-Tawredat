@@ -24,7 +24,10 @@ public sealed class SupportService(AppDbContext db, ITenantProvider tenantProvid
     {
         if (!Enum.TryParse<SupportTicketType>(dto.Type, true, out var type)) throw ApiException.BadRequest("نوع المشكلة غير صالح"); if (!Enum.TryParse<SupportTicketPriority>(dto.Priority, true, out var priority)) priority = SupportTicketPriority.Normal;
         if (dto.OrderId is { } oid && !await db.Orders.AnyAsync(o => o.Id == oid && o.UserId == userId, ct)) throw ApiException.BadRequest("الطلب المرتبط غير صالح");
-        var ticket = new SupportTicket { TenantId = TenantId(), UserId = userId, Number = $"SUP-{DateTime.UtcNow:yyMMdd}-{Guid.NewGuid():N}"[..19].ToUpperInvariant(), Type = type, Priority = priority, Subject = Required(dto.Subject, 200, "عنوان المشكلة مطلوب"), Description = Required(dto.Description, 4000, "تفاصيل المشكلة مطلوبة"), OrderId = dto.OrderId };
+        var policy = await db.SupportSlaPolicies.AsNoTracking().FirstOrDefaultAsync(x => x.Type == type && x.Priority == priority && x.IsActive, ct);
+        var now = DateTime.UtcNow;
+        var ticket = new SupportTicket { TenantId = TenantId(), UserId = userId, Number = $"SUP-{now:yyMMdd}-{Guid.NewGuid():N}"[..19].ToUpperInvariant(), Type = type, Priority = priority, Subject = Required(dto.Subject, 200, "عنوان المشكلة مطلوب"), Description = Required(dto.Description, 4000, "تفاصيل المشكلة مطلوبة"), OrderId = dto.OrderId,
+            FirstResponseDueAt = now.AddMinutes(policy?.FirstResponseMinutes ?? DefaultResponse(priority)), ResolutionDueAt = now.AddMinutes(policy?.ResolutionMinutes ?? DefaultResolution(priority)) };
         db.SupportTickets.Add(ticket); db.SupportMessages.Add(new SupportMessage { TenantId = TenantId(), TicketId = ticket.Id, SenderUserId = userId, Body = ticket.Description });
         foreach (var file in files.Take(5)) db.SupportAttachments.Add(await Store(ticket.Id, userId, file, ct));
         db.AuditLogs.Add(new AuditLog { TenantId = TenantId(), UserId = userId, Action = "support.ticket_created", EntityType = nameof(SupportTicket), EntityId = ticket.Id.ToString() }); await db.SaveChangesAsync(ct); return await DetailAsync(userId, ticket.Id, ct);
@@ -77,5 +80,7 @@ public sealed class SupportService(AppDbContext db, ITenantProvider tenantProvid
     private static SupportTicketDetailDto Map(SupportTicket t, IReadOnlyDictionary<Guid, string> names) => new(t.Id, t.Number, t.Type.ToString(), t.Priority.ToString(), t.Status.ToString(), t.Subject, t.Description, t.OrderId, t.CreatedAt, t.ResolvedAt, t.Rating, t.Messages.OrderBy(m => m.CreatedAt).Select(m => new SupportMessageDto(m.Id, m.SenderUserId, names.GetValueOrDefault(m.SenderUserId, m.IsStaff ? "فريق الدعم" : "المستخدم"), m.IsStaff, m.Body, m.CreatedAt, m.ReadAt)).ToList(), t.Attachments.OrderBy(a => a.CreatedAt).Select(a => new SupportAttachmentDto(a.Id, a.OriginalName, a.ContentType, a.SizeBytes, a.CreatedAt)).ToList());
     private static CallbackRequestDto Map(CallbackRequest r) => new(r.Id, r.Phone, r.Topic, r.PreferredAt, r.Status.ToString(), r.CreatedAt);
     private static string Required(string? value, int max, string error) => Clean(value, max) ?? throw ApiException.BadRequest(error);
+    private static int DefaultResponse(SupportTicketPriority priority) => priority switch { SupportTicketPriority.Urgent => 15, SupportTicketPriority.High => 30, SupportTicketPriority.Normal => 60, _ => 240 };
+    private static int DefaultResolution(SupportTicketPriority priority) => priority switch { SupportTicketPriority.Urgent => 240, SupportTicketPriority.High => 480, SupportTicketPriority.Normal => 1440, _ => 2880 };
     private static string? Clean(string? value, int max) { if (string.IsNullOrWhiteSpace(value)) return null; var v = value.Trim(); return v.Length <= max ? v : v[..max]; }
 }
