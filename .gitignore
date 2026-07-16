@@ -30,6 +30,9 @@ apps/client_flutter/build/
 apps/client_flutter/.flutter-plugins*
 apps/client_flutter/.packages
 apps/client_flutter/android/.gradle/
+apps/client_flutter/android/key.properties
+apps/client_flutter/android/*.jks
+apps/client_flutter/android/*.keystore
 apps/client_flutter/ios/Pods/
 
 # --- Python (legacy prototype) ---

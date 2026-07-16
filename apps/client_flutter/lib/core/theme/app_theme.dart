@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_tokens.dart';
 
 abstract final class AppTheme {
+  static const fontFamily = 'IBMPlexSansArabic';
+
   static ThemeData light() {
     final base = ThemeData(
       useMaterial3: true,
@@ -16,9 +17,11 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
     );
 
-    final textTheme = GoogleFonts.cairoTextTheme(
-      base.textTheme,
-    ).apply(bodyColor: AppColors.gray800, displayColor: AppColors.gray900);
+    final textTheme = base.textTheme.apply(
+      fontFamily: fontFamily,
+      bodyColor: AppColors.gray800,
+      displayColor: AppColors.gray900,
+    );
 
     return base.copyWith(
       textTheme: textTheme,
@@ -44,7 +47,8 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: GoogleFonts.cairo(
+          textStyle: const TextStyle(
+            fontFamily: fontFamily,
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -89,7 +93,7 @@ abstract final class AppTheme {
       ),
     );
     return base.copyWith(
-      textTheme: GoogleFonts.cairoTextTheme(base.textTheme),
+      textTheme: base.textTheme.apply(fontFamily: fontFamily),
       scaffoldBackgroundColor: const Color(0xFF0B1624),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF101F30),
@@ -111,7 +115,10 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: GoogleFonts.cairo(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(
+            fontFamily: fontFamily,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

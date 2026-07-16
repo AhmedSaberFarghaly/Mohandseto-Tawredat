@@ -16,6 +16,10 @@ services:
       DataProtection__KeysPath: /var/lib/mohandseto/keys
       Database__MigrateOnStartup: "true"
       Seed__Enabled: "false"
+      ExternalAuth__Google__ClientId: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      ExternalAuth__Google__IosClientId: ${GOOGLE_IOS_OAUTH_CLIENT_ID:-}
+      ExternalAuth__Microsoft__ClientId: ${MICROSOFT_OAUTH_CLIENT_ID:-}
+      ExternalAuth__Microsoft__Tenant: ${MICROSOFT_OAUTH_TENANT:-organizations}
     volumes:
       - api_data:/var/lib/mohandseto/data
       - data_protection_keys:/var/lib/mohandseto/keys

@@ -32,6 +32,30 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     public async Task<ActionResult<AuthResultDto>> Login(EmailLoginDto dto, CancellationToken ct) =>
         Ok(await auth.LoginWithEmailAsync(dto.Email, dto.Password, ct, Context()));
 
+    [HttpGet("external/providers")]
+    public ActionResult<IReadOnlyList<ExternalProviderDto>> ExternalProviders() => Ok(auth.ExternalProviders());
+
+    [HttpPost("external/challenge")]
+    [EnableRateLimiting("auth")]
+    public async Task<ActionResult<ExternalAuthChallengeDto>> BeginExternal(ExternalAuthStartDto dto, CancellationToken ct) =>
+        Ok(await auth.BeginExternalAsync(dto.Provider, ct));
+
+    [HttpPost("external/login")]
+    [EnableRateLimiting("auth")]
+    public async Task<ActionResult<AuthResultDto>> ExternalLogin(ExternalLoginDto dto, CancellationToken ct) =>
+        Ok(await auth.LoginExternalAsync(dto, ct, Context()));
+
+    [Authorize]
+    [HttpGet("external/linked")]
+    public async Task<ActionResult<IReadOnlyList<LinkedExternalIdentityDto>>> LinkedExternal(CancellationToken ct) =>
+        Ok(await auth.LinkedExternalAsync(UserId(), ct));
+
+    [Authorize]
+    [HttpPost("external/link")]
+    [EnableRateLimiting("auth")]
+    public async Task<ActionResult<LinkedExternalIdentityDto>> LinkExternal(ExternalLoginDto dto, CancellationToken ct) =>
+        Ok(await auth.LinkExternalAsync(UserId(), dto, ct));
+
     [HttpPost("register-company")]
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResultDto>> RegisterCompany(RegisterCompanyDto dto, CancellationToken ct) =>
@@ -78,4 +102,7 @@ public class AuthController(AuthService auth, OtpService otp) : ControllerBase
     }
 
     private LoginContext Context() => new(HttpContext.Connection.RemoteIpAddress?.ToString(), Request.Headers.UserAgent.ToString());
+    private Guid UserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue("sub")
+        ?? throw ApiException.Unauthorized());
 }

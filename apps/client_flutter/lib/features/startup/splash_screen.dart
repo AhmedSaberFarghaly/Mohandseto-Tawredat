@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/api/engagement_repository.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -78,7 +78,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             const SizedBox(height: AppSpacing.xxl),
             Text(
               'مهندسيتو توريدات',
-              style: GoogleFonts.cairo(
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
                 color: Colors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
@@ -86,12 +87,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             ),
             Text(
               'Mohandseto Tawredat',
-              style: GoogleFonts.cairo(color: Colors.white60, fontSize: 12),
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                color: Colors.white60,
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               'كل احتياجات شركتك... في مكان واحد',
-              style: GoogleFonts.cairo(
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
                 color: Colors.white.withValues(alpha: .85),
                 fontSize: 14,
               ),
@@ -108,7 +114,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             const SizedBox(height: AppSpacing.sm),
             Text(
               'v0.2.0',
-              style: GoogleFonts.cairo(color: Colors.white38, fontSize: 10),
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                color: Colors.white38,
+                fontSize: 10,
+              ),
             ),
             const SizedBox(height: AppSpacing.xxl),
           ],

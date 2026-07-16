@@ -2,15 +2,16 @@
 
 ## Current execution checkpoint — 2026-07-15
 
-- Overall screen gate: **753/756 fully implemented (99.6%)**. The remaining screens are Google login, Microsoft login/social confirmation, and multi-company tenant switching; they require OAuth credentials and a deliberate multi-tenant membership/session expansion. Repository-level release hardening is implemented; staging and GA remain externally gated.
+- Overall screen gate: **756/756 fully implemented (100%)**. The final reconciliation implemented native Google Sign-In, Microsoft OIDC/PKCE, secure account linking and the actual screen-48 invoice export flow (PDF/XLSX/CSV). Provider credentials/device verification, staging and GA remain external release gates.
 - M6 and M7 are complete. Admin screens 369–756 now include accounting, returns, customer service, marketing, access control, reporting, system settings, integrations, system monitoring and security.
-- Database: **35 migrations** through `AddSystemMonitoring`, verified by the real-SQLite automated test suite.
-- Automated verification: **90/90 backend tests + 23/23 Flutter tests**, zero .NET build warnings, clean Flutter analysis, clean Next.js lint/production build, empty-database migration verification and authenticated runtime smoke coverage.
+- Database: **36 migrations** through `AddExternalAuthentication`, verified by the real-SQLite automated test suite.
+- Automated verification: **93/93 backend tests + 23/23 Flutter tests**, zero .NET build warnings, clean Flutter analysis, clean Next.js lint/production build, empty-database migration verification and authenticated runtime smoke coverage.
 - The client scope now includes persisted notification preferences, support tickets/chat/files/ratings, FAQ and legal content, callbacks, real SMS 2FA login challenges, session revocation, account-deletion recovery, runtime themes/locales and database-controlled maintenance/update gates.
-- Latest delivered slice: M10 release hardening—production configuration guardrails, containers/Compose, security and health middleware, CI security/container gates, release smoke automation, and architecture/security/QA/deployment/rollback documentation.
+- Latest delivered slice: final screen closure—production-grade external identity adapters and linked-account UX, plus corrected invoice-export screen/API/file generation and OAuth deployment guidance.
+- Typography baseline: IBM Plex Sans Arabic is locally packaged in Admin and Flutter; all front-end text uses a verified 1.4× scale, including legacy hard-coded labels, with Flutter accessibility scaling composed on top.
 - Dependency evidence: NuGet reports no vulnerable production packages; npm production audit reports no high/critical findings and two moderate transitive PostCSS advisories whose suggested forced fix is an incompatible Next.js downgrade.
 
-> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (M10 Release Hardening).
+> يُحدَّث هذا الملف عند كل تغيير جوهري في حالة المشروع. آخر تحديث: 2026-07-15 (Final Screen Closure).
 
 ## 1. وصف المشروع الحالي
 
@@ -22,7 +23,7 @@
 | الطبقة | التقنية | الحالة |
 |---|---|---|
 | Backend | ASP.NET Core (.NET 10) + EF Core | يبني ويعمل، `/health` سليم |
-| قاعدة البيانات | SQLite (مسار v1 المدعوم) | 35 migrations حتى `AddSystemMonitoring` ومختبرة على SQLite فعلي؛ SQL Server يتطلب migrations ونقل بيانات مستقلين |
+| قاعدة البيانات | SQLite (مسار v1 المدعوم) | 36 migrations حتى `AddExternalAuthentication` ومختبرة على SQLite فعلي؛ SQL Server يتطلب migrations ونقل بيانات مستقلين |
 | لوحة الإدارة | Next.js 16 + TypeScript (App Router) | تشغيل وإدارة وCRM وحسابات وخدمة عملاء وحملات تسويقية حية |
 | تطبيق العميل | Flutter 3.32 (Android/iOS/Web) | Auth + Home + Catalog + Search + Compare، analyze نظيف |
 | CI | GitHub Actions | بناء واختبار المكونات + تدقيق dependencies/secrets + بناء containers والتحقق من Compose |
@@ -32,8 +33,8 @@
 | الوحدة | الاكتمال |
 |---|---|
 | الأساس (Monorepo، DB core، Tokens، CI) | 100% |
-| الهوية والتحقق (شاشات 15–39) | 90% — Backend وFlutter والإدارة يعملون؛ Google/Microsoft الحقيقيان ينتظران Credentials |
-| الكتالوج والرئيسية والبحث (شاشات 40–77) | 95% — البحث وسجله والمقارنة والتفاصيل والصور وتنزيل الملفات تعمل؛ الشركة والفروع مرتبطان بوحدة الشركات |
+| الهوية والتحقق (شاشات 15–39) | 100% — OTP/Password/2FA وGoogle الأصلي وMicrosoft OIDC/PKCE وربط الحسابات؛ Credentials مطلوبة للتفعيل الخارجي فقط |
+| الكتالوج والرئيسية والبحث (شاشات 40–77) | 100% — البحث وسجله والمقارنة والتفاصيل والصور وتنزيل الملفات والشركة والفروع؛ الشاشة 48 الصحيحة هي تصدير الفواتير ومغلقة ضمن المالية |
 | إدارة المنتجات التجارية | 100% — شاشات 426–450؛ الوسائط والمواصفات والمتغيرات والعبوات والتكلفة والهامش وأسعار الشركات والروابط وSEO وExcel والأسعار الجماعية وسجلها |
 | إدارة المحتوى والتواصل | 100% — شاشات 451–465؛ الأقسام وترتيب الرئيسية والبنرات والجدولة والاستهداف والصفحات والسياسات وFAQ والإشعارات والرسائل |
 | المخزون والمستودعات | 100% — شاشات 466–489؛ المخازن والأرصدة والحركات والتحويل والحجز والجرد والتتبع والباركود والاستلام والفحص والتقييم |
@@ -81,21 +82,23 @@
 - ✅ فحص نوع وحجم مستندات الشركة وعزلها حسب Tenant مفعّل.
 - ✅ مرفقات أوامر الشراء معزولة حسب Tenant ومساراتها مؤمّنة، ومحاولات الدفع idempotent ولا تُخزّن بيانات بطاقة.
 - ✅ 2FA الفعلي بتحدٍ مؤقت وOTP وإبطال إعادة الاستخدام يعمل للعميل والإدارة.
+- ✅ Google ID tokens وMicrosoft OIDC tokens تُفحص خادميًا للتوقيع وaudience وissuer والانتهاء، مع Microsoft nonce وتحديات أحادية الاستخدام وربط صريح للحسابات.
 - ✅ أسرار المزودين مشفرة عبر Data Protection، ومفاتيح API/Webhook تُعرض مرة واحدة ولا يُحفظ سوى بصمتها، وسياسات القفل وطول كلمة المرور تعمل وقت التشغيل.
 - ✅ إعدادات ربط التكاملات مشفرة بالكامل، ولا تعرض السجلات بيانات الاعتماد أو payload حساسًا، وإعادة المحاولة محدودة ومسجلة وقابلة للتعطيل.
 - ✅ الأخطاء غير المتوقعة تُجمع بعد تنقية السياق، وعناوين IP المحظورة تُرفض فعليًا، ومحاولات الدخول المتكررة تتحول لتنبيهات أمنية قابلة للتحقيق والتدقيق.
 - ✅ طلبات الاستعادة لا تستبدل قاعدة البيانات أثناء التشغيل؛ تتطلب وضع الصيانة وعبارة تأكيد وتحقق SHA-256 ثم تُجدول لإعادة تشغيل صيانة مضبوطة.
-- ⏳ Google/Microsoft ومزوّد SMS الإنتاجي يحتاجون Credentials قبل الإطلاق.
+- ⏳ Google/Microsoft ومزوّد SMS الإنتاجي يحتاجون Credentials واختبار أجهزة Staging قبل الإطلاق؛ التنفيذ البرمجي مكتمل.
 
 ## 6. خطة التنفيذ (الترتيب الحالي)
 
-1. **M2:** الأساس الوظيفي مكتمل؛ Google/Microsoft و2FA الحقيقيان مؤجلان لحين Credentials.
+1. **M2:** الأساس الوظيفي والهوية الخارجية و2FA مكتملة؛ تفعيل بيانات Google/Microsoft الفعلية بوابة نشر خارجية.
 2. **M3 (بوابة 30% مكتملة):** البحث والمقارنة وCRUD المراجع والمحتوى والـMedia وCSV مكتملة؛ أسعار الشركات تنتقل مع إدارة الحسابات التجارية.
 3. **M4 (مكتملة — البوابة العامة 45%):** المنتجات المخصصة والسلة وCheckout المؤسسي المتقدم مغلقة ومختبرة بالكامل.
 4. **M5 (مكتملة — البوابة العامة 50%):** الموافقات الداخلية وRFQ مغلقتان ومختبرتان.
 5. **M6 (مكتملة — البوابة العامة 70%):** اكتملت كل شاشات العميل 204–368 بما فيها الإشعارات والدعم والإعدادات والأمان.
 6. **M7 (مكتملة — البوابة العامة 100%):** اكتملت الإدارة التشغيلية وCRM والنظام والأمان حتى الشاشة 756.
 7. **M10 (Release Candidate):** التصلّب والـE2E الآلي والـrunbooks وCI gates مكتملة داخل المستودع؛ Staging/Production credentials والبنية واعتماد الإطلاق ثم tag `v1.0.0` ما زالت بوابات خارجية واجبة.
+8. **M11 (Final Screen Closure):** مصفوفة التصميم 756/756؛ OAuth وربط الحسابات وتصدير الفواتير متعدد الصيغ مكتملة ومختبرة.
 
 ## 7. معايير الجاهزية للإنتاج
 

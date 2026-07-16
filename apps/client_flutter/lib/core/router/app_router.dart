@@ -6,6 +6,7 @@ import '../../features/auth/otp_screen.dart';
 import '../../features/auth/registration_screen.dart';
 import '../../features/auth/verification_screen.dart';
 import '../../features/auth/two_factor_login_screen.dart';
+import '../../features/auth/linked_accounts_screen.dart';
 import '../../features/catalog/categories_screen.dart';
 import '../../features/catalog/catalog_search_screen.dart';
 import '../../features/catalog/compare_screen.dart';
@@ -22,6 +23,7 @@ import '../../features/rfq/rfqs_screen.dart';
 import '../../features/orders/orders_screen.dart';
 import '../../features/returns/returns_screen.dart';
 import '../../features/finance/finance_screen.dart';
+import '../../features/finance/invoice_export_screen.dart';
 import '../../features/budgets/budgets_screen.dart';
 import '../../features/account/account_screen.dart';
 import '../../features/engagement/engagement_screens.dart';
@@ -222,6 +224,10 @@ final appRouter = GoRouter(
               builder: (_, _) => const SessionsScreen(),
             ),
             GoRoute(
+              path: 'linked-accounts',
+              builder: (_, _) => const LinkedAccountsScreen(),
+            ),
+            GoRoute(
               path: 'delete',
               builder: (_, _) => const DeleteAccountScreen(),
             ),
@@ -268,6 +274,11 @@ final appRouter = GoRouter(
       path: '/finance',
       name: 'finance',
       builder: (context, state) => const FinanceScreen(),
+    ),
+    GoRoute(
+      path: '/finance/export',
+      name: 'invoice-export',
+      builder: (context, state) => const InvoiceExportScreen(),
     ),
     GoRoute(
       path: '/finance/invoices/:id',

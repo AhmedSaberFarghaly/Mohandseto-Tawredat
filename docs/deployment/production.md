@@ -15,6 +15,8 @@ SQL Server remains a deliberate future cutover: create provider-specific migrati
 - DNS/TLS reverse proxy using `infrastructure/nginx/mohandseto.conf.example` as a starting point.
 - The trusted proxy IP as seen by the API. The supplied Compose network defaults to `172.31.50.0/24`, whose gateway/proxy address is `172.31.50.1`; change both environment values if that subnet conflicts with the host.
 - Named release owner, database owner, security approver, rollback owner, and maintenance window.
+- Google Cloud and Microsoft Entra registrations configured exactly as described in [OAuth setup](oauth.md), including the iOS reversed client-ID scheme at build time.
+- Android release signing supplied through ignored `apps/client_flutter/android/key.properties` (template included) or `MOHANDSETO_ANDROID_*` secret environment variables. Release builds fail rather than fall back to a debug key.
 
 ## Pre-deploy gate
 
@@ -22,7 +24,8 @@ SQL Server remains a deliberate future cutover: create provider-specific migrati
 2. The staging candidate passes automated smoke and critical manual E2E scenarios.
 3. Take and verify an off-host database backup plus the matching Data Protection keys. Losing the keys can make protected integration credentials unreadable.
 4. Confirm free disk space, alert routing, log retention, provider sandbox/live modes, feature flags, and maintenance communication.
-5. Validate configuration without printing secrets:
+5. Complete Google and Microsoft sign-in, cancellation, first-time linking, repeat login, 2FA and revoked-user tests on physical Android/iOS devices.
+6. Validate configuration without printing secrets:
 
    ```bash
    docker compose --env-file /secure/path/production.env \

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,10 +7,37 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val releaseSigning = Properties()
+val releaseSigningFile = rootProject.file("key.properties")
+if (releaseSigningFile.exists()) releaseSigningFile.inputStream().use(releaseSigning::load)
+
+fun signingValue(property: String, environment: String): String? =
+    releaseSigning.getProperty(property)?.takeIf { it.isNotBlank() }
+        ?: System.getenv(environment)?.takeIf { it.isNotBlank() }
+
+val releaseStorePath = signingValue("storeFile", "MOHANDSETO_ANDROID_KEYSTORE_PATH")
+val releaseStorePassword = signingValue("storePassword", "MOHANDSETO_ANDROID_STORE_PASSWORD")
+val releaseKeyAlias = signingValue("keyAlias", "MOHANDSETO_ANDROID_KEY_ALIAS")
+val releaseKeyPassword = signingValue("keyPassword", "MOHANDSETO_ANDROID_KEY_PASSWORD")
+val hasReleaseSigning = listOf(
+    releaseStorePath,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword,
+).all { !it.isNullOrBlank() }
+val releaseRequested = gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true)
+}
+if (releaseRequested && !hasReleaseSigning) {
+    throw GradleException(
+        "Release signing is required. Configure android/key.properties or the MOHANDSETO_ANDROID_* environment variables.",
+    )
+}
+
 android {
     namespace = "com.mohandseto.mohandseto_client"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -20,21 +49,28 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.mohandseto.mohandseto_client"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.mohandseto.tawredat"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseStorePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 }

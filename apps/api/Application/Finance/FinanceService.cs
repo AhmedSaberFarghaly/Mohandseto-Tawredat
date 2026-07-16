@@ -124,7 +124,26 @@ public sealed class FinanceService(AppDbContext db, ITenantProvider tenantProvid
 
     public async Task<byte[]> ExportAsync(string? status, DateTime? from, DateTime? to, CancellationToken ct = default)
     {
-        var invoices = await ListAsync(status, null, from, to, ct); using var output = new MemoryStream();
+        var invoices = await ListAsync(status, null, from, to, ct);
+        return BuildExcel(invoices);
+    }
+
+    public async Task<InvoiceExportFile> ExportFileAsync(string? status, DateTime? from, DateTime? to, string? format, CancellationToken ct = default)
+    {
+        var invoices = await ListAsync(status, null, from, to, ct);
+        var stamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmm");
+        return format?.Trim().ToLowerInvariant() switch
+        {
+            "pdf" => new(SimplePdf(ExportLines(invoices)), "application/pdf", $"invoices-{stamp}.pdf"),
+            "csv" => new(BuildCsv(invoices), "text/csv; charset=utf-8", $"invoices-{stamp}.csv"),
+            "xlsx" or "excel" or null or "" => new(BuildExcel(invoices), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"invoices-{stamp}.xlsx"),
+            _ => throw ApiException.BadRequest("صيغة التصدير يجب أن تكون PDF أو Excel أو CSV")
+        };
+    }
+
+    private static byte[] BuildExcel(IReadOnlyCollection<InvoiceListDto> invoices)
+    {
+        using var output = new MemoryStream();
         using (var zip = new ZipArchive(output, ZipArchiveMode.Create, true))
         {
             Write(zip, "[Content_Types].xml", "<?xml version=\"1.0\"?><Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/></Types>");
@@ -139,6 +158,23 @@ public sealed class FinanceService(AppDbContext db, ITenantProvider tenantProvid
         return output.ToArray();
     }
 
+    private static byte[] BuildCsv(IReadOnlyCollection<InvoiceListDto> invoices)
+    {
+        var rows = new List<string[]> { new[] { "Invoice", "Order", "Status", "Issued", "Due", "Total", "Paid", "Outstanding" } };
+        rows.AddRange(invoices.Select(i => new[] { i.Number, i.OrderNumber, i.Status, i.IssuedAt.ToString("yyyy-MM-dd"), i.DueAt.ToString("yyyy-MM-dd"), i.Total.ToString("0.00"), i.PaidAmount.ToString("0.00"), i.Outstanding.ToString("0.00") }));
+        var content = string.Join("\r\n", rows.Select(row => string.Join(',', row.Select(CsvCell))));
+        return Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(content)).ToArray();
+    }
+
+    private static IEnumerable<string> ExportLines(IReadOnlyCollection<InvoiceListDto> invoices)
+    {
+        yield return "MOHANDSETO TAWRDAT - INVOICES";
+        yield return $"Exported {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC";
+        yield return "Invoice | Order | Status | Issued | Due | Total | Paid | Outstanding";
+        foreach (var i in invoices)
+            yield return $"{i.Number} | {i.OrderNumber} | {i.Status} | {i.IssuedAt:yyyy-MM-dd} | {i.DueAt:yyyy-MM-dd} | {i.Total:0.00} | {i.PaidAmount:0.00} | {i.Outstanding:0.00}";
+    }
+
     private async Task RefreshOverdueAsync(CancellationToken ct) { var late = await db.Invoices.Where(i => i.DueAt < DateTime.UtcNow && i.PaidAmount < i.Total && i.Status != InvoiceStatus.Cancelled && i.Status != InvoiceStatus.Draft).ToListAsync(ct); if (late.Any(i => i.Status != InvoiceStatus.Overdue)) { foreach (var invoice in late) invoice.Status = InvoiceStatus.Overdue; await db.SaveChangesAsync(ct); } }
     private Guid TenantId() => tenantProvider.TenantId ?? throw ApiException.Forbidden("تعذر تحديد الشركة");
     private static InvoiceListDto ListMap(Invoice i) => new(i.Id, i.Number, i.Order.Number, i.Status.ToString(), i.Type.ToString(), i.Total, i.PaidAmount, Math.Max(0, i.Total - i.PaidAmount), i.IssuedAt, i.DueAt, i.Status == InvoiceStatus.Overdue);
@@ -148,6 +184,7 @@ public sealed class FinanceService(AppDbContext db, ITenantProvider tenantProvid
     private static CreditLimitRequestResultDto CreditMap(CreditLimitRequest r) => new(r.Id, r.CurrentLimit, r.RequestedLimit, r.Status.ToString(), r.CreatedAt, r.DecisionNote);
     private static string? Clean(string? v, int max) { if (string.IsNullOrWhiteSpace(v)) return null; var value = v.Trim(); return value.Length <= max ? value : value[..max]; }
     private static void Write(ZipArchive zip, string name, string content) { var entry = zip.CreateEntry(name); using var writer = new StreamWriter(entry.Open(), new UTF8Encoding(false)); writer.Write(content); }
+    private static string CsvCell(string value) => $"\"{value.Replace("\"", "\"\"")}\"";
     private static string Escape(string value) => new XElement("x", value).Value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
     private static string Column(int i) { var value = ""; for (i++; i > 0; i = (i - 1) / 26) value = (char)('A' + (i - 1) % 26) + value; return value; }
     private static byte[] SimplePdf(IEnumerable<string> lines) { var text = string.Join(" ", lines).Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)"); var stream = $"BT /F1 9 Tf 36 800 Td ({text}) Tj ET"; var objects = new[] { "<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>", $"<< /Length {Encoding.ASCII.GetByteCount(stream)} >>\nstream\n{stream}\nendstream", "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>" }; var sb = new StringBuilder("%PDF-1.4\n"); var offsets = new List<int> { 0 }; for (var i = 0; i < objects.Length; i++) { offsets.Add(Encoding.ASCII.GetByteCount(sb.ToString())); sb.Append($"{i + 1} 0 obj\n{objects[i]}\nendobj\n"); } var xref = Encoding.ASCII.GetByteCount(sb.ToString()); sb.Append($"xref\n0 {objects.Length + 1}\n0000000000 65535 f \n"); for (var i = 1; i < offsets.Count; i++) sb.Append($"{offsets[i]:D10} 00000 n \n"); sb.Append($"trailer << /Size {objects.Length + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF"); return Encoding.ASCII.GetBytes(sb.ToString()); }

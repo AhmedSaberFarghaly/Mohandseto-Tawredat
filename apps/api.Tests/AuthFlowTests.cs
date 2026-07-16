@@ -18,6 +18,7 @@ public class AuthFlowTests : IDisposable
     private readonly AuthService _auth;
     private readonly CapturingSms _sms = new();
     private readonly TestTenantProvider _tenant = new();
+    private readonly FakeExternalVerifier _external = new();
 
     private sealed class TestTenantProvider : ITenantProvider { public Guid? TenantId { get; set; } }
 
@@ -26,6 +27,24 @@ public class AuthFlowTests : IDisposable
         public string? LastMessage;
         public Task SendAsync(string phone, string message, CancellationToken ct = default)
         { LastMessage = message; return Task.CompletedTask; }
+    }
+
+    private sealed class FakeExternalVerifier : IExternalIdentityVerifier
+    {
+        public VerifiedExternalIdentity Identity { get; set; } = new("google", "google-subject", "owner@test.com", true, "Owner", null);
+        public IReadOnlyList<ExternalProviderOptions> Providers { get; } =
+        [
+            new("google", "Google", true, "google-client", "https://accounts.example/.well-known/openid-configuration", "app:/oauth", ["openid", "email"], true),
+            new("microsoft", "Microsoft", true, "microsoft-client", "https://login.example/.well-known/openid-configuration", "app:/oauth", ["openid", "email"], false, "organizations"),
+        ];
+        public ExternalProviderOptions Provider(string provider) => Providers.Single(x => x.Code == provider);
+        public Task<VerifiedExternalIdentity> ValidateAsync(string provider, string idToken, string expectedNonce, CancellationToken ct = default)
+        {
+            Assert.Equal("valid-id-token", idToken);
+            Assert.False(string.IsNullOrWhiteSpace(expectedNonce));
+            Assert.Equal(provider, Identity.Provider);
+            return Task.FromResult(Identity);
+        }
     }
 
     private sealed class DevEnv : Microsoft.AspNetCore.Hosting.IWebHostEnvironment
@@ -57,7 +76,7 @@ public class AuthFlowTests : IDisposable
 
         DbSeeder.SeedAsync(_db, config, NullLogger.Instance).GetAwaiter().GetResult();
         _otp = new OtpService(_db, _sms, new DevEnv());
-        _auth = new AuthService(_db, new TokenService(config), _otp);
+        _auth = new AuthService(_db, new TokenService(config), _otp, external: _external);
     }
 
     public void Dispose() { _db.Dispose(); _conn.Dispose(); }
@@ -151,6 +170,47 @@ public class AuthFlowTests : IDisposable
         var verified = await _auth.VerifyTwoFactorAsync(new TwoFactorLoginDto(challenge.ChallengeToken!, challenge.DevelopmentCode!));
         Assert.NotNull(verified.AccessToken); Assert.False(verified.RequiresTwoFactor);
         await Assert.ThrowsAsync<ApiException>(() => _auth.VerifyTwoFactorAsync(new TwoFactorLoginDto(challenge.ChallengeToken!, challenge.DevelopmentCode!)));
+    }
+
+    [Fact]
+    public async Task Google_oidc_challenge_auto_links_verified_email_and_cannot_be_replayed()
+    {
+        var registration = await RegisterCompanyAsync("01055500023", "social-google@test.com");
+        _external.Identity = new("google", "google-123", "social-google@test.com", true, "Google Owner", null);
+        var challenge = await _auth.BeginExternalAsync("google");
+        var result = await _auth.LoginExternalAsync(new("google", "valid-id-token", challenge.ChallengeToken));
+        Assert.NotNull(result.AccessToken);
+        Assert.Equal(registration.User!.Id, result.User!.Id);
+        Assert.True((await _db.ExternalIdentities.SingleAsync()).Email == "social-google@test.com");
+        await Assert.ThrowsAsync<ApiException>(() => _auth.LoginExternalAsync(new("google", "valid-id-token", challenge.ChallengeToken)));
+    }
+
+    [Fact]
+    public async Task Microsoft_requires_authenticated_link_then_supports_account_picker_login()
+    {
+        var registration = await RegisterCompanyAsync("01055500024", "social-ms@test.com");
+        _external.Identity = new("microsoft", "entra-456", "social-ms@test.com", true, "Entra Owner", Guid.NewGuid().ToString());
+        var first = await _auth.BeginExternalAsync("microsoft");
+        var unlinked = await _auth.LoginExternalAsync(new("microsoft", "valid-id-token", first.ChallengeToken));
+        Assert.True(unlinked.IsNewUser); Assert.Null(unlinked.AccessToken);
+
+        var linkChallenge = await _auth.BeginExternalAsync("microsoft");
+        var link = await _auth.LinkExternalAsync(registration.User!.Id, new("microsoft", "valid-id-token", linkChallenge.ChallengeToken));
+        Assert.Equal("microsoft", link.Provider);
+
+        var loginChallenge = await _auth.BeginExternalAsync("microsoft");
+        var login = await _auth.LoginExternalAsync(new("microsoft", "valid-id-token", loginChallenge.ChallengeToken));
+        Assert.NotNull(login.AccessToken); Assert.Equal(registration.User.Id, login.User!.Id);
+    }
+
+    [Fact]
+    public async Task Unknown_verified_google_identity_enters_registration_path_without_creating_user()
+    {
+        _external.Identity = new("google", "new-google-user", "new-social@test.com", true, "New User", null);
+        var challenge = await _auth.BeginExternalAsync("google");
+        var result = await _auth.LoginExternalAsync(new("google", "valid-id-token", challenge.ChallengeToken));
+        Assert.True(result.IsNewUser); Assert.Equal("new-social@test.com", result.PrefillEmail);
+        Assert.False(await _db.ExternalIdentities.AnyAsync());
     }
 
     [Fact]

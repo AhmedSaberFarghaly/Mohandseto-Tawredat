@@ -1078,6 +1078,12 @@ class SettingsScreen extends ConsumerWidget {
                       '${s.sessions.length} جلسة نشطة',
                       () => context.push('/settings/sessions'),
                     ),
+                    SettingsRow(
+                      Icons.account_tree_outlined,
+                      'الحسابات المرتبطة',
+                      'Google وMicrosoft للدخول السريع',
+                      () => context.push('/settings/linked-accounts'),
+                    ),
                   ],
                 ),
               ),

@@ -28,5 +28,15 @@ class MohandsetoApp extends ConsumerWidget {
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
+    builder: (context, child) {
+      final media = MediaQuery.of(context);
+      final accessibilityScale = media.textScaler.scale(16) / 16;
+      return MediaQuery(
+        data: media.copyWith(
+          textScaler: TextScaler.linear(accessibilityScale * 1.4),
+        ),
+        child: child!,
+      );
+    },
   );
 }

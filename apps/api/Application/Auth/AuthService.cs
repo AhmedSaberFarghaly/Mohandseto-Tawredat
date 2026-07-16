@@ -7,7 +7,7 @@ using Mohandseto.Api.Infrastructure;
 
 namespace Mohandseto.Api.Application.Auth;
 
-public class AuthService(AppDbContext db, TokenService tokens, OtpService otp, AdminSystemSettingsService? systemSettings = null)
+public class AuthService(AppDbContext db, TokenService tokens, OtpService otp, AdminSystemSettingsService? systemSettings = null, IExternalIdentityVerifier? external = null)
 {
     /// <summary>Phone + OTP login. If the phone is unknown, signals the client to start company registration.</summary>
     public async Task<AuthResultDto> LoginWithOtpAsync(string phone, string code, CancellationToken ct = default, LoginContext? context = null)
@@ -54,10 +54,87 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp, A
         }
         EnsureActive(user);
         db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = email, Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent, Location = context?.Location });
-        var requireAdminTwoFactor = user.IsPlatformStaff && systemSettings is not null && await systemSettings.BoolAsync("security", "requireAdmin2fa", false, ct);
-        if (user.TwoFactorEnabled || requireAdminTwoFactor) return await CreateTwoFactorChallengeAsync(user, ct);
+        if (await RequiresTwoFactorAsync(user, ct)) return await CreateTwoFactorChallengeAsync(user, ct);
         return await IssueAsync(user, ct, context);
     }
+
+    public IReadOnlyList<ExternalProviderDto> ExternalProviders() => external?.Providers
+        .Select(x => new ExternalProviderDto(x.Code, x.DisplayName, x.Enabled)).ToList() ??
+        [new("google", "Google", false), new("microsoft", "Microsoft", false)];
+
+    public async Task<ExternalAuthChallengeDto> BeginExternalAsync(string provider, CancellationToken ct = default)
+    {
+        var verifier = external ?? throw ApiException.BadRequest("تسجيل الدخول الخارجي غير مهيأ");
+        var options = verifier.Provider(provider);
+        if (!options.Enabled) throw ApiException.BadRequest($"تسجيل الدخول عبر {options.DisplayName} غير مهيأ بعد");
+        var raw = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
+        var expires = DateTime.UtcNow.AddMinutes(5);
+        db.ExternalAuthChallenges.Add(new ExternalAuthChallenge
+        {
+            Provider = options.Code,
+            TokenHash = TokenService.Hash(raw),
+            ExpiresAt = expires,
+        });
+        await db.SaveChangesAsync(ct);
+        return new(options.Code, options.ClientId, options.DiscoveryUrl, options.RedirectUrl, options.Scopes, raw, expires, options.IosClientId);
+    }
+
+    public async Task<AuthResultDto> LoginExternalAsync(ExternalLoginDto dto, CancellationToken ct = default, LoginContext? context = null)
+    {
+        var verifier = external ?? throw ApiException.BadRequest("تسجيل الدخول الخارجي غير مهيأ");
+        var provider = verifier.Provider(dto.Provider);
+        await ConsumeExternalChallengeAsync(provider.Code, dto.ChallengeToken, ct);
+        var profile = await verifier.ValidateAsync(provider.Code, dto.IdToken, dto.ChallengeToken, ct);
+        var linked = await db.ExternalIdentities
+            .Where(x => !x.IsDeleted && x.Provider == provider.Code && x.Subject == profile.Subject)
+            .Include(x => x.User).ThenInclude(x => x.Roles).ThenInclude(x => x.Role)
+            .SingleOrDefaultAsync(ct);
+        if (linked is not null)
+        {
+            EnsureActive(linked.User);
+            linked.LastLoginAt = DateTime.UtcNow;
+            linked.Email = profile.Email;
+            db.LoginAudits.Add(new LoginAudit { UserId = linked.UserId, Identifier = $"{provider.Code}:{profile.Subject}", Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent });
+            await db.SaveChangesAsync(ct);
+            if (await RequiresTwoFactorAsync(linked.User, ct)) return await CreateTwoFactorChallengeAsync(linked.User, ct);
+            return await IssueAsync(linked.User, ct, context);
+        }
+
+        if (!profile.EmailVerified || profile.Email is null || !provider.AllowEmailAutoLink)
+            return new AuthResultDto(true, null, null, null, null, null, PrefillEmail: profile.Email, PrefillName: profile.DisplayName);
+
+        var user = await db.Users.Include(x => x.Roles).ThenInclude(x => x.Role)
+            .SingleOrDefaultAsync(x => x.Email == profile.Email, ct);
+        if (user is null)
+            return new AuthResultDto(true, null, null, null, null, null, PrefillEmail: profile.Email, PrefillName: profile.DisplayName);
+        EnsureActive(user);
+        await LinkIdentityAsync(user, profile, ct);
+        db.LoginAudits.Add(new LoginAudit { UserId = user.Id, Identifier = $"{provider.Code}:{profile.Subject}", Succeeded = true, IpAddress = context?.IpAddress, UserAgent = context?.UserAgent });
+        await db.SaveChangesAsync(ct);
+        if (await RequiresTwoFactorAsync(user, ct)) return await CreateTwoFactorChallengeAsync(user, ct);
+        return await IssueAsync(user, ct, context);
+    }
+
+    public async Task<LinkedExternalIdentityDto> LinkExternalAsync(Guid userId, ExternalLoginDto dto, CancellationToken ct = default)
+    {
+        var verifier = external ?? throw ApiException.BadRequest("تسجيل الدخول الخارجي غير مهيأ");
+        var provider = verifier.Provider(dto.Provider);
+        await ConsumeExternalChallengeAsync(provider.Code, dto.ChallengeToken, ct);
+        var profile = await verifier.ValidateAsync(provider.Code, dto.IdToken, dto.ChallengeToken, ct);
+        var user = await db.Users.FirstOrDefaultAsync(x => x.Id == userId, ct) ?? throw ApiException.Unauthorized();
+        EnsureActive(user);
+        var existing = await db.ExternalIdentities.FirstOrDefaultAsync(x => !x.IsDeleted && x.Provider == provider.Code && x.Subject == profile.Subject, ct);
+        if (existing is not null && existing.UserId != userId) throw ApiException.Conflict("هذا الحساب الخارجي مرتبط بمستخدم آخر");
+        var link = existing ?? await LinkIdentityAsync(user, profile, ct);
+        link.Email = profile.Email; link.LastLoginAt = DateTime.UtcNow;
+        db.AuditLogs.Add(new AuditLog { TenantId = user.TenantId, UserId = userId, Action = "auth.external_linked", EntityType = nameof(ExternalIdentity), EntityId = link.Id.ToString(), DataJson = System.Text.Json.JsonSerializer.Serialize(new { provider = provider.Code }) });
+        await db.SaveChangesAsync(ct);
+        return new(link.Provider, link.Email, link.LinkedAt, link.LastLoginAt);
+    }
+
+    public async Task<IReadOnlyList<LinkedExternalIdentityDto>> LinkedExternalAsync(Guid userId, CancellationToken ct = default) =>
+        await db.ExternalIdentities.AsNoTracking().Where(x => !x.IsDeleted && x.UserId == userId)
+            .OrderBy(x => x.Provider).Select(x => new LinkedExternalIdentityDto(x.Provider, x.Email, x.LinkedAt, x.LastLoginAt)).ToListAsync(ct);
 
     public async Task<AuthResultDto> RegisterCompanyAsync(RegisterCompanyDto dto, CancellationToken ct = default)
     {
@@ -301,6 +378,35 @@ public class AuthService(AppDbContext db, TokenService tokens, OtpService otp, A
     }
 
     private Task<int> MinimumPasswordLengthAsync(CancellationToken ct) => systemSettings?.IntAsync("password-policy", "minLength", 8, ct) ?? Task.FromResult(8);
+
+    private async Task<bool> RequiresTwoFactorAsync(User user, CancellationToken ct) => user.TwoFactorEnabled ||
+        user.IsPlatformStaff && systemSettings is not null && await systemSettings.BoolAsync("security", "requireAdmin2fa", false, ct);
+
+    private async Task ConsumeExternalChallengeAsync(string provider, string raw, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(raw) || raw.Length > 256) throw ApiException.Unauthorized("محاولة تسجيل الدخول الخارجي غير صالحة");
+        var hash = TokenService.Hash(raw);
+        var consumed = await db.ExternalAuthChallenges
+            .Where(x => x.Provider == provider && x.TokenHash == hash && !x.Consumed && x.ExpiresAt > DateTime.UtcNow)
+            .ExecuteUpdateAsync(update => update.SetProperty(x => x.Consumed, true), ct);
+        if (consumed != 1) throw ApiException.Unauthorized("انتهت محاولة تسجيل الدخول الخارجي، حاول مرة أخرى");
+    }
+
+    private async Task<ExternalIdentity> LinkIdentityAsync(User user, VerifiedExternalIdentity profile, CancellationToken ct)
+    {
+        var link = new ExternalIdentity
+        {
+            UserId = user.Id,
+            Provider = profile.Provider,
+            Subject = profile.Subject,
+            Email = profile.Email,
+            ProviderTenantId = profile.ProviderTenantId,
+        };
+        db.ExternalIdentities.Add(link);
+        if (profile.EmailVerified && user.Email?.Equals(profile.Email, StringComparison.OrdinalIgnoreCase) == true) user.EmailVerified = true;
+        await db.SaveChangesAsync(ct);
+        return link;
+    }
 
     private async Task<AuthResultDto> IssueAsync(User user, CancellationToken ct, LoginContext? context = null)
     {

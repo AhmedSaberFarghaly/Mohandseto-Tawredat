@@ -164,6 +164,28 @@ public class RefreshToken : BaseEntity
     public DateTime? LastSeenAt { get; set; }
 }
 
+/// <summary>Stable provider identity link. Provider subjects, not mutable emails, identify external accounts.</summary>
+public class ExternalIdentity : BaseEntity
+{
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
+    public string Provider { get; set; } = string.Empty;
+    public string Subject { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? ProviderTenantId { get; set; }
+    public DateTime LinkedAt { get; set; } = DateTime.UtcNow;
+    public DateTime LastLoginAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>One-use server nonce used by a mobile OIDC authorization-code/PKCE flow.</summary>
+public class ExternalAuthChallenge : BaseEntity
+{
+    public string Provider { get; set; } = string.Empty;
+    public string TokenHash { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public bool Consumed { get; set; }
+}
+
 public enum UserAccessScopeType { Branch, Warehouse }
 
 /// <summary>Limits a platform user to specific operational branches or warehouses.</summary>

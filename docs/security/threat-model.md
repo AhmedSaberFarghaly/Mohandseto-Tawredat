@@ -9,6 +9,7 @@
 | عبور Tenant | JWT tenant claim + global filters + authorization | service tests وHTTP 401/roles |
 | سرقة جلسة الإدارة | HttpOnly/Secure/SameSite cookies، access قصير وrefresh rotating | E2E login وcookie review |
 | brute force | auth rate limit، lockout، 2FA، LoginAudit، suspicious activity | Auth tests + monitoring tests |
+| تزوير/إعادة استخدام هوية خارجية | Google native sign-in؛ Microsoft PKCE؛ فحص JWKS/signature/aud/iss/exp؛ Microsoft nonce؛ تحدٍ أحادي الاستخدام؛ الربط بالمفتاح الثابت `provider+sub` | Auth replay/linking tests + provider sandbox قبل GA |
 | IDOR / صلاحية زائدة | controller roles + ownership checks + scopes | permissions tests وmanual matrix |
 | تسريب أسرار | env-only، Data Protection، hash-only keys، Gitleaks CI | secret scan gate |
 | ملفات خبيثة | type/size validation، paths معزولة، لا تنفيذ | upload tests؛ malware scanner مطلوب عند مزود التخزين |
@@ -19,7 +20,7 @@
 
 ## مخاطر باقية قبل GA
 
-- credentials ومزود SMS/Payment/Storage الحقيقيون لم تُسلّم بعد.
+- credentials ومزود OAuth/SMS/Payment/Storage الحقيقيون لم تُسلّم بعد؛ OAuth غير المهيأ يظهر Disabled ولا يعطل طرق الدخول المحلية.
 - فحص malware خارجي للملفات يحتاج اختيار مزود.
 - إصدار SQLite الحالي single-instance؛ HA وSQL Server cutover يحتاجان قرار استضافة واختبار ترحيل.
 - يلزم DAST وload test على عنوان staging الفعلي بعد توفيره.

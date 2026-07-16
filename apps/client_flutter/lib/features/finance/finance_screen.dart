@@ -34,9 +34,9 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
           tooltip: 'الميزانيات ومراكز التكلفة',
         ),
         IconButton(
-          onPressed: _export,
+          onPressed: () => context.push('/finance/export'),
           icon: const Icon(Icons.file_download_outlined),
-          tooltip: 'تصدير Excel',
+          tooltip: 'تصدير الفواتير',
         ),
       ],
       bottom: TabBar(
@@ -273,30 +273,6 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
       onSelected: (_) => setState(() => status = value),
     ),
   );
-  Future<void> _export() async {
-    try {
-      final bytes = await ref.read(financeRepositoryProvider).export();
-      final path = await FilePicker.saveFile(
-        dialogTitle: 'حفظ كشف الفواتير',
-        fileName: 'invoices-${DateTime.now().year}.xlsx',
-        type: FileType.custom,
-        allowedExtensions: const ['xlsx'],
-        bytes: bytes,
-      );
-      if (path != null && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('تم حفظ كشف الفواتير')));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$e')));
-      }
-    }
-  }
-
   Future<void> _credit(FinanceSummaryModel s) async {
     final amount = TextEditingController(
           text: (s.creditLimit <= 0 ? 50000 : s.creditLimit * 1.5)

@@ -281,9 +281,20 @@ class FinanceRepository {
       options: Options(responseType: ResponseType.bytes),
     )).data!,
   );
-  Future<Uint8List> export() async => Uint8List.fromList(
+  Future<Uint8List> export({
+    String format = 'xlsx',
+    String? status,
+    DateTime? from,
+    DateTime? to,
+  }) async => Uint8List.fromList(
     (await _api.dio.get<List<int>>(
       '/api/finance/invoices/export',
+      queryParameters: {
+        'format': format,
+        if (status != null) 'status': status,
+        if (from != null) 'from': from.toIso8601String(),
+        if (to != null) 'to': to.toIso8601String(),
+      },
       options: Options(responseType: ResponseType.bytes),
     )).data!,
   );

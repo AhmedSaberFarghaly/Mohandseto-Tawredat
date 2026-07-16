@@ -66,12 +66,12 @@ public sealed class MigrationIntegrityTests
             await using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite($"Data Source={path}").Options, new PlatformTenant());
             await db.Database.MigrateAsync();
             var applied = (await db.Database.GetAppliedMigrationsAsync()).ToList();
-            Assert.True(applied.Count >= 35);
-            Assert.EndsWith("AddSystemMonitoring", applied[^1]);
+            Assert.True(applied.Count >= 36);
+            Assert.EndsWith("AddExternalAuthentication", applied[^1]);
             await using var command = db.Database.GetDbConnection().CreateCommand();
-            command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('Users','Products','Orders','SystemErrorEvents','FeatureFlags')";
+            command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('Users','Products','Orders','SystemErrorEvents','FeatureFlags','ExternalIdentities','ExternalAuthChallenges')";
             if (command.Connection!.State != System.Data.ConnectionState.Open) await command.Connection.OpenAsync();
-            Assert.Equal(5L, (long)(await command.ExecuteScalarAsync())!);
+            Assert.Equal(7L, (long)(await command.ExecuteScalarAsync())!);
         }
         finally
         {

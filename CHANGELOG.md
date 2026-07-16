@@ -6,6 +6,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/) and Semantic Vers
 ## [Unreleased] — v1.0.0 release candidate hardening
 
 ### Added
+- System-wide typography accessibility pass: IBM Plex Sans Arabic is self-hosted across Admin/CRM and bundled in Flutter, with a uniform 1.4× text scale covering theme and hard-coded screen sizes while preserving device accessibility scaling.
+- Final 756/756 screen closure: native Google Sign-In, Microsoft authorization-code/PKCE, server-side OIDC token validation, one-use external challenges, persistent provider-subject links, linked-account settings and 2FA continuation.
+- Corrected design screen 48 to the actual invoice-export experience with date/status filters and server-generated PDF, XLSX and UTF-8 CSV downloads.
+- `AddExternalAuthentication` migration, OAuth production setup guide, 93-test backend gate and clean 23-test Flutter gate.
 - Release hardening for Milestone 10: production fail-fast configuration validation, persistent Data Protection keys, security headers, forwarded-header handling, response compression, API/body/rate limits and separate live/ready health probes.
 - Multi-stage non-root API and Next.js containers, local and production Compose definitions, loopback-only production bindings, reverse-proxy example, persistent SQLite/key volumes and environment templates.
 - Automated empty-database migration and authenticated platform E2E tests, PowerShell release smoke gate, CI container builds, dependency vulnerability audits and secret scanning.

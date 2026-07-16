@@ -1,5 +1,7 @@
 namespace Mohandseto.Api.Application.Finance;
 
+public sealed record InvoiceExportFile(byte[] Content, string ContentType, string FileName);
+
 public sealed record InvoiceListDto(Guid Id, string Number, string OrderNumber, string Status, string Type,
     decimal Total, decimal PaidAmount, decimal Outstanding, DateTime IssuedAt, DateTime DueAt, bool IsOverdue);
 public sealed record InvoiceLineDto(Guid Id, string Sku, string Description, int Quantity, decimal UnitPrice,

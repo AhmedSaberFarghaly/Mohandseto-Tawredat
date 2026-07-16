@@ -19,5 +19,11 @@ void main() {
     expect(find.text('مرحبًا بعودتك'), findsOneWidget);
     expect(find.text('إرسال رمز التحقق'), findsOneWidget);
     expect(find.text('المتابعة باستخدام Google'), findsOneWidget);
+    final loginContext = tester.element(find.text('مرحبًا بعودتك'));
+    expect(MediaQuery.textScalerOf(loginContext).scale(10), closeTo(14, 0.01));
+    expect(
+      Theme.of(loginContext).textTheme.bodyMedium?.fontFamily,
+      'IBMPlexSansArabic',
+    );
   });
 }

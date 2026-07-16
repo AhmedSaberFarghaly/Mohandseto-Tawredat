@@ -126,6 +126,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddSingleton<IExternalIdentityVerifier, ExternalIdentityVerifier>();
 builder.Services.AddScoped<CatalogService>();
 builder.Services.AddScoped<AdminCatalogOperationsService>();
 builder.Services.AddScoped<CartService>();

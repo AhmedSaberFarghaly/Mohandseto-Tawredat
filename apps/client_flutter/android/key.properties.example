@@ -1,0 +1,5 @@
+# Copy to key.properties (ignored by Git) and replace with the production keystore values.
+storeFile=C:/secure/mohandseto-upload.jks
+storePassword=replace-me
+keyAlias=mohandseto-upload
+keyPassword=replace-me

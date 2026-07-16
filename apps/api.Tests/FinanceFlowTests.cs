@@ -49,7 +49,13 @@ public sealed class FinanceFlowTests : IDisposable
         var list = await service.ListAsync("Issued", "FIN", null, null); Assert.Single(list); Assert.Equal(1160, list[0].Outstanding);
         var detail = await service.DetailAsync(invoice.Id); Assert.Equal("TAX-123", detail.SellerTaxNumber); Assert.Single(detail.Lines); Assert.Contains("EGS|", detail.ElectronicQrPayload);
         var pdf = await service.PdfAsync(invoice.Id); Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(pdf));
-        var xlsx = await service.ExportAsync(null, null, null); Assert.Equal("PK", System.Text.Encoding.ASCII.GetString(xlsx, 0, 2));
+        var xlsx = await service.ExportFileAsync("Issued", DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), "xlsx");
+        Assert.Equal("PK", System.Text.Encoding.ASCII.GetString(xlsx.Content, 0, 2)); Assert.EndsWith(".xlsx", xlsx.FileName);
+        var csv = await service.ExportFileAsync("Issued", null, null, "csv");
+        Assert.Equal(new byte[] { 0xEF, 0xBB, 0xBF }, csv.Content[..3]); Assert.Contains(invoice.Number, System.Text.Encoding.UTF8.GetString(csv.Content));
+        var exportedPdf = await service.ExportFileAsync("Issued", null, null, "pdf");
+        Assert.StartsWith("%PDF", System.Text.Encoding.ASCII.GetString(exportedPdf.Content));
+        await Assert.ThrowsAsync<Mohandseto.Api.Application.Common.ApiException>(() => service.ExportFileAsync(null, null, null, "docx"));
         var summary = await service.SummaryAsync(); Assert.Equal(50000, summary.CreditLimit); Assert.Equal(1160, summary.Outstanding);
 
         var started = await service.StartPaymentAsync(userId, invoice.Id, new StartInvoicePaymentDto(1160, "BANK-1")); Assert.Equal("EG-IBAN-TEST", started.Iban);

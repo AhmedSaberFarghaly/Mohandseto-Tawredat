@@ -15,6 +15,20 @@ public record PasswordResetRequestResultDto(
     string? MaskedPhone,
     string? DevelopmentCode);
 
+public record ExternalProviderDto(string Code, string DisplayName, bool Enabled);
+public record ExternalAuthStartDto(string Provider);
+public record ExternalAuthChallengeDto(
+    string Provider,
+    string ClientId,
+    string DiscoveryUrl,
+    string RedirectUrl,
+    IReadOnlyList<string> Scopes,
+    string ChallengeToken,
+    DateTime ExpiresAt,
+    string? IosClientId);
+public record ExternalLoginDto(string Provider, string IdToken, string ChallengeToken);
+public record LinkedExternalIdentityDto(string Provider, string? Email, DateTime LinkedAt, DateTime LastLoginAt);
+
 public record RegisterCompanyDto(
     string Phone,
     string OtpCode,
@@ -50,4 +64,6 @@ public record AuthResultDto(
     bool RequiresTwoFactor = false,
     string? ChallengeToken = null,
     DateTime? ChallengeExpiresAt = null,
-    string? DevelopmentCode = null);
+    string? DevelopmentCode = null,
+    string? PrefillEmail = null,
+    string? PrefillName = null);

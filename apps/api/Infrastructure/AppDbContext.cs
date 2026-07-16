@@ -35,6 +35,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<ExternalIdentity> ExternalIdentities => Set<ExternalIdentity>();
+    public DbSet<ExternalAuthChallenge> ExternalAuthChallenges => Set<ExternalAuthChallenge>();
     public DbSet<UserAccessScope> UserAccessScopes => Set<UserAccessScope>();
     public DbSet<LoginAudit> LoginAudits => Set<LoginAudit>();
     public DbSet<TwoFactorChallenge> TwoFactorChallenges => Set<TwoFactorChallenge>();
@@ -209,6 +211,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<UserAccessScope>().HasIndex(x => new { x.UserId, x.ScopeType, x.ScopeId }).IsUnique();
         b.Entity<LoginAudit>().HasIndex(x => new { x.UserId, x.CreatedAt });
         b.Entity<LoginAudit>().HasIndex(x => new { x.Succeeded, x.CreatedAt });
+        b.Entity<ExternalIdentity>().HasIndex(x => new { x.Provider, x.Subject }).IsUnique();
+        b.Entity<ExternalIdentity>().HasIndex(x => new { x.UserId, x.Provider }).IsUnique();
+        b.Entity<ExternalAuthChallenge>().HasIndex(x => x.TokenHash).IsUnique();
+        b.Entity<ExternalAuthChallenge>().HasIndex(x => new { x.ExpiresAt, x.Consumed });
         b.Entity<SavedReport>().HasIndex(x => new { x.OwnerUserId, x.Name });
         b.Entity<SavedReport>().HasIndex(x => new { x.IsScheduleActive, x.NextRunAt });
         b.Entity<ReportRun>().HasIndex(x => new { x.SavedReportId, x.StartedAt });
@@ -386,6 +392,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
         b.Entity<Company>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Tenant>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
+        b.Entity<ExternalIdentity>().HasQueryFilter(e => !e.IsDeleted && !e.User.IsDeleted);
+        b.Entity<ExternalAuthChallenge>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
         b.Entity<Brand>().HasQueryFilter(e => !e.IsDeleted);

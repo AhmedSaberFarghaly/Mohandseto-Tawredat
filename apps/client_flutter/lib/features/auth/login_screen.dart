@@ -22,6 +22,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _loading = false;
   bool _obscure = true;
   String? _error;
+  Map<String, ExternalProviderModel> _providers = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProviders();
+  }
+
+  Future<void> _loadProviders() async {
+    try {
+      final items = await ref.read(authRepositoryProvider).externalProviders();
+      if (mounted) {
+        setState(
+          () => _providers = {for (final item in items) item.code: item},
+        );
+      }
+    } catch (_) {
+      // Email and phone login remain available when provider discovery is unavailable.
+    }
+  }
 
   @override
   void dispose() {
@@ -75,6 +95,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String _destination(String? status) =>
       status == null || status == 'Active' ? '/home' : '/verification';
+
+  Future<void> _social(String provider) async {
+    final configured = _providers[provider]?.enabled == true;
+    if (!configured) {
+      setState(
+        () => _error =
+            'تسجيل الدخول عبر ${provider == 'google' ? 'Google' : 'Microsoft'} ينتظر إعداد بيانات المزود. استخدم البريد أو الهاتف حاليًا.',
+      );
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final result = await ref
+          .read(authRepositoryProvider)
+          .loginWithExternalProvider(provider);
+      if (result == null) return;
+      if (result.requiresTwoFactor && result.challengeToken != null) {
+        if (mounted) context.push('/two-factor-login', extra: result);
+        return;
+      }
+      if (result.isNewUser) {
+        if (result.prefillEmail != null) _email.text = result.prefillEmail!;
+        if (mounted) {
+          setState(() {
+            _emailMode = true;
+            _error =
+                'الحساب الخارجي موثّق لكنه غير مرتبط بحساب شركة. سجّل بالبريد مرة واحدة أو أنشئ حساب شركة ثم اربطه من إعدادات الأمان.';
+          });
+        }
+        return;
+      }
+      ref.read(currentUserProvider.notifier).setUser(result.user);
+      if (mounted) context.go(_destination(result.user?.tenantStatus));
+    } catch (error) {
+      if (mounted) setState(() => _error = error.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => AuthShell(
@@ -181,13 +243,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           const SizedBox(height: 18),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: _loading ? null : () => _social('google'),
             icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
             label: const Text('المتابعة باستخدام Google'),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: _loading ? null : () => _social('microsoft'),
             icon: const Icon(Icons.window_rounded, size: 20),
             label: const Text('المتابعة باستخدام Microsoft'),
           ),
