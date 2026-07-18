@@ -53,77 +53,164 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     body: Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D1F3F), AppColors.splashNavy, Color(0xFF0A1A33)],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [Color(0xFF0754D5), AppColors.primaryDark, Color(0xFF061B43)],
         ),
       ),
       child: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            const Spacer(flex: 3),
-            Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(AppRadius.xl),
-              ),
-              child: const Icon(
-                Icons.inventory_2_rounded,
-                color: Colors.white,
-                size: 44,
-              ),
+            Positioned(
+              top: -80,
+              left: -70,
+              child: _SplashOrb(size: 230, opacity: .08),
             ),
-            const SizedBox(height: AppSpacing.xxl),
-            Text(
-              'مهندسيتو توريدات',
-              style: const TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-              ),
+            Positioned(
+              bottom: 70,
+              right: -85,
+              child: _SplashOrb(size: 250, opacity: .06),
             ),
-            Text(
-              'Mohandseto Tawredat',
-              style: const TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                color: Colors.white60,
-                fontSize: 12,
-              ),
+            Column(
+              children: [
+                const Spacer(flex: 3),
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(27),
+                    boxShadow: AppShadows.floating,
+                  ),
+                  child: const Icon(
+                    Icons.storefront_rounded,
+                    color: AppColors.primary,
+                    size: 49,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+                const Text(
+                  'مهندسيتو توريدات',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.white,
+                    fontSize: 27,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Mohandseto Tawredat',
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.white60,
+                    fontSize: 11,
+                    letterSpacing: .5,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                const Text(
+                  'تجارة أسهل لشركتك، من الطلب حتى التوصيل',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 17),
+                const Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 9,
+                  runSpacing: 8,
+                  children: [
+                    _SplashFeature(Icons.verified_outlined, 'موردون موثوقون'),
+                    _SplashFeature(Icons.flash_on_outlined, 'طلب أسرع'),
+                    _SplashFeature(Icons.route_outlined, 'تتبع مباشر'),
+                  ],
+                ),
+                const Spacer(flex: 3),
+                const SizedBox(
+                  width: 110,
+                  child: LinearProgressIndicator(
+                    minHeight: 4,
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                    backgroundColor: Colors.white12,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const Text(
+                  'تجهيز تجربة الشراء الخاصة بك',
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.white54,
+                    fontSize: 9.5,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'v0.2.0',
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    color: Colors.white38,
+                    fontSize: 9,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+              ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'كل احتياجات شركتك... في مكان واحد',
-              style: TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                color: Colors.white.withValues(alpha: .85),
-                fontSize: 14,
-              ),
-            ),
-            const Spacer(flex: 3),
-            const SizedBox(
-              width: 96,
-              child: LinearProgressIndicator(
-                minHeight: 4,
-                backgroundColor: Colors.white12,
-                color: AppColors.primaryLight,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'v0.2.0',
-              style: const TextStyle(
-                fontFamily: AppTheme.fontFamily,
-                color: Colors.white38,
-                fontSize: 10,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
           ],
         ),
       ),
+    ),
+  );
+}
+
+class _SplashOrb extends StatelessWidget {
+  const _SplashOrb({required this.size, required this.opacity});
+  final double size, opacity;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withValues(alpha: opacity),
+    ),
+  );
+}
+
+class _SplashFeature extends StatelessWidget {
+  const _SplashFeature(this.icon, this.label);
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: .1),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      border: Border.all(color: Colors.white.withValues(alpha: .12)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white, size: 15),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 8.5,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     ),
   );
 }

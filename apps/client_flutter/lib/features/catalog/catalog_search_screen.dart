@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/catalog_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -47,6 +48,7 @@ class _CatalogSearchScreenState extends ConsumerState<CatalogSearchScreen> {
         ? null
         : ref.watch(searchSuggestionsProvider(_query));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         titleSpacing: 0,
         title: TextField(
@@ -87,7 +89,7 @@ class _CatalogSearchScreenState extends ConsumerState<CatalogSearchScreen> {
               },
             )
           : suggestions!.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ListSkeleton(),
               error: (error, _) =>
                   Center(child: Text('تعذر تحميل الاقتراحات: $error')),
               data: (items) => ListView(
@@ -103,18 +105,26 @@ class _CatalogSearchScreenState extends ConsumerState<CatalogSearchScreen> {
                   ),
                   const SizedBox(height: 8),
                   ...items.map(
-                    (item) => ListTile(
-                      leading: const Icon(
-                        Icons.search_rounded,
-                        color: AppColors.gray400,
+                    (item) => Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: AppColors.gray150),
                       ),
-                      title: Text(item),
-                      trailing: const Icon(
-                        Icons.north_west_rounded,
-                        color: AppColors.gray400,
-                        size: 18,
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.primary,
+                        ),
+                        title: Text(item),
+                        trailing: const Icon(
+                          Icons.north_west_rounded,
+                          color: AppColors.gray400,
+                          size: 18,
+                        ),
+                        onTap: () => _submit(item),
                       ),
-                      onTap: () => _submit(item),
                     ),
                   ),
                   if (items.isEmpty)
@@ -158,7 +168,7 @@ class _RecentSearches extends StatelessWidget {
           const Expanded(
             child: Text(
               'عمليات البحث الأخيرة',
-              style: TextStyle(fontWeight: FontWeight.w800),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
           if (recent.value?.isNotEmpty == true)
@@ -195,7 +205,7 @@ class _RecentSearches extends StatelessWidget {
       const SizedBox(height: 24),
       const Text(
         'أكثر ما يبحث عنه عملاؤنا',
-        style: TextStyle(fontWeight: FontWeight.w800),
+        style: TextStyle(fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 12),
       Wrap(

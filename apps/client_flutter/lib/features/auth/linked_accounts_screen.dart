@@ -75,6 +75,7 @@ class _LinkedAccountsScreenState extends ConsumerState<LinkedAccountsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('الحسابات المرتبطة')),
     body: RefreshIndicator(
       onRefresh: _load,
@@ -84,8 +85,13 @@ class _LinkedAccountsScreenState extends ConsumerState<LinkedAccountsScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.infoTint,
-              borderRadius: BorderRadius.circular(16),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFEFF8FF), Color(0xFFEFF3FC)],
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: .1),
+              ),
             ),
             child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +116,18 @@ class _LinkedAccountsScreenState extends ConsumerState<LinkedAccountsScreen> {
             final identity = linked
                 .where((item) => item.provider == provider.code)
                 .firstOrNull;
-            return Card(
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                border: Border.all(
+                  color: identity != null
+                      ? AppColors.success.withValues(alpha: .25)
+                      : AppColors.gray150,
+                ),
+                boxShadow: AppShadows.soft,
+              ),
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: provider.code == 'google'
@@ -128,7 +145,7 @@ class _LinkedAccountsScreenState extends ConsumerState<LinkedAccountsScreen> {
                 ),
                 title: Text(
                   provider.name,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 subtitle: Text(
                   identity != null
@@ -138,8 +155,25 @@ class _LinkedAccountsScreenState extends ConsumerState<LinkedAccountsScreen> {
                       : 'غير مهيأ في بيئة التشغيل',
                 ),
                 trailing: identity != null
-                    ? const Icon(Icons.check_circle, color: AppColors.success)
-                    : const Icon(Icons.chevron_right),
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.successTint,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          'مرتبط',
+                          style: TextStyle(
+                            color: AppColors.success,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.add_link_rounded),
                 onTap: identity == null && !loading
                     ? () => _link(provider)
                     : null,

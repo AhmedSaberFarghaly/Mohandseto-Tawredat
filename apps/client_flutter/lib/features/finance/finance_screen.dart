@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/finance_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -25,6 +26,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: const Text('الفواتير والمدفوعات'),
       actions: [
@@ -52,7 +54,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
   Widget _summary() => ref
       .watch(financeSummaryProvider)
       .when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (e, _) => Center(child: Text('$e')),
         data: (s) => RefreshIndicator(
           onRefresh: () async {
@@ -68,7 +70,8 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                   gradient: const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  boxShadow: AppShadows.floating,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +85,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 30,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -160,7 +163,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                                 title: Text(
                                   i.number,
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -172,8 +175,8 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                                 trailing: Text(
                                   '${money(i.outstanding)} ج.م',
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ),
@@ -201,7 +204,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                             title: Text(
                               '${money(p.amount)} ج.م',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             subtitle: Text(
@@ -210,7 +213,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                             trailing: Text(
                               paymentStatusAr(p.status),
                               style: const TextStyle(
-                                fontSize: 9,
+                                fontSize: 10.5,
                                 color: AppColors.success,
                               ),
                             ),
@@ -244,7 +247,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
         ),
         Expanded(
           child: result.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const ListSkeleton(),
             error: (e, _) => Center(child: Text('$e')),
             data: (items) => items.isEmpty
                 ? const Center(child: Text('لا توجد فواتير'))
@@ -297,7 +300,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
           children: [
             const Text(
               'طلب زيادة الحد الائتماني',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             Text(
               'الحد الحالي ${money(s.creditLimit)} ج.م',
@@ -370,12 +373,12 @@ class InvoiceCard extends StatelessWidget {
                     children: [
                       Text(
                         item.number,
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
                         'طلب ${item.orderNumber}',
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: AppColors.gray500,
                         ),
                       ),
@@ -394,12 +397,15 @@ class InvoiceCard extends StatelessWidget {
                     children: [
                       const Text(
                         'الإجمالي',
-                        style: TextStyle(fontSize: 9, color: AppColors.gray500),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          color: AppColors.gray500,
+                        ),
                       ),
                       Text(
                         '${money(item.total)} ج.م',
                         style: const TextStyle(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.primary,
                         ),
                       ),
@@ -413,7 +419,7 @@ class InvoiceCard extends StatelessWidget {
                       Text(
                         item.overdue ? 'متأخرة' : 'الاستحقاق',
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: item.overdue
                               ? AppColors.error
                               : AppColors.gray500,
@@ -422,8 +428,8 @@ class InvoiceCard extends StatelessWidget {
                       Text(
                         DateFormat('d MMM yyyy', 'ar').format(item.dueAt),
                         style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                           color: item.overdue ? AppColors.error : null,
                         ),
                       ),
@@ -444,6 +450,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: const Text('تفاصيل الفاتورة'),
       actions: [
@@ -460,7 +467,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
     body: ref
         .watch(invoiceDetailProvider(id))
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(),
           error: (e, _) => Center(child: Text('$e')),
           data: (i) => RefreshIndicator(
             onRefresh: () async {
@@ -487,7 +494,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                             child: Text(
                               i.number,
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 17,
                               ),
                             ),
@@ -498,7 +505,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                       Text(
                         'فاتورة ضريبية • ${i.orderNumber}',
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: AppColors.gray500,
                         ),
                       ),
@@ -507,7 +514,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                         '${money(i.outstanding)} ج.م',
                         style: TextStyle(
                           fontSize: 27,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           color: i.status == 'Overdue'
                               ? AppColors.error
                               : AppColors.primary,
@@ -517,7 +524,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                         i.outstanding > 0
                             ? 'المتبقي • الاستحقاق ${DateFormat('d MMMM yyyy', 'ar').format(i.dueAt)}'
                             : 'مدفوعة بالكامل',
-                        style: const TextStyle(fontSize: 10),
+                        style: const TextStyle(fontSize: 11),
                       ),
                     ],
                   ),
@@ -542,19 +549,19 @@ class InvoiceDetailScreen extends ConsumerWidget {
                             Text(
                               'الرقم الضريبي: ${i.sellerTaxNumber}',
                               style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             if (i.etaUuid != null)
                               Text(
                                 'UUID: ${i.etaUuid}',
-                                style: const TextStyle(fontSize: 8),
+                                style: const TextStyle(fontSize: 9.5),
                               ),
                             const Text(
                               'امسح الرمز للتحقق من الفاتورة',
                               style: TextStyle(
-                                fontSize: 9,
+                                fontSize: 10.5,
                                 color: AppColors.gray500,
                               ),
                             ),
@@ -577,7 +584,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                               x.description,
                               style: const TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             subtitle: Text(
@@ -586,8 +593,8 @@ class InvoiceDetailScreen extends ConsumerWidget {
                             trailing: Text(
                               '${money(x.total)} ج.م',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
                               ),
                             ),
                           ),
@@ -636,7 +643,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
                               title: Text(
                                 '${money(p.amount)} ج.م',
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               subtitle: Text(
@@ -786,7 +793,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
           children: [
             const Text(
               'بيانات التحويل',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 10),
             InfoRow('البنك', start.bankName),
@@ -875,14 +882,14 @@ class CreditCard extends StatelessWidget {
                 children: [
                   const Text(
                     'المتاح',
-                    style: TextStyle(fontSize: 9, color: AppColors.gray500),
+                    style: TextStyle(fontSize: 10.5, color: AppColors.gray500),
                   ),
                   Text(
                     '${money(summary.creditAvailable)} ج.م',
                     style: const TextStyle(
                       fontSize: 21,
                       color: AppColors.primary,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -902,8 +909,8 @@ class CreditCard extends StatelessWidget {
                   Text(
                     '${summary.utilization.round()}%',
                     style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -922,12 +929,12 @@ class CreditCard extends StatelessWidget {
           children: [
             Text(
               'مستخدم ${money(summary.creditUsed)}',
-              style: const TextStyle(fontSize: 9),
+              style: const TextStyle(fontSize: 10.5),
             ),
             const Spacer(),
             Text(
               'الإجمالي ${money(summary.creditLimit)}',
-              style: const TextStyle(fontSize: 9),
+              style: const TextStyle(fontSize: 10.5),
             ),
           ],
         ),
@@ -960,10 +967,13 @@ class HeroStat extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(color: Colors.white60, fontSize: 9)),
+      Text(
+        label,
+        style: const TextStyle(color: Colors.white60, fontSize: 10.5),
+      ),
       Text(
         '${money(value)} ج.م',
-        style: TextStyle(color: color, fontWeight: FontWeight.w900),
+        style: TextStyle(color: color, fontWeight: FontWeight.w700),
       ),
     ],
   );
@@ -993,13 +1003,13 @@ class Metric extends StatelessWidget {
             value,
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: color,
             ),
           ),
           Text(
             title,
-            style: const TextStyle(fontSize: 9, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.gray500),
           ),
         ],
       ),
@@ -1028,7 +1038,12 @@ class FinanceSection extends StatelessWidget {
             children: [
               Icon(icon, size: 19, color: AppColors.primary),
               const SizedBox(width: 7),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
           const Divider(height: 22),
@@ -1059,7 +1074,7 @@ class AmountRow extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontWeight: total ? FontWeight.w900 : FontWeight.normal,
+              fontWeight: total ? FontWeight.w700 : FontWeight.normal,
             ),
           ),
         ),
@@ -1067,7 +1082,7 @@ class AmountRow extends StatelessWidget {
           '${value < 0 ? '-' : ''}${money(value.abs())} ج.م',
           style: TextStyle(
             fontSize: total ? 16 : 10,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             color: green
                 ? AppColors.success
                 : total
@@ -1092,14 +1107,14 @@ class InfoRow extends StatelessWidget {
           width: 95,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 9, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.gray500),
           ),
         ),
         Expanded(
           child: SelectableText(
             value,
             textAlign: TextAlign.end,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -1121,7 +1136,7 @@ class InvoiceStatusChip extends StatelessWidget {
       ),
       child: Text(
         invoiceStatusAr(status),
-        style: TextStyle(fontSize: 8, color: c, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 9.5, color: c, fontWeight: FontWeight.w700),
       ),
     );
   }

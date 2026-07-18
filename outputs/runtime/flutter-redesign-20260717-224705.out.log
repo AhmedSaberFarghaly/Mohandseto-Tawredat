@@ -1,0 +1,49 @@
+Launching lib\main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDebug'...                          
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "Windows_NT" == "Windows_NT" setlocal
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set DEFAULT_JVM_OPTS= 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set DIRNAME=E:\Mohandseto Tawrdat\apps\client_flutter\android\ 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "E:\Mohandseto Tawrdat\apps\client_flutter\android\" == "" set DIRNAME=. 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set APP_BASE_NAME=gradlew 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set APP_HOME=E:\Mohandseto Tawrdat\apps\client_flutter\android\ 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set JAVA_HOME=C:\Program Files\Android\Android Studio1\jbr 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set JAVA_EXE=C:\Program Files\Android\Android Studio1\jbr/bin/java.exe 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if exist "C:\Program Files\Android\Android Studio1\jbr/bin/java.exe" goto init 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if not "Windows_NT" == "Windows_NT" goto win9xME_args 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "@eval[2+2]" == "4" goto 4NT_args 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CMD_LINE_ARGS= 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set _SKIP=2 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "x-q" == "x" goto execute 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CMD_LINE_ARGS=-q -Ptarget-platform=android-x64 "-Ptarget=E:\Mohandseto Tawrdat\apps\client_flutter\lib\main.dart" -Pbase-application-name=android.app.Application -Pdart-defines=QVBJX0JBU0VfVVJMPWh0dHA6Ly8xMjcuMC4wLjE6NTE5OQ==,RkxVVFRFUl9WRVJTSU9OPTMuMzIuOA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049ZWRhZGE3YzU2ZQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049ZWYwY2QwMDA5MQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My44LjE= -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>goto execute 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CLASSPATH=E:\Mohandseto Tawrdat\apps\client_flutter\android\\gradle\wrapper\gradle-wrapper.jar 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>"C:\Program Files\Android\Android Studio1\jbr/bin/java.exe"    "-Dorg.gradle.appname=gradlew" -classpath "E:\Mohandseto Tawrdat\apps\client_flutter\android\\gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain -q -Ptarget-platform=android-x64 "-Ptarget=E:\Mohandseto Tawrdat\apps\client_flutter\lib\main.dart" -Pbase-application-name=android.app.Application -Pdart-defines=QVBJX0JBU0VfVVJMPWh0dHA6Ly8xMjcuMC4wLjE6NTE5OQ==,RkxVVFRFUl9WRVJTSU9OPTMuMzIuOA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049ZWRhZGE3YzU2ZQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049ZWYwY2QwMDA5MQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My44LjE= -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "0" == "0" goto mainEnd 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "Windows_NT" == "Windows_NT" endlocal
+Running Gradle task 'assembleDebug'...                             89.6s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           6.2s
+I/flutter (15793): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(94)] Using the Impeller rendering backend (OpenGLES).
+Lost connection to device.

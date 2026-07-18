@@ -36,6 +36,18 @@ class _State extends ConsumerState<TwoFactorLoginScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const Center(
+          child: CircleAvatar(
+            radius: 31,
+            backgroundColor: Color(0xFFECFDF3),
+            child: Icon(
+              Icons.enhanced_encryption_outlined,
+              color: Color(0xFF067647),
+              size: 31,
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
         if (error != null) InlineError(error!),
         TextField(
           controller: code,
@@ -46,11 +58,17 @@ class _State extends ConsumerState<TwoFactorLoginScreen> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(
             labelText: 'رمز التحقق',
+            hintText: '••••••',
             prefixIcon: Icon(Icons.shield_outlined),
+          ),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 6,
           ),
         ),
         const SizedBox(height: 14),
-        FilledButton(
+        FilledButton.icon(
           onPressed: loading
               ? null
               : () async {
@@ -83,7 +101,23 @@ class _State extends ConsumerState<TwoFactorLoginScreen> {
                     if (mounted) setState(() => loading = false);
                   }
                 },
-          child: Text(loading ? 'جارٍ التحقق...' : 'تأكيد الدخول'),
+          icon: loading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.login_rounded),
+          label: Text(loading ? 'جارٍ التحقق...' : 'تأكيد الدخول'),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'هذه الخطوة تحمي حساب الشركة حتى في حالة معرفة كلمة المرور.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Color(0xFF667085), fontSize: 10.5),
         ),
       ],
     ),

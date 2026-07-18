@@ -92,6 +92,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: Text(
         _step == 0
@@ -123,8 +124,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     bottomNavigationBar: _options == null || _error != null ? null : _bottom(),
   );
 
-  Widget _steps() => Padding(
-    padding: const EdgeInsets.fromLTRB(28, 12, 28, 4),
+  Widget _steps() => Container(
+    margin: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+    padding: const EdgeInsets.fromLTRB(16, 13, 16, 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: Row(
       children: [
         _dot(0, 'التوصيل'),
@@ -157,7 +165,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 '${index + 1}',
                 style: TextStyle(
                   color: _step >= index ? Colors.white : AppColors.gray500,
-                  fontSize: 10,
+                  fontSize: 11,
                 ),
               ),
       ),
@@ -165,8 +173,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       Text(
         label,
         style: TextStyle(
-          fontSize: 8,
-          fontWeight: _step == index ? FontWeight.w800 : FontWeight.w400,
+          fontSize: 9.5,
+          fontWeight: _step == index ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
     ],
@@ -177,7 +185,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     children: [
       const Text(
         'الجهة الطالبة والميزانية',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 10),
       DropdownButtonFormField<String>(
@@ -199,7 +207,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           'المتاح: ${_money(_options!.costCenters.firstWhere((x) => x.id == _costCenterId).available)} ج.م',
           style: const TextStyle(
             color: AppColors.success,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -242,7 +250,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       const Divider(height: 30),
       const Text(
         'عناوين شركتكم',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 10),
       ..._options!.branches.map(
@@ -258,7 +266,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             subtitle: Text(branch.address),
             secondary: branch.isMain
                 ? const Chip(
-                    label: Text('الرئيسي', style: TextStyle(fontSize: 8)),
+                    label: Text('الرئيسي', style: TextStyle(fontSize: 9.5)),
                   )
                 : null,
           ),
@@ -317,7 +325,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         contentPadding: EdgeInsets.zero,
         title: const Text(
           'موعد التوصيل',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         subtitle: Text(DateFormat('EEEE، d MMMM yyyy', 'ar').format(_date)),
         trailing: const Icon(Icons.calendar_month_outlined),
@@ -325,7 +333,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       const Text(
         'الفترة الزمنية',
-        style: TextStyle(fontWeight: FontWeight.w800),
+        style: TextStyle(fontWeight: FontWeight.w700),
       ),
       ...['09:00-12:00', '12:00-15:00', '15:00-18:00'].map(
         (slot) => RadioListTile<String>(
@@ -339,7 +347,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       const Divider(height: 28),
       const Text(
         'طريقة الشحن',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
       ...[
         _choice('Standard', 'التوصيل القياسي', 'مجاني فوق 2,000 ج.م'),
@@ -379,7 +387,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     children: [
       const Text(
         'اختر طريقة الدفع',
-        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 10),
       ..._options!.payments.map(
@@ -478,7 +486,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ? 'تم اعتماد الدفع الإلكتروني — ${_paymentAttempt!.reference}'
                       : 'بيانات البطاقة تُعالج عبر رمز آمن ولا تُحفظ على خوادمنا.',
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -509,7 +517,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               const Text(
                 'بيانات التحويل البنكي',
-                style: TextStyle(fontWeight: FontWeight.w900),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Text(
@@ -520,7 +528,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               SelectableText(
                 _options!.bankTransferInstructions?.iban ?? '',
                 style: const TextStyle(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
@@ -710,7 +718,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
           const Divider(),
           child,
         ],
@@ -725,7 +733,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           child: Text(
             name,
             style: TextStyle(
-              fontWeight: strong ? FontWeight.w800 : FontWeight.w400,
+              fontWeight: strong ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
         ),
@@ -733,7 +741,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           '${value < 0 ? '-' : ''}${_money(value.abs())} ج.م',
           style: TextStyle(
             fontSize: strong ? 17 : 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: strong ? AppColors.primary : null,
           ),
         ),
@@ -747,13 +755,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppColors.gray200)),
+        boxShadow: AppShadows.soft,
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(
               '${_money(_review?.total ?? _options!.cart.total)} ج.م',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
           Expanded(
@@ -995,7 +1004,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                 Text(
                                   '${latitude!.toStringAsFixed(5)}, ${longitude!.toStringAsFixed(5)}',
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
@@ -1224,7 +1233,7 @@ class _PaymentNotice extends StatelessWidget {
       children: [
         Icon(icon, color: AppColors.primary),
         const SizedBox(width: 9),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 10))),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 11))),
       ],
     ),
   );
@@ -1235,51 +1244,64 @@ class OrderSuccessScreen extends StatelessWidget {
   final OrderCreated order;
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     body: SafeArea(
       child: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: order.requiresApproval
-                      ? AppColors.warningTint
-                      : AppColors.successTint,
+          padding: const EdgeInsets.all(20),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.xxl),
+              border: Border.all(color: AppColors.gray150),
+              boxShadow: AppShadows.floating,
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 112,
+                  height: 112,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: order.requiresApproval
+                        ? AppColors.warningTint
+                        : AppColors.successTint,
+                  ),
+                  child: Icon(
+                    order.requiresApproval
+                        ? Icons.info_outline_rounded
+                        : Icons.check_rounded,
+                    size: 55,
+                    color: order.requiresApproval
+                        ? AppColors.warning
+                        : AppColors.success,
+                  ),
                 ),
-                child: Icon(
+                const SizedBox(height: 22),
+                Text(
                   order.requiresApproval
-                      ? Icons.info_outline_rounded
-                      : Icons.check_rounded,
-                  size: 55,
-                  color: order.requiresApproval
-                      ? AppColors.warning
-                      : AppColors.success,
+                      ? 'أُرسل الطلب للموافقة'
+                      : 'تم إنشاء طلبك بنجاح!',
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 22),
-              Text(
-                order.requiresApproval
-                    ? 'أُرسل الطلب للموافقة'
-                    : 'تم إنشاء طلبك بنجاح!',
-                style: const TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.w900,
+                const SizedBox(height: 8),
+                Text(
+                  'رقم الطلب ${order.number}\nسنرسل لك تحديثات الحالة أولًا بأول',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.gray500, height: 1.7),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'رقم الطلب ${order.number}\nسنرسل لك تحديثات الحالة أولًا بأول',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.gray500, height: 1.7),
-              ),
-              const SizedBox(height: 18),
-              Card(
-                child: Padding(
+                const SizedBox(height: 18),
+                Container(
                   padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.gray50,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
                   child: Column(
                     children: [
                       _row(
@@ -1302,23 +1324,24 @@ class OrderSuccessScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => context.go('/orders'),
-                  child: const Text('متابعة الطلب'),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => context.go('/orders/${order.id}'),
+                    icon: const Icon(Icons.route_outlined),
+                    label: const Text('تتبع الطلب الآن'),
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => context.go('/home'),
-                  child: const Text('متابعة التسوق'),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => context.go('/home'),
+                    child: const Text('متابعة التسوق'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1331,7 +1354,7 @@ class OrderSuccessScreen extends StatelessWidget {
         Expanded(
           child: Text(label, style: const TextStyle(color: AppColors.gray500)),
         ),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
       ],
     ),
   );

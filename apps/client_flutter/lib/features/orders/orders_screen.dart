@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/order_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -28,82 +29,73 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   Widget build(BuildContext context) {
     final result = ref.watch(orderListProvider(query));
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('طلباتي'),
-        actions: [
-          IconButton(
-            onPressed: () => context.push('/finance'),
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            tooltip: 'الفواتير والمدفوعات',
-          ),
-          IconButton(
-            onPressed: () => context.push('/returns'),
-            icon: const Icon(Icons.assignment_return_outlined),
-            tooltip: 'مركز المرتجعات',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-            child: TextField(
-              controller: search,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: 'ابحث برقم الطلب',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: search.text.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: () {
-                          search.clear();
-                          setState(() {});
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _OrdersHeader(count: result.value?.length),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+              child: TextField(
+                controller: search,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'ابحث برقم الطلب أو المنتج',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: search.text.isEmpty
+                      ? null
+                      : IconButton(
+                          onPressed: () {
+                            search.clear();
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                ),
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) => setState(() {}),
+              ),
+            ),
+            SizedBox(
+              height: 48,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _filter('كل الطلبات', null),
+                  _filter('قيد المراجعة', 'PendingApproval'),
+                  _filter('قيد التجهيز', 'Processing'),
+                  _filter('تم الشحن', 'Shipped'),
+                  _filter('قيد التوصيل', 'OutForDelivery'),
+                  _filter('مكتمل', 'Delivered'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: result.when(
+                loading: () => const ListSkeleton(),
+                error: (e, _) => _Error(
+                  error: e,
+                  retry: () => ref.invalidate(orderListProvider(query)),
+                ),
+                data: (items) => items.isEmpty
+                    ? const _Empty()
+                    : RefreshIndicator(
+                        onRefresh: () async {
+                          ref.invalidate(orderListProvider(query));
+                          await ref.read(orderListProvider(query).future);
                         },
-                        icon: const Icon(Icons.close),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 110),
+                          itemCount: items.length,
+                          itemBuilder: (_, i) => _OrderCard(order: items[i]),
+                        ),
                       ),
               ),
-              onSubmitted: (_) => setState(() {}),
             ),
-          ),
-          SizedBox(
-            height: 44,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _filter('الكل', null),
-                _filter('قيد المراجعة', 'PendingApproval'),
-                _filter('قيد التجهيز', 'Processing'),
-                _filter('تم الشحن', 'Shipped'),
-                _filter('قيد التوصيل', 'OutForDelivery'),
-                _filter('مكتمل', 'Delivered'),
-              ],
-            ),
-          ),
-          Expanded(
-            child: result.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => _Error(
-                error: e,
-                retry: () => ref.invalidate(orderListProvider(query)),
-              ),
-              data: (items) => items.isEmpty
-                  ? const _Empty()
-                  : RefreshIndicator(
-                      onRefresh: () async {
-                        ref.invalidate(orderListProvider(query));
-                        await ref.read(orderListProvider(query).future);
-                      },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
-                        itemCount: items.length,
-                        itemBuilder: (_, i) => _OrderCard(order: items[i]),
-                      ),
-                    ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -118,17 +110,68 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   );
 }
 
+class _OrdersHeader extends StatelessWidget {
+  const _OrdersHeader({this.count});
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+    child: Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'طلباتي',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                count == null ? 'تابع مشتريات شركتك' : '$count طلب في القائمة',
+                style: const TextStyle(
+                  color: AppColors.gray500,
+                  fontSize: 10.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton.filledTonal(
+          onPressed: () => context.push('/finance'),
+          icon: const Icon(Icons.account_balance_wallet_outlined),
+          tooltip: 'الفواتير والمدفوعات',
+        ),
+        const SizedBox(width: 7),
+        IconButton.filledTonal(
+          onPressed: () => context.push('/returns'),
+          icon: const Icon(Icons.assignment_return_outlined),
+          tooltip: 'مركز المرتجعات',
+        ),
+      ],
+    ),
+  );
+}
+
 class _OrderCard extends StatelessWidget {
   const _OrderCard({required this.order});
   final OrderListItem order;
   @override
-  Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.only(bottom: 12),
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(AppRadius.xl),
       onTap: () => context.push('/orders/${order.id}'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -139,9 +182,9 @@ class _OrderCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        order.number,
+                        'طلب #${order.number}',
                         style: const TextStyle(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           fontSize: 14,
                         ),
                       ),
@@ -149,7 +192,7 @@ class _OrderCard extends StatelessWidget {
                         DateFormat('d MMMM yyyy', 'ar').format(order.createdAt),
                         style: const TextStyle(
                           color: AppColors.gray500,
-                          fontSize: 10,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -158,7 +201,17 @@ class _OrderCard extends StatelessWidget {
                 _Status(status: order.status),
               ],
             ),
-            const Divider(height: 24),
+            const SizedBox(height: 13),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: _orderProgress(order.status),
+                minHeight: 6,
+                backgroundColor: AppColors.gray150,
+                color: statusColor(order.status),
+              ),
+            ),
+            const SizedBox(height: 14),
             Row(
               children: [
                 const Icon(
@@ -169,7 +222,7 @@ class _OrderCard extends StatelessWidget {
                 Text(
                   ' ${order.itemCount} أصناف',
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: AppColors.gray500,
                   ),
                 ),
@@ -182,13 +235,13 @@ class _OrderCard extends StatelessWidget {
                 Text(
                   ' ${DateFormat('d MMM', 'ar').format(order.requiredDate)}',
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: AppColors.gray500,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 13),
+            const Divider(height: 24),
             Row(
               children: [
                 Expanded(
@@ -197,20 +250,46 @@ class _OrderCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       color: AppColors.primary,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                if (order.canTrack)
-                  const Text(
-                    'تتبع الشحنة  ',
-                    style: TextStyle(
-                      color: AppColors.success,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
+                if (order.canTrack) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.successTint,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.location_searching_rounded,
+                          color: AppColors.success,
+                          size: 16,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'تتبع الشحنة',
+                          style: TextStyle(
+                            color: AppColors.success,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                const Icon(Icons.arrow_forward_ios, size: 13),
+                ] else
+                  const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppColors.gray400,
+                    size: 14,
+                  ),
               ],
             ),
           ],
@@ -220,6 +299,18 @@ class _OrderCard extends StatelessWidget {
   );
 }
 
+double _orderProgress(String status) => switch (status) {
+  'PendingApproval' => .12,
+  'Confirmed' => .24,
+  'Processing' || 'Picking' => .42,
+  'Packing' => .58,
+  'Shipped' => .72,
+  'OutForDelivery' => .88,
+  'Delivered' || 'Completed' => 1,
+  'Cancelled' => 1,
+  _ => .2,
+};
+
 class OrderDetailScreen extends ConsumerWidget {
   const OrderDetailScreen({super.key, required this.id});
   final String id;
@@ -227,9 +318,19 @@ class OrderDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(orderDetailProvider(id));
     return Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل الطلب')),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('تتبع الطلب'),
+        actions: [
+          IconButton(
+            tooltip: 'مركز الدعم',
+            onPressed: () => context.push('/support'),
+            icon: const Icon(Icons.support_agent_outlined),
+          ),
+        ],
+      ),
       body: result.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (e, _) => _Error(
           error: e,
           retry: () => ref.invalidate(orderDetailProvider(id)),
@@ -243,6 +344,8 @@ class OrderDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
             children: [
               _Hero(order: o),
+              const SizedBox(height: 14),
+              _OrderJourney(order: o),
               const SizedBox(height: 14),
               _Timeline(order: o),
               if (o.shipments.isNotEmpty) ...[
@@ -282,26 +385,58 @@ class _Hero extends StatelessWidget {
   final OrderDetailModel order;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(18),
+    padding: const EdgeInsets.all(19),
     decoration: BoxDecoration(
       gradient: const LinearGradient(
         colors: [AppColors.primary, AppColors.primaryDark],
       ),
       borderRadius: BorderRadius.circular(20),
+      boxShadow: AppShadows.floating,
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .14),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                order.number,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'طلب #${order.number}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  Text(
+                    DateFormat('d MMMM yyyy، h:mm a', 'ar').format(
+                      (order.history.firstOrNull?.at ?? order.requiredDate)
+                          .toLocal(),
+                    ),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 9.5,
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(
@@ -314,8 +449,8 @@ class _Hero extends StatelessWidget {
                 statusAr(order.status),
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -327,16 +462,114 @@ class _Hero extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 26,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         Text(
-          '${order.items.length} أصناف • التسليم ${DateFormat('d MMMM yyyy', 'ar').format(order.requiredDate)}',
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
+          '${order.items.length} أصناف  •  التسليم المتوقع ${DateFormat('d MMMM yyyy', 'ar').format(order.requiredDate)}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white70, fontSize: 11),
         ),
       ],
     ),
   );
+}
+
+class _OrderJourney extends StatelessWidget {
+  const _OrderJourney({required this.order});
+  final OrderDetailModel order;
+
+  static const _stages = [
+    (Icons.check_circle_outline_rounded, 'تم التأكيد'),
+    (Icons.inventory_2_outlined, 'التجهيز'),
+    (Icons.local_shipping_outlined, 'الشحن'),
+    (Icons.home_work_outlined, 'التسليم'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = _orderProgress(order.status);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: AppColors.gray150),
+        boxShadow: AppShadows.soft,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                'رحلة طلبك',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              ),
+              const Spacer(),
+              Text(
+                '${(progress * 100).round()}%',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 7,
+              backgroundColor: AppColors.gray150,
+              color: statusColor(order.status),
+            ),
+          ),
+          const SizedBox(height: 13),
+          Row(
+            children: _stages.indexed.map((entry) {
+              final reached = progress >= ((entry.$1 + 1) / 4);
+              return Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: reached
+                            ? AppColors.primaryTint
+                            : AppColors.gray100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        entry.$2.$1,
+                        color: reached ? AppColors.primary : AppColors.gray400,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      entry.$2.$2,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: reached ? AppColors.gray800 : AppColors.gray400,
+                        fontSize: 8.5,
+                        fontWeight: reached ? FontWeight.w700 : FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Timeline extends StatelessWidget {
@@ -387,20 +620,20 @@ class _Timeline extends StatelessWidget {
                   children: [
                     Text(
                       statusAr(h.status),
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     if (h.note != null)
                       Text(
                         h.note!,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 11,
                           color: AppColors.gray500,
                         ),
                       ),
                     Text(
                       DateFormat('d MMM، h:mm a', 'ar').format(h.at.toLocal()),
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10.5,
                         color: AppColors.gray400,
                       ),
                     ),
@@ -419,9 +652,14 @@ class _Shipment extends StatelessWidget {
   const _Shipment({required this.shipment});
   final ShipmentModel shipment;
   @override
-  Widget build(BuildContext context) => Card(
-    color: AppColors.primaryTint,
+  Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -440,12 +678,12 @@ class _Shipment extends StatelessWidget {
                   children: [
                     Text(
                       'الشحنة ${shipment.number}',
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       '${shipment.carrier}${shipment.trackingNumber == null ? '' : ' • ${shipment.trackingNumber}'}',
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10.5,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -455,13 +693,51 @@ class _Shipment extends StatelessWidget {
               _Status(status: shipment.status),
             ],
           ),
+          if (shipment.status == 'OutForDelivery') ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              decoration: BoxDecoration(
+                color: AppColors.successTint,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  SizedBox(
+                    width: 8,
+                    height: 8,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 7),
+                  Text(
+                    'تحديث مباشر لموقع الشحنة',
+                    style: TextStyle(
+                      color: AppColors.success,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (shipment.latitude != null) ...[
             const SizedBox(height: 14),
             Container(
-              height: 125,
+              height: 155,
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: const Color(0xFFE2E9EF),
-                borderRadius: BorderRadius.circular(14),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEAF2FF), Color(0xFFDDE8F2)],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Stack(
                 children: [
@@ -477,14 +753,21 @@ class _Shipment extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    bottom: 7,
-                    left: 7,
+                    bottom: 9,
+                    left: 9,
                     child: Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(9),
+                        boxShadow: AppShadows.soft,
+                      ),
                       child: Text(
                         '${shipment.latitude!.toStringAsFixed(4)}, ${shipment.longitude!.toStringAsFixed(4)}',
-                        style: const TextStyle(fontSize: 8),
+                        style: const TextStyle(fontSize: 9.5),
                       ),
                     ),
                   ),
@@ -504,12 +787,12 @@ class _Shipment extends StatelessWidget {
                     children: [
                       Text(
                         shipment.driverName!,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
                         shipment.driverPhone ?? '',
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: AppColors.gray500,
                         ),
                       ),
@@ -524,8 +807,11 @@ class _Shipment extends StatelessWidget {
                       ),
                     ),
                   ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.primaryTint,
+                  ),
                   icon: const Icon(
-                    Icons.phone_outlined,
+                    Icons.phone_rounded,
                     color: AppColors.primary,
                   ),
                 ),
@@ -539,8 +825,8 @@ class _Shipment extends StatelessWidget {
                 Text(
                   ' الوصول المتوقع ${DateFormat('h:mm a', 'ar').format(shipment.eta!.toLocal())}',
                   style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -567,7 +853,7 @@ class _Shipment extends StatelessWidget {
                             Text(
                               e.description,
                               style: const TextStyle(
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -575,7 +861,7 @@ class _Shipment extends StatelessWidget {
                               Text(
                                 e.location!,
                                 style: const TextStyle(
-                                  fontSize: 8,
+                                  fontSize: 9.5,
                                   color: AppColors.gray500,
                                 ),
                               ),
@@ -650,12 +936,12 @@ class _Line extends StatelessWidget {
                 maxLines: 2,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 '${line.sku} • الكمية ${line.quantity}',
-                style: const TextStyle(fontSize: 8, color: AppColors.gray500),
+                style: const TextStyle(fontSize: 9.5, color: AppColors.gray500),
               ),
               if (line.rating != null) _Stars(value: line.rating!),
             ],
@@ -663,7 +949,7 @@ class _Line extends StatelessWidget {
         ),
         Text(
           '${money(line.total)} ج.م',
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
         ),
       ],
     ),
@@ -811,16 +1097,16 @@ class _Issues extends StatelessWidget {
                 issueAr(i.type),
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               subtitle: Text(i.description, maxLines: 2),
               trailing: Text(
                 issueStatusAr(i.status),
                 style: const TextStyle(
-                  fontSize: 9,
+                  fontSize: 10.5,
                   color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -1021,7 +1307,7 @@ Future<void> cancelDialog(
           children: [
             const Text(
               'إلغاء الطلب',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const Text(
               'الإلغاء متاح قبل الشحن فقط',
@@ -1088,7 +1374,7 @@ Future<void> scheduleDialog(
           children: [
             const Text(
               'جدولة طلب متكرر',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField(
@@ -1247,7 +1533,7 @@ Future<void> issueDialog(
             children: [
               const Text(
                 'الإبلاغ عن مشكلة',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -1362,7 +1648,7 @@ Future<void> ratingDialog(
           children: [
             const Text(
               'قيّم تجربتك',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             const Text('التوصيل', textAlign: TextAlign.center),
@@ -1413,7 +1699,13 @@ class Section extends StatelessWidget {
   final IconData icon;
   final Widget child;
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1427,7 +1719,7 @@ class Section extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -1469,12 +1761,15 @@ class Info extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 9, color: AppColors.gray500),
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  color: AppColors.gray500,
+                ),
               ),
             ],
           ),
@@ -1504,7 +1799,7 @@ class Amount extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontWeight: total ? FontWeight.w900 : FontWeight.normal,
+              fontWeight: total ? FontWeight.w700 : FontWeight.normal,
             ),
           ),
         ),
@@ -1512,7 +1807,7 @@ class Amount extends StatelessWidget {
           '${value < 0 ? '-' : ''}${money(value.abs())} ج.م',
           style: TextStyle(
             fontSize: total ? 17 : 11,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             color: green
                 ? AppColors.success
                 : total
@@ -1578,8 +1873,8 @@ class _Status extends StatelessWidget {
       child: Text(
         statusAr(status),
         style: TextStyle(
-          fontSize: 8,
-          fontWeight: FontWeight.w800,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
           color: color,
         ),
       ),
@@ -1600,7 +1895,7 @@ class _Empty extends StatelessWidget {
           SizedBox(height: 12),
           Text(
             'لا توجد طلبات بعد',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           Text(
             'عند إتمام أول طلب سيظهر هنا ويمكنك متابعة كل تفاصيله',

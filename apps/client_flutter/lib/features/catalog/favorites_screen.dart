@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/api/catalog_repository.dart';
 import '../../core/theme/app_tokens.dart';
@@ -12,7 +13,14 @@ class FavoritesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('المفضلة')),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(
+          favorites.value == null
+              ? 'المفضلة'
+              : 'المفضلة (${favorites.value!.length})',
+        ),
+      ),
       body: favorites.when(
         loading: () => const CatalogLoading(message: 'جاري تحميل المفضلة...'),
         error: (error, _) => CatalogError(
@@ -21,30 +29,36 @@ class FavoritesScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.favorite_border_rounded,
                       size: 78,
                       color: AppColors.gray300,
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'قائمة المفضلة فارغة',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(height: 6),
-                    Text(
+                    const SizedBox(height: 6),
+                    const Text(
                       'اضغط على علامة القلب لحفظ المنتجات والرجوع إليها بسهولة',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.gray500, height: 1.6),
+                    ),
+                    const SizedBox(height: 18),
+                    FilledButton.icon(
+                      onPressed: () => context.go('/products'),
+                      icon: const Icon(Icons.storefront_outlined),
+                      label: const Text('اكتشف المنتجات'),
                     ),
                   ],
                 ),
@@ -58,7 +72,7 @@ class FavoritesScreen extends ConsumerWidget {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: .63,
+              childAspectRatio: .56,
             ),
             itemBuilder: (context, index) => CatalogProductCard(
               product: items[index],

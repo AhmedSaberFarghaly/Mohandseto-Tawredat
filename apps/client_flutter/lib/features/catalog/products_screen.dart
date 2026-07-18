@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/api/catalog_repository.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/widgets/skeleton.dart';
 import 'catalog_widgets.dart';
 
 class ProductsScreen extends ConsumerStatefulWidget {
@@ -30,39 +31,106 @@ class ProductsScreen extends ConsumerStatefulWidget {
 class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   late CatalogQuery _query;
   late final TextEditingController _search;
+  late final ScrollController _scroll;
   bool _grid = true;
   Timer? _debounce;
+
+  final List<CatalogProduct> _items = [];
+  int _total = 0;
+  bool _loadingMore = false;
+  bool _initialLoading = true;
+  bool _hasMore = true;
+  Object? _error;
+  int _requestId = 0;
 
   @override
   void initState() {
     super.initState();
     _search = TextEditingController(text: widget.initialQuery);
+    _scroll = ScrollController()..addListener(_onScroll);
     _query = CatalogQuery(
       categoryId: widget.categoryId,
       q: widget.initialQuery,
       sort: widget.initialSort ?? 'featured',
       featured: widget.featured,
     );
+    _load(reset: true);
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _search.dispose();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_hasMore || _loadingMore || _initialLoading) return;
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 400) {
+      _load();
+    }
+  }
+
+  Future<void> _load({bool reset = false}) async {
+    final requestId = ++_requestId;
+    if (reset) {
+      setState(() {
+        _initialLoading = _items.isEmpty;
+        _loadingMore = _items.isNotEmpty;
+        _error = null;
+        _query = _query.copyWith(page: 1);
+      });
+    } else {
+      setState(() {
+        _loadingMore = true;
+        _query = _query.copyWith(page: _query.page + 1);
+      });
+    }
+    try {
+      final page = await ref.read(catalogRepositoryProvider).products(_query);
+      if (!mounted || requestId != _requestId) return;
+      setState(() {
+        if (reset) _items.clear();
+        _items.addAll(page.items);
+        _total = page.total;
+        _hasMore = page.page < page.totalPages;
+        _initialLoading = false;
+        _loadingMore = false;
+      });
+    } catch (error) {
+      if (!mounted || requestId != _requestId) return;
+      setState(() {
+        _error = error;
+        _initialLoading = false;
+        _loadingMore = false;
+      });
+    }
+  }
+
+  void _applyQuery(CatalogQuery query) {
+    _query = query;
+    _load(reset: true);
   }
 
   void _searchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 450), () {
-      if (mounted) setState(() => _query = _query.copyWith(q: value, page: 1));
+      if (mounted) _applyQuery(_query.copyWith(q: value, page: 1));
     });
   }
 
+  int get _activeFilterCount => [
+    _query.stock,
+    _query.brandId,
+    _query.minPrice,
+    _query.maxPrice,
+  ].where((value) => value != null).length;
+
   @override
   Widget build(BuildContext context) {
-    final products = ref.watch(productFeedProvider(_query));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(widget.title ?? 'المنتجات'),
         actions: [
@@ -94,9 +162,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     : IconButton(
                         onPressed: () {
                           _search.clear();
-                          setState(
-                            () => _query = _query.copyWith(q: '', page: 1),
-                          );
+                          _applyQuery(_query.copyWith(q: '', page: 1));
                         },
                         icon: const Icon(Icons.close_rounded),
                       ),
@@ -111,7 +177,11 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                   child: OutlinedButton.icon(
                     onPressed: _showFilters,
                     icon: const Icon(Icons.tune_rounded, size: 18),
-                    label: const Text('تصفية'),
+                    label: Text(
+                      _activeFilterCount == 0
+                          ? 'تصفية'
+                          : 'تصفية ($_activeFilterCount)',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -143,132 +213,111 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Expanded(
-            child: products.when(
-              loading: () => const CatalogLoading(),
-              error: (error, _) => CatalogError(
-                error: error,
-                retry: () => ref.invalidate(productFeedProvider(_query)),
-              ),
-              data: (page) {
-                if (page.items.isEmpty) return const _EmptyProducts();
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${page.total} منتج',
-                            style: const TextStyle(
-                              color: AppColors.gray500,
-                              fontSize: 11,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (_query.stock != null ||
-                              _query.brandId != null ||
-                              _query.minPrice != null)
-                            TextButton(
-                              onPressed: () => setState(
-                                () => _query = CatalogQuery(
-                                  q: _query.q,
-                                  categoryId: _query.categoryId,
-                                ),
-                              ),
-                              child: const Text('مسح الفلاتر'),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: _grid
-                          ? GridView.builder(
-                              padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
-                              itemCount: page.items.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 12,
-                                    crossAxisSpacing: 12,
-                                    childAspectRatio: .63,
-                                  ),
-                              itemBuilder: (context, index) =>
-                                  CatalogProductCard(
-                                    product: page.items[index],
-                                    onFavorite: () =>
-                                        _favorite(page.items[index]),
-                                  ),
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
-                              itemCount: page.items.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (context, index) =>
-                                  CatalogProductCard(
-                                    product: page.items[index],
-                                    list: true,
-                                    onFavorite: () =>
-                                        _favorite(page.items[index]),
-                                  ),
-                            ),
-                    ),
-                    if (page.totalPages > 1)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
-                        child: Row(
-                          children: [
-                            OutlinedButton(
-                              onPressed: page.page > 1
-                                  ? () => setState(
-                                      () => _query = _query.copyWith(
-                                        page: page.page - 1,
-                                      ),
-                                    )
-                                  : null,
-                              child: const Text('السابق'),
-                            ),
-                            Expanded(
-                              child: Text(
-                                'صفحة ${page.page} من ${page.totalPages}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                            ),
-                            OutlinedButton(
-                              onPressed: page.page < page.totalPages
-                                  ? () => setState(
-                                      () => _query = _query.copyWith(
-                                        page: page.page + 1,
-                                      ),
-                                    )
-                                  : null,
-                              child: const Text('التالي'),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
+          Expanded(child: _buildBody()),
         ],
       ),
     );
   }
 
-  Future<void> _favorite(CatalogProduct product) async {
+  Widget _buildBody() {
+    if (_initialLoading) return const CatalogLoading();
+    if (_error != null && _items.isEmpty) {
+      return CatalogError(error: _error!, retry: () => _load(reset: true));
+    }
+    if (_items.isEmpty) return const _EmptyProducts();
+    final extra = _loadingMore ? (_grid ? 2 : 1) : 0;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryTint,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+                child: Text(
+                  '$_total منتج متاح',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              if (_query.stock != null ||
+                  _query.brandId != null ||
+                  _query.minPrice != null)
+                TextButton(
+                  onPressed: () => _applyQuery(
+                    CatalogQuery(q: _query.q, categoryId: _query.categoryId),
+                  ),
+                  child: const Text('مسح الفلاتر'),
+                ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => _load(reset: true),
+            child: _grid
+                ? GridView.builder(
+                    controller: _scroll,
+                    cacheExtent: 600,
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
+                    itemCount: _items.length + extra,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: .56,
+                        ),
+                    itemBuilder: (context, index) => index >= _items.length
+                        ? const ProductCardSkeleton()
+                        : CatalogProductCard(
+                            product: _items[index],
+                            onFavorite: () => _favorite(index),
+                          ),
+                  )
+                : ListView.separated(
+                    controller: _scroll,
+                    cacheExtent: 600,
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
+                    itemCount: _items.length + extra,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => index >= _items.length
+                        ? const ProductCardSkeleton()
+                        : CatalogProductCard(
+                            product: _items[index],
+                            list: true,
+                            onFavorite: () => _favorite(index),
+                          ),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _favorite(int index) async {
+    final product = _items[index];
+    // optimistic flip for instant feedback
+    setState(() => _items[index] = product.withFavorite(!product.isFavorite));
     try {
       await ref.read(catalogRepositoryProvider).toggleFavorite(product.id);
-      ref.invalidate(productFeedProvider(_query));
     } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(error.toString())));
-      }
+      if (!mounted) return;
+      setState(() => _items[index] = product);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     }
   }
 
@@ -283,7 +332,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             const ListTile(
               title: Text(
                 'ترتيب المنتجات',
-                style: TextStyle(fontWeight: FontWeight.w800),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
             ...const {
@@ -299,9 +348,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 groupValue: _query.sort,
                 title: Text(entry.value),
                 onChanged: (value) {
-                  setState(
-                    () => _query = _query.copyWith(sort: value, page: 1),
-                  );
+                  _applyQuery(_query.copyWith(sort: value, page: 1));
                   Navigator.pop(context);
                 },
               ),
@@ -333,7 +380,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                   alignment: Alignment.centerRight,
                   child: Text(
                     'تصفية المنتجات',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -397,8 +444,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          setState(
-                            () => _query = _query.copyWith(
+                          _applyQuery(
+                            _query.copyWith(
                               clearPrice: true,
                               clearStock: true,
                               clearBrand: true,
@@ -414,8 +461,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     Expanded(
                       child: FilledButton(
                         onPressed: () {
-                          setState(
-                            () => _query = _query.copyWith(
+                          _applyQuery(
+                            _query.copyWith(
                               stock: stock,
                               minPrice: price.start,
                               maxPrice: price.end,
@@ -452,7 +499,7 @@ class _EmptyProducts extends StatelessWidget {
           SizedBox(height: 14),
           Text(
             'لا توجد منتجات مطابقة',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 6),
           Text(

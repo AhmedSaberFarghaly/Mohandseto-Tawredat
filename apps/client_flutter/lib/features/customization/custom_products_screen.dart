@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/customization_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -14,6 +15,7 @@ class CustomProductsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final templates = ref.watch(customTemplatesProvider);
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('منتجات مطبوعة ومخصصة'),
         actions: [
@@ -25,7 +27,7 @@ class CustomProductsScreen extends ConsumerWidget {
         ],
       ),
       body: templates.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => _StateMessage(
           icon: Icons.cloud_off_outlined,
           title: 'تعذر تحميل المنتجات',
@@ -56,6 +58,7 @@ class CustomProductsScreen extends ConsumerWidget {
                       colors: [AppColors.primary, Color(0xFF167A8B)],
                     ),
                     borderRadius: BorderRadius.circular(AppRadius.xl),
+                    boxShadow: AppShadows.floating,
                   ),
                   child: const Row(
                     children: [
@@ -78,7 +81,7 @@ class CustomProductsScreen extends ConsumerWidget {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             SizedBox(height: 4),
@@ -101,7 +104,7 @@ class CustomProductsScreen extends ConsumerWidget {
                   children: [
                     Text(
                       '${items.length} منتج قابل للتخصيص',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const Spacer(),
                     TextButton(
@@ -156,7 +159,7 @@ class _TemplateCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       height: 1.4,
                     ),
                   ),
@@ -165,7 +168,7 @@ class _TemplateCard extends StatelessWidget {
                     item.sku,
                     style: const TextStyle(
                       color: AppColors.gray500,
-                      fontSize: 9,
+                      fontSize: 10.5,
                     ),
                   ),
                   const SizedBox(height: 7),
@@ -212,7 +215,7 @@ class _Chip extends StatelessWidget {
     ),
     child: Text(
       text,
-      style: const TextStyle(fontSize: 9, color: AppColors.gray600),
+      style: const TextStyle(fontSize: 10.5, color: AppColors.gray600),
     ),
   );
 }

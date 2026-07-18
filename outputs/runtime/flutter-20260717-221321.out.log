@@ -1,0 +1,213 @@
+Launching lib\main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDebug'...                          
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "Windows_NT" == "Windows_NT" setlocal
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set DEFAULT_JVM_OPTS= 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set DIRNAME=E:\Mohandseto Tawrdat\apps\client_flutter\android\ 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "E:\Mohandseto Tawrdat\apps\client_flutter\android\" == "" set DIRNAME=. 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set APP_BASE_NAME=gradlew 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set APP_HOME=E:\Mohandseto Tawrdat\apps\client_flutter\android\ 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set JAVA_HOME=C:\Program Files\Android\Android Studio1\jbr 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set JAVA_EXE=C:\Program Files\Android\Android Studio1\jbr/bin/java.exe 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if exist "C:\Program Files\Android\Android Studio1\jbr/bin/java.exe" goto init 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if not "Windows_NT" == "Windows_NT" goto win9xME_args 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "@eval[2+2]" == "4" goto 4NT_args 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CMD_LINE_ARGS= 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set _SKIP=2 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "x-q" == "x" goto execute 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CMD_LINE_ARGS=-q -Ptarget-platform=android-x64 "-Ptarget=E:\Mohandseto Tawrdat\apps\client_flutter\lib\main.dart" -Pbase-application-name=android.app.Application -Pdart-defines=QVBJX0JBU0VfVVJMPWh0dHA6Ly8xMjcuMC4wLjE6NTE5OQ==,RkxVVFRFUl9WRVJTSU9OPTMuMzIuOA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049ZWRhZGE3YzU2ZQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049ZWYwY2QwMDA5MQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My44LjE= -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>goto execute 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>set CLASSPATH=E:\Mohandseto Tawrdat\apps\client_flutter\android\\gradle\wrapper\gradle-wrapper.jar 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>"C:\Program Files\Android\Android Studio1\jbr/bin/java.exe"    "-Dorg.gradle.appname=gradlew" -classpath "E:\Mohandseto Tawrdat\apps\client_flutter\android\\gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain -q -Ptarget-platform=android-x64 "-Ptarget=E:\Mohandseto Tawrdat\apps\client_flutter\lib\main.dart" -Pbase-application-name=android.app.Application -Pdart-defines=QVBJX0JBU0VfVVJMPWh0dHA6Ly8xMjcuMC4wLjE6NTE5OQ==,RkxVVFRFUl9WRVJTSU9OPTMuMzIuOA==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049ZWRhZGE3YzU2ZQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049ZWYwY2QwMDA5MQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My44LjE= -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "0" == "0" goto mainEnd 
+
+E:\Mohandseto Tawrdat\apps\client_flutter\android>if "Windows_NT" == "Windows_NT" endlocal
+Running Gradle task 'assembleDebug'...                            184.9s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...          15.4s
+I/flutter (15306): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(94)] Using the Impeller rendering backend (OpenGLES).
+W/handseto_client(15306): Verification of java.lang.String androidx.lifecycle.Lifecycling.getAdapterName(java.lang.String) took 181.954ms (203.35 bytecodes/s) (0B arena alloc)
+D/DesktopModeFlags(15306): Toggle override initialized to: OVERRIDE_UNSET
+Syncing files to device sdk gphone64 x86 64...                  
+D/CompatChangeReporter(15306): Compat change id reported: 352594277; UID 10215; state: ENABLED
+I/handseto_client(15306): hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported,test-api) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+I/handseto_client(15306): hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityRecord;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+I/handseto_client(15306): hiddenapi: Accessing hidden field Landroid/view/accessibility/AccessibilityNodeInfo;->mChildNodeIds:Landroid/util/LongArray; (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+I/handseto_client(15306): hiddenapi: Accessing hidden method Landroid/util/LongArray;->get(I)J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+Syncing files to device sdk gphone64 x86 64...                     491ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:62767/Jy7EVN6fq3M=/
+D/CompatChangeReporter(15306): Compat change id reported: 279646685; UID 10215; state: ENABLED
+D/CompatChangeReporter(15306): Compat change id reported: 309578419; UID 10215; state: ENABLED
+D/CompatChangeReporter(15306): Compat change id reported: 349153669; UID 10215; state: ENABLED
+W/HWUI    (15306): Unknown dataspace 0
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at: http://127.0.0.1:9102?uri=http://127.0.0.1:62767/Jy7EVN6fq3M=/
+D/ProfileInstaller(15306): Installing profile for com.mohandseto.mohandseto_client
+I/Choreographer(15306): Skipped 281 frames!  The application may be doing too much work on its main thread.
+I/WindowExtensionsImpl(15306): Initializing Window Extensions, vendor API level=9, activity embedding enabled=true
+I/handseto_client(15306): Compiler allocated 5042KB to compile void android.view.ViewRootImpl.performTraversals()
+W/handseto_client(15306): Verification of void com.it_nomads.fluttersecurestorage.FlutterSecureStorage.authenticateUser(javax.crypto.Cipher, com.it_nomads.fluttersecurestorage.SecurePreferencesCallback) took 132.631ms (1063.10 bytecodes/s) (0B arena alloc)
+I/Choreographer(15306): Skipped 615 frames!  The application may be doing too much work on its main thread.
+I/handseto_client(15306): AssetManager2(0x7af2516951b8) locale list changing from [] to [en-US]
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:d25d1ccb: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:d25d1ccb: onFailed at PHASE_CLIENT_VIEW_SERVED
+W/InputMethodManager(15306): Ignoring showSoftInput() as view=io.flutter.embedding.android.FlutterView{c55e2c2 VFE...... .F....ID 0,0-1080,2400 #1} is not served.
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:e2fb11b4: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:e2fb11b4: onFailed at PHASE_CLIENT_VIEW_SERVED
+W/InputMethodManager(15306): Ignoring showSoftInput() as view=io.flutter.embedding.android.FlutterView{c55e2c2 VFE...... .F....ID 0,0-1080,2400 #1} is not served.
+D/WindowLayoutComponentImpl(15306): Register WindowLayoutInfoListener on Context=com.mohandseto.mohandseto_client.MainActivity@6e82747, of which baseContext=android.app.ContextImpl@d09b6c5
+I/HWUI    (15306): Davey! duration=715ms; Flags=1, FrameTimelineVsyncId=262512, IntendedVsync=67903808778855, Vsync=67904175445507, InputEventId=0, HandleInputStart=67904188860856, AnimationStart=67904188861874, PerformTraversalsStart=67904188862485, DrawStart=67904191479618, FrameDeadline=67903825445521, FrameStartTime=67904188211873, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=67904195158227, SyncStart=67904267677556, IssueDrawCommandsStart=67904267939230, SwapBuffers=67904448090044, FrameCompleted=67904597248328, DequeueBufferDuration=125062903, QueueBufferDuration=730153, GpuCompleted=67904478307571, SwapBuffersCompleted=67904597248328, DisplayPresentTime=135179824392080, CommandSubmissionCompleted=67904448090044, 
+I/AssistStructure(15306): Flattened final assist data: 544 bytes, containing 1 windows, 3 views
+D/InsetsController(15306): hide(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:affd088a: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+D/InputConnectionAdaptor(15306): The input method toggled cursor monitoring on
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:51c676d: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+D/InsetsController(15306): Setting requestedVisibleTypes to -1 (was -9)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:dbbd684b: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:dbbd684b: onCancelled at PHASE_CLIENT_REPORT_REQUESTED_VISIBLE_TYPES
+W/InteractionJankMonitor(15306): Initializing without READ_DEVICE_CONFIG permission. enabled=false, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.mohandseto.mohandseto_client
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:51c676d: onShown
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:f27ba1b7: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:f27ba1b7: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+D/InputConnectionAdaptor(15306): The input method toggled cursor monitoring on
+I/AssistStructure(15306): Flattened final assist data: 472 bytes, containing 1 windows, 3 views
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:5fec2cc: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:5fec2cc: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:356eba2a: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:356eba2a: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:b1065d44: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:b1065d44: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:13a494c6: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:13a494c6: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:cea2bddf: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:cea2bddf: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:fa47607c: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InsetsController(15306): show(ime(), fromIme=false)
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:fa47607c: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+I/AssistStructure(15306): Flattened final assist data: 572 bytes, containing 1 windows, 3 views
+D/InputConnectionAdaptor(15306): The input method toggled cursor monitoring on
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker(15306): com.mohandseto.mohandseto_client:2786e967: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InsetsController(15306): hide(ime(), fromIme=false)
+W/WindowOnBackDispatcher(15306): sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@4311058
+D/InsetsController(15306): Setting requestedVisibleTypes to -9 (was -1)
+
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 37 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///E:/Mohandseto%20Tawrdat/apps/client_flutter/lib/features/home/home_screen.dart:669:24
+
+To inspect this widget in Flutter DevTools, visit:
+http://127.0.0.1:9102/#/inspector?uri=http%3A%2F%2F127.0.0.1%3A62767%2FJy7EVN6fq3M%3D%2F&inspectorRef=inspector-0
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#2ea81 OVERFLOWING:
+  creator: Column ← Positioned ← PositionedDirectional ← Stack ← Padding ← ClipPath ← DecoratedBox ←
+    ConstrainedBox ← Container ← Listener ← RawGestureDetector ← GestureDetector ← ⋯
+  parentData: top=19.0; right=18.0; bottom=22.0; width=210.0; offset=Offset(151.4, 19.0) (can use
+    size)
+  constraints: BoxConstraints(w=210.0, h=143.0)
+  size: Size(210.0, 143.0)
+  direction: vertical
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: start
+  textDirection: rtl
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+I/ImeTracker(15306): system_server:4e2145cb: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+Another exception was thrown: A RenderFlex overflowed by 1.5 pixels on the right.
+Another exception was thrown: A RenderFlex overflowed by 37 pixels on the bottom.
+Another exception was thrown: A RenderFlex overflowed by 37 pixels on the bottom.
+I/handseto_client(15306): AssetManager2(0x7af2516c90f8) locale list changing from [] to [en-US]
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+Another exception was thrown: A RenderFlex overflowed by 37 pixels on the bottom.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+W/WindowOnBackDispatcher(15306): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(15306): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+Another exception was thrown: A RenderFlex overflowed by 37 pixels on the bottom.
+Another exception was thrown: A RenderFlex overflowed by 1.5 pixels on the right.
+Another exception was thrown: A RenderFlex overflowed by 37 pixels on the bottom.

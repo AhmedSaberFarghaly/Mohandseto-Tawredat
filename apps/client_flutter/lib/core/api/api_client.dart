@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -8,6 +9,14 @@ const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'http://localhost:5199',
 );
+
+/// Number of in-flight mutating requests (POST/PUT/PATCH/DELETE).
+/// Drives the global top progress bar so every add/edit/delete gives
+/// immediate visual feedback.
+final mutationInFlight = ValueNotifier<int>(0);
+
+bool _isMutation(RequestOptions o) =>
+    o.method != 'GET' && !o.path.contains('/api/auth/refresh');
 
 class TokenStore {
   static const _storage = FlutterSecureStorage();
@@ -49,11 +58,21 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          if (_isMutation(options)) mutationInFlight.value++;
           final token = await _tokens.access;
           if (token != null) options.headers['Authorization'] = 'Bearer $token';
           handler.next(options);
         },
+        onResponse: (response, handler) {
+          if (_isMutation(response.requestOptions)) {
+            mutationInFlight.value = (mutationInFlight.value - 1).clamp(0, 999);
+          }
+          handler.next(response);
+        },
         onError: (error, handler) async {
+          if (_isMutation(error.requestOptions)) {
+            mutationInFlight.value = (mutationInFlight.value - 1).clamp(0, 999);
+          }
           final path = error.requestOptions.path;
           final isAuthOperation =
               path == '/api/auth/login' ||

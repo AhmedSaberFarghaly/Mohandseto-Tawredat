@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/budget_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -15,6 +16,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
   int year = DateTime.now().year;
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: const Text('ميزانية الشركة'),
       actions: [
@@ -34,7 +36,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
     body: ref
         .watch(budgetSummaryProvider(year))
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(),
           error: (e, _) => Center(child: Text('$e')),
           data: (s) => RefreshIndicator(
             onRefresh: () async {
@@ -50,7 +52,8 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                     gradient: const LinearGradient(
                       colors: [AppColors.primary, AppColors.primaryDark],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    boxShadow: AppShadows.floating,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +70,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                             '$year',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -77,7 +80,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -99,7 +102,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                             'مستخدم ومحجوز ${money(s.used + s.reserved)}',
                             style: const TextStyle(
                               color: Colors.white70,
-                              fontSize: 9,
+                              fontSize: 10.5,
                             ),
                           ),
                           const Spacer(),
@@ -107,7 +110,7 @@ class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
                             '${s.utilization.toStringAsFixed(1)}%',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -182,11 +185,12 @@ class BudgetCenterScreen extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('تفاصيل مركز التكلفة')),
     body: ref
         .watch(budgetCenterProvider(id))
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(),
           error: (e, _) => Center(child: Text('$e')),
           data: (d) => RefreshIndicator(
             onRefresh: () async {
@@ -203,7 +207,8 @@ class BudgetCenterScreen extends ConsumerWidget {
                     border: Border.all(
                       color: healthColor(d.center.health).withValues(alpha: .3),
                     ),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    boxShadow: AppShadows.soft,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +223,7 @@ class BudgetCenterScreen extends ConsumerWidget {
                                   d.center.name,
                                   style: const TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 Text(
@@ -234,7 +239,7 @@ class BudgetCenterScreen extends ConsumerWidget {
                             '${d.center.utilization.toStringAsFixed(1)}%',
                             style: TextStyle(
                               fontSize: 23,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                               color: healthColor(d.center.health),
                             ),
                           ),
@@ -312,7 +317,7 @@ class BudgetCenterScreen extends ConsumerWidget {
                                     o.number,
                                     style: const TextStyle(
                                       fontSize: 11,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   subtitle: Text(
@@ -321,8 +326,8 @@ class BudgetCenterScreen extends ConsumerWidget {
                                   trailing: Text(
                                     '${money(o.total)} ج.م',
                                     style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w900,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
@@ -369,7 +374,7 @@ Future<void> adjust(
         children: [
           Text(
             'تعديل ميزانية ${c.code}',
-            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
           ),
           Text(
             'الحالية ${money(c.budget)} ج.م',
@@ -437,13 +442,13 @@ class CenterTile extends StatelessWidget {
                       center.name,
                       style: const TextStyle(
                         fontSize: 11,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     Text(
                       center.code,
                       style: const TextStyle(
-                        fontSize: 8,
+                        fontSize: 9.5,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -453,9 +458,9 @@ class CenterTile extends StatelessWidget {
               Text(
                 '${money(center.available)} ج.م متاح',
                 style: TextStyle(
-                  fontSize: 9,
+                  fontSize: 10.5,
                   color: healthColor(center.health),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const Icon(Icons.chevron_right, size: 18),
@@ -473,12 +478,12 @@ class CenterTile extends StatelessWidget {
             children: [
               Text(
                 '${center.utilization.toStringAsFixed(1)}% مستخدم',
-                style: const TextStyle(fontSize: 8),
+                style: const TextStyle(fontSize: 9.5),
               ),
               const Spacer(),
               Text(
                 '${money(center.budget)} ج.م',
-                style: const TextStyle(fontSize: 8),
+                style: const TextStyle(fontSize: 9.5),
               ),
             ],
           ),
@@ -503,9 +508,9 @@ class AlertCard extends StatelessWidget {
         ),
         title: Text(
           alert.title,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
-        subtitle: Text(alert.body, style: const TextStyle(fontSize: 9)),
+        subtitle: Text(alert.body, style: const TextStyle(fontSize: 10.5)),
         trailing: alert.centerId == null
             ? null
             : const Icon(Icons.chevron_right),
@@ -550,7 +555,7 @@ class Bars extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(p.label, style: const TextStyle(fontSize: 7)),
+                      Text(p.label, style: const TextStyle(fontSize: 10.5)),
                     ],
                   ),
                 ),
@@ -589,7 +594,7 @@ class Breakdown extends StatelessWidget {
                         child: Text(
                           e.value.label,
                           style: const TextStyle(
-                            fontSize: 9,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -597,8 +602,8 @@ class Breakdown extends StatelessWidget {
                       Text(
                         '${money(e.value.amount)} ج.م',
                         style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -641,11 +646,11 @@ class Metric extends StatelessWidget {
           const SizedBox(height: 7),
           Text(
             '${money(value)} ج.م',
-            style: TextStyle(fontWeight: FontWeight.w900, color: color),
+            style: TextStyle(fontWeight: FontWeight.w700, color: color),
           ),
           Text(
             title,
-            style: const TextStyle(fontSize: 8, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 9.5, color: AppColors.gray500),
           ),
         ],
       ),
@@ -674,7 +679,12 @@ class Section extends StatelessWidget {
             children: [
               Icon(icon, size: 19, color: AppColors.primary),
               const SizedBox(width: 7),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
           const Divider(height: 22),
@@ -697,12 +707,12 @@ class Info extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 9, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.gray500),
           ),
         ),
         Text(
           '${money(value)} ج.م',
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
       ],
     ),

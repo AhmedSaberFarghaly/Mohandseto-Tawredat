@@ -33,6 +33,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   late final TextEditingController _code;
   int _step = 1;
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
   String _governorate = 'القاهرة';
   String _industry = 'تجارة وتوزيع';
@@ -138,7 +139,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StepHeader(current: _step, total: 2),
+          StepHeader(current: _step, total: 3),
           const SizedBox(height: 24),
           if (_error != null) InlineError(_error!),
           if (_step == 1) ...[
@@ -173,7 +174,16 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               _password,
               'كلمة المرور',
               Icons.lock_outline_rounded,
-              obscure: true,
+              obscure: _obscurePassword,
+              suffixIcon: IconButton(
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+              ),
               validator: (value) =>
                   value!.length >= 8 ? null : 'كلمة المرور لا تقل عن 8 أحرف',
             ),
@@ -187,7 +197,11 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   value!.length == 6 ? null : 'أدخل الرمز المرسل إلى هاتفك',
             ),
             const SizedBox(height: 22),
-            FilledButton(onPressed: _next, child: const Text('التالي')),
+            FilledButton.icon(
+              onPressed: _next,
+              icon: const Icon(Icons.arrow_back_rounded),
+              label: const Text('متابعة لبيانات الشركة'),
+            ),
           ] else ...[
             _field(
               _company,
@@ -202,24 +216,29 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               Icons.translate_rounded,
             ),
             _gap,
-            Row(
-              children: [
-                Expanded(
-                  child: _field(
-                    _commercial,
-                    'السجل التجاري',
-                    Icons.description_outlined,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _field(
-                    _tax,
-                    'البطاقة الضريبية',
-                    Icons.receipt_long_outlined,
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final commercial = _field(
+                  _commercial,
+                  'السجل التجاري',
+                  Icons.description_outlined,
+                );
+                final tax = _field(
+                  _tax,
+                  'البطاقة الضريبية',
+                  Icons.receipt_long_outlined,
+                );
+                if (constraints.maxWidth < 380) {
+                  return Column(children: [commercial, _gap, tax]);
+                }
+                return Row(
+                  children: [
+                    Expanded(child: commercial),
+                    const SizedBox(width: 10),
+                    Expanded(child: tax),
+                  ],
+                );
+              },
             ),
             _gap,
             DropdownButtonFormField<String>(
@@ -264,9 +283,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               onChanged: (value) => _industry = value!,
             ),
             const SizedBox(height: 22),
-            FilledButton(
+            FilledButton.icon(
               onPressed: _loading ? null : _submit,
-              child: _loading
+              icon: _loading
                   ? const SizedBox(
                       width: 22,
                       height: 22,
@@ -275,7 +294,10 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text('إنشاء الحساب'),
+                  : const Icon(Icons.verified_outlined),
+              label: Text(
+                _loading ? 'جارٍ إنشاء الحساب...' : 'إنشاء الحساب والمتابعة',
+              ),
             ),
             TextButton(
               onPressed: () => setState(() => _step = 1),
@@ -294,11 +316,16 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     bool obscure = false,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) => TextFormField(
     controller: controller,
     obscureText: obscure,
     keyboardType: keyboardType,
-    decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      suffixIcon: suffixIcon,
+    ),
     validator: validator,
   );
 

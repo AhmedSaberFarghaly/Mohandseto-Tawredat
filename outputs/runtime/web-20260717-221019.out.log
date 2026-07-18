@@ -1,0 +1,29 @@
+
+> admin_web@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.19:3000
+✓ Ready in 19.1s
+Creating turbopack project { dir: 'E:\\Mohandseto Tawrdat\\apps\\admin_web', testMode: true }
+
+○ Compiling /login ...
+ GET /login 200 in 21.2s (next.js: 21.0s, application-code: 199ms)
+✓ Finished writing to filesystem cache in 11.4s
+ GET /login 200 in 4.0s (next.js: 3.2s, application-code: 788ms)
+ GET /login 200 in 4.0s (next.js: 744ms, application-code: 3.3s)
+ GET /login 200 in 5.9s (next.js: 3.1s, application-code: 2.8s)
+ GET /login 200 in 4.2s (next.js: 1512ms, application-code: 2.7s)
+ GET /login 200 in 3.9s (next.js: 2.9s, application-code: 1053ms)
+ GET /login 200 in 4.7s (next.js: 1777ms, application-code: 2.9s)
+ GET /login 200 in 591ms (next.js: 10ms, application-code: 581ms)
+ GET /login 200 in 592ms (next.js: 125ms, application-code: 467ms)
+ GET /login 200 in 596ms (next.js: 186ms, application-code: 410ms)
+ GET /login 200 in 606ms (next.js: 228ms, application-code: 378ms)
+ GET /login 200 in 459ms (next.js: 137ms, application-code: 322ms)
+ GET /login 200 in 242ms (next.js: 5ms, application-code: 237ms)
+ GET /login 200 in 221ms (next.js: 155ms, application-code: 66ms)
+ GET /login 200 in 274ms (next.js: 69ms, application-code: 205ms)
+ GET /login 200 in 289ms (next.js: 38ms, application-code: 252ms)
+ GET /login 200 in 301ms (next.js: 7ms, application-code: 293ms)

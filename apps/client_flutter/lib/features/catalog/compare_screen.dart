@@ -13,6 +13,7 @@ class CompareScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final compare = ref.watch(compareProvider);
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('مقارنة المنتجات'),
         actions: [
@@ -40,73 +41,115 @@ class CompareScreen extends ConsumerWidget {
               .toList();
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.infoTint,
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  child: const Row(
                     children: [
-                      const SizedBox(width: 120),
-                      ...items.map(
-                        (item) => _CompareHeader(
-                          item: item,
-                          remove: () async {
-                            await ref
-                                .read(catalogRepositoryProvider)
-                                .toggleCompare(item.summary.id);
-                            ref.invalidate(compareProvider);
-                          },
+                      Icon(
+                        Icons.tips_and_updates_outlined,
+                        color: AppColors.info,
+                      ),
+                      SizedBox(width: 9),
+                      Expanded(
+                        child: Text(
+                          'قارن السعر والتوفر والمواصفات لاختيار الأنسب لشركتك.',
+                          style: TextStyle(
+                            color: AppColors.info,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  _ComparisonRow(
-                    label: 'السعر',
-                    values: items
-                        .map(
-                          (item) =>
-                              '${NumberFormat('#,##0.00', 'ar').format(item.summary.price)} ج.م',
-                        )
-                        .toList(),
-                    highlighted: true,
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    border: Border.all(color: AppColors.gray150),
+                    boxShadow: AppShadows.soft,
                   ),
-                  _ComparisonRow(
-                    label: 'العلامة',
-                    values: items
-                        .map((item) => item.summary.brandName ?? '-')
-                        .toList(),
-                  ),
-                  _ComparisonRow(
-                    label: 'التوفر',
-                    values: items
-                        .map(
-                          (item) => item.summary.stockStatus == 'OutOfStock'
-                              ? 'غير متوفر'
-                              : '${item.summary.stockQty} متاح',
-                        )
-                        .toList(),
-                  ),
-                  _ComparisonRow(
-                    label: 'التقييم',
-                    values: items
-                        .map(
-                          (item) =>
-                              '${item.summary.rating.toStringAsFixed(1)} ★',
-                        )
-                        .toList(),
-                  ),
-                  ...attributeNames.map(
-                    (name) => _ComparisonRow(
-                      label: name,
-                      values: items
-                          .map((item) => item.attributes[name] ?? '-')
-                          .toList(),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(width: 120),
+                            ...items.map(
+                              (item) => _CompareHeader(
+                                item: item,
+                                remove: () async {
+                                  await ref
+                                      .read(catalogRepositoryProvider)
+                                      .toggleCompare(item.summary.id);
+                                  ref.invalidate(compareProvider);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        _ComparisonRow(
+                          label: 'السعر',
+                          values: items
+                              .map(
+                                (item) =>
+                                    '${NumberFormat('#,##0.00', 'ar').format(item.summary.price)} ج.م',
+                              )
+                              .toList(),
+                          highlighted: true,
+                        ),
+                        _ComparisonRow(
+                          label: 'العلامة',
+                          values: items
+                              .map((item) => item.summary.brandName ?? '-')
+                              .toList(),
+                        ),
+                        _ComparisonRow(
+                          label: 'التوفر',
+                          values: items
+                              .map(
+                                (item) =>
+                                    item.summary.stockStatus == 'OutOfStock'
+                                    ? 'غير متوفر'
+                                    : '${item.summary.stockQty} متاح',
+                              )
+                              .toList(),
+                        ),
+                        _ComparisonRow(
+                          label: 'التقييم',
+                          values: items
+                              .map(
+                                (item) =>
+                                    '${item.summary.rating.toStringAsFixed(1)} ★',
+                              )
+                              .toList(),
+                        ),
+                        ...attributeNames.map(
+                          (name) => _ComparisonRow(
+                            label: name,
+                            values: items
+                                .map((item) => item.attributes[name] ?? '-')
+                                .toList(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
@@ -196,7 +239,7 @@ class _ComparisonRow extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: highlighted ? AppColors.primary : AppColors.gray800,
-                  fontWeight: highlighted ? FontWeight.w800 : FontWeight.normal,
+                  fontWeight: highlighted ? FontWeight.w700 : FontWeight.normal,
                 ),
               ),
             ),
@@ -224,7 +267,7 @@ class _EmptyCompare extends StatelessWidget {
           SizedBox(height: 14),
           Text(
             'لا توجد منتجات للمقارنة',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 6),
           Text(

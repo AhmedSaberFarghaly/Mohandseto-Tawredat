@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../core/api/catalog_repository.dart';
 import '../../core/api/api_client.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/widgets/skeleton.dart';
 
 IconData categoryIcon(String? name) => switch (name) {
   'business_center' => Icons.business_center_outlined,
@@ -71,7 +73,7 @@ class ProductVisual extends StatelessWidget {
                 ),
                 child: const Text(
                   'قابل للطباعة',
-                  style: TextStyle(color: Colors.white, fontSize: 8),
+                  style: TextStyle(color: Colors.white, fontSize: 9.5),
                 ),
               ),
             ),
@@ -87,13 +89,16 @@ class ProductVisual extends StatelessWidget {
     final url = path.startsWith('http') ? path : '$apiBaseUrl$path';
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: Image.network(
-        url,
-        fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => _fallbackIcon(),
-        loadingBuilder: (context, child, progress) => progress == null
-            ? child
-            : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      child: CachedNetworkImage(
+        imageUrl: url,
+        width: double.infinity,
+        height: double.infinity,
+        fit: large ? BoxFit.contain : BoxFit.cover,
+        fadeInDuration: const Duration(milliseconds: 180),
+        fadeOutDuration: const Duration(milliseconds: 120),
+        memCacheWidth: large ? 1024 : 480,
+        errorWidget: (_, _, _) => _fallbackIcon(),
+        placeholder: (_, _) => const Skeleton(radius: 0),
       ),
     );
   }
@@ -145,7 +150,7 @@ class CatalogProductCard extends StatelessWidget {
         Text(
           product.brandName ?? product.categoryName,
           maxLines: 1,
-          style: const TextStyle(color: AppColors.gray500, fontSize: 10),
+          style: const TextStyle(color: AppColors.gray500, fontSize: 11),
         ),
         const SizedBox(height: 3),
         Text(
@@ -155,6 +160,7 @@ class CatalogProductCard extends StatelessWidget {
           style: const TextStyle(
             color: AppColors.gray900,
             fontWeight: FontWeight.w700,
+            fontSize: 13.5,
             height: 1.35,
           ),
         ),
@@ -164,11 +170,11 @@ class CatalogProductCard extends StatelessWidget {
             const Icon(Icons.star_rounded, color: Color(0xFFF5A623), size: 15),
             Text(
               ' ${product.rating.toStringAsFixed(1)}',
-              style: const TextStyle(fontSize: 10),
+              style: const TextStyle(fontSize: 11),
             ),
             Text(
               ' (${product.ratingCount})',
-              style: const TextStyle(fontSize: 9, color: AppColors.gray400),
+              style: const TextStyle(fontSize: 10.5, color: AppColors.gray400),
             ),
           ],
         ),
@@ -177,7 +183,7 @@ class CatalogProductCard extends StatelessWidget {
           const Text(
             'سعر شركتك',
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 10.5,
               color: AppColors.success,
               fontWeight: FontWeight.w700,
             ),
@@ -190,12 +196,12 @@ class CatalogProductCard extends StatelessWidget {
               style: const TextStyle(
                 color: AppColors.primary,
                 fontSize: 16,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const Text(
               ' ج.م',
-              style: TextStyle(color: AppColors.primary, fontSize: 9),
+              style: TextStyle(color: AppColors.primary, fontSize: 10.5),
             ),
             if (product.compareAtPrice != null) ...[
               const SizedBox(width: 5),
@@ -203,7 +209,7 @@ class CatalogProductCard extends StatelessWidget {
                 number.format(product.compareAtPrice),
                 style: const TextStyle(
                   color: AppColors.gray400,
-                  fontSize: 9,
+                  fontSize: 10.5,
                   decoration: TextDecoration.lineThrough,
                 ),
               ),
@@ -214,18 +220,19 @@ class CatalogProductCard extends StatelessWidget {
     );
 
     return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(AppRadius.xl),
       onTap: () => context.push('/products/${product.slug}'),
       child: Container(
         padding: const EdgeInsets.all(9),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.gray200),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          border: Border.all(color: AppColors.gray150),
+          boxShadow: AppShadows.soft,
         ),
         child: list
             ? SizedBox(
-                height: 126,
+                height: 142,
                 child: Row(
                   children: [
                     SizedBox(
@@ -289,16 +296,7 @@ class CatalogLoading extends StatelessWidget {
   const CatalogLoading({super.key, this.message = 'جاري تحميل المنتجات...'});
   final String message;
   @override
-  Widget build(BuildContext context) => Center(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 12),
-        Text(message, style: const TextStyle(color: AppColors.gray500)),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) => const ProductGridSkeleton();
 }
 
 class CatalogError extends StatelessWidget {
@@ -320,7 +318,7 @@ class CatalogError extends StatelessWidget {
           const SizedBox(height: 12),
           const Text(
             'تعذر تحميل البيانات',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(

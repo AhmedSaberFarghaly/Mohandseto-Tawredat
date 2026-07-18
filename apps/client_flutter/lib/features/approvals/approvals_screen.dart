@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/approval_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -19,6 +20,7 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
   Widget build(BuildContext context) {
     final inbox = ref.watch(approvalInboxProvider(_status));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('مركز الموافقات'),
         actions: [
@@ -46,7 +48,7 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
           ),
           Expanded(
             child: inbox.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ListSkeleton(),
               error: (error, _) => Center(child: Text('$error')),
               data: (items) => items.isEmpty
                   ? const _ApprovalEmpty()
@@ -76,8 +78,14 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
       onSelected: (_) => setState(() => _status = value),
     ),
   );
-  Widget _card(ApprovalListItem item) => Card(
+  Widget _card(ApprovalListItem item) => Container(
     margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: InkWell(
       onTap: () => context.push('/approvals/${item.id}'),
       borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -91,7 +99,7 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                 Expanded(
                   child: Text(
                     item.orderNumber,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _statusChip(item.status),
@@ -103,13 +111,13 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
               style: const TextStyle(
                 fontSize: 18,
                 color: AppColors.primary,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 5),
             Text(
               '${item.requesterName} • ${item.currentLevel}',
-              style: const TextStyle(color: AppColors.gray500, fontSize: 10),
+              style: const TextStyle(color: AppColors.gray500, fontSize: 11),
             ),
             if (item.budgetConflict)
               const Padding(
@@ -122,12 +130,14 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                       size: 16,
                     ),
                     SizedBox(width: 5),
-                    Text(
-                      'تعارض مع الميزانية المتاحة',
-                      style: TextStyle(
-                        color: AppColors.error,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        'تعارض مع الميزانية المتاحة',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -142,17 +152,20 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                   size: 16,
                 ),
                 const SizedBox(width: 5),
-                Text(
-                  item.overdue
-                      ? 'تجاوزت مهلة الموافقة'
-                      : 'المهلة ${DateFormat('d MMM، HH:mm', 'ar').format(item.dueAt.toLocal())}',
-                  style: TextStyle(
-                    fontSize: 9,
-                    color: item.overdue ? AppColors.error : AppColors.gray500,
+                Expanded(
+                  child: Text(
+                    item.overdue
+                        ? 'تجاوزت مهلة الموافقة'
+                        : 'المهلة ${DateFormat('d MMM، HH:mm', 'ar').format(item.dueAt.toLocal())}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      color: item.overdue ? AppColors.error : AppColors.gray500,
+                    ),
                   ),
                 ),
-                const Spacer(),
-                const Icon(Icons.chevron_left),
+                const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
               ],
             ),
           ],
@@ -161,7 +174,7 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
     ),
   );
   Widget _statusChip(String status) => Chip(
-    label: Text(_statusName(status), style: const TextStyle(fontSize: 8)),
+    label: Text(_statusName(status), style: const TextStyle(fontSize: 9.5)),
     backgroundColor: _statusColor(status).withValues(alpha: .12),
     side: BorderSide.none,
   );
@@ -181,9 +194,10 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
   Widget build(BuildContext context) {
     final value = ref.watch(approvalDetailProvider(widget.id));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('تفاصيل الموافقة')),
       body: value.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => Center(child: Text('$error')),
         data: (detail) => RefreshIndicator(
           onRefresh: () async {
@@ -227,14 +241,14 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
                   d.orderNumber,
                   style: const TextStyle(
                     fontSize: 17,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               Chip(
                 label: Text(
                   _statusName(d.status),
-                  style: const TextStyle(fontSize: 8),
+                  style: const TextStyle(fontSize: 9.5),
                 ),
                 side: BorderSide.none,
                 backgroundColor: _statusColor(d.status).withValues(alpha: .12),
@@ -246,7 +260,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
             style: const TextStyle(
               fontSize: 23,
               color: AppColors.primary,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const Divider(height: 24),
@@ -266,7 +280,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
                   Expanded(
                     child: Text(
                       'قيمة الطلب أعلى من حد صلاحيتك وسيستمر للمستوى التالي بعد موافقتك.',
-                      style: TextStyle(fontSize: 9),
+                      style: TextStyle(fontSize: 10.5),
                     ),
                   ),
                 ],
@@ -298,12 +312,12 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
                 'تعارض في الميزانية',
                 style: TextStyle(
                   color: AppColors.error,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 'المتاح بعد الحجز: ${_money(d.budgetAvailable ?? 0)} ج.م',
-                style: const TextStyle(fontSize: 9),
+                style: const TextStyle(fontSize: 10.5),
               ),
             ],
           ),
@@ -341,12 +355,12 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
                     children: [
                       Text(
                         s.name,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
                         s.approverName,
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: AppColors.gray500,
                         ),
                       ),
@@ -354,7 +368,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
                         Text(
                           'حد الصلاحية ${_money(s.authorityLimit!)} ج.م',
                           style: const TextStyle(
-                            fontSize: 8,
+                            fontSize: 9.5,
                             color: AppColors.gray400,
                           ),
                         ),
@@ -399,7 +413,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
           ),
           subtitle: Text(
             '${a.comment ?? ''}\n${DateFormat('d MMM، HH:mm', 'ar').format(a.createdAt.toLocal())}',
-            style: const TextStyle(fontSize: 8),
+            style: const TextStyle(fontSize: 9.5),
           ),
         ),
       ),
@@ -419,7 +433,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           child,
@@ -486,7 +500,7 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
           children: [
             Text(
               _actionName(action),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -651,12 +665,12 @@ class _ApprovalDetailScreenState extends ConsumerState<ApprovalDetailScreen> {
         Expanded(
           child: Text(
             k,
-            style: const TextStyle(color: AppColors.gray500, fontSize: 10),
+            style: const TextStyle(color: AppColors.gray500, fontSize: 11),
           ),
         ),
         Text(
           v,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         ),
       ],
     ),
@@ -676,11 +690,11 @@ class _ApprovalEmpty extends StatelessWidget {
             SizedBox(height: 12),
             Text(
               'لا توجد موافقات في هذه القائمة',
-              style: TextStyle(fontWeight: FontWeight.w800),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
             Text(
               'ستظهر الطلبات الجديدة هنا فور إرسالها',
-              style: TextStyle(color: AppColors.gray500, fontSize: 10),
+              style: TextStyle(color: AppColors.gray500, fontSize: 11),
             ),
           ],
         ),

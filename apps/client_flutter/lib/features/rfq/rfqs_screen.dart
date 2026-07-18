@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/catalog_repository.dart';
 import '../../core/api/rfq_repository.dart';
 import '../../core/theme/app_tokens.dart';
@@ -21,6 +22,7 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
   Widget build(BuildContext context) {
     final data = ref.watch(rfqListProvider(_status));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('طلبات عروض الأسعار')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/rfqs/new'),
@@ -46,7 +48,7 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
           ),
           Expanded(
             child: data.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ListSkeleton(),
               error: (error, _) => Center(child: Text('$error')),
               data: (items) => items.isEmpty
                   ? const _RfqEmpty()
@@ -76,8 +78,14 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
       onSelected: (_) => setState(() => _status = value),
     ),
   );
-  Widget _card(RfqListItem item) => Card(
+  Widget _card(RfqListItem item) => Container(
     margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: InkWell(
       onTap: () => context.push('/rfqs/${item.id}'),
       borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -91,7 +99,7 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
                 Expanded(
                   child: Text(
                     item.title,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _statusChip(item.status),
@@ -99,13 +107,14 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
             ),
             Text(
               item.number,
-              style: const TextStyle(fontSize: 9, color: AppColors.gray400),
+              style: const TextStyle(fontSize: 10.5, color: AppColors.gray400),
             ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 14,
+              runSpacing: 7,
               children: [
                 _mini(Icons.inventory_2_outlined, '${item.itemCount} أصناف'),
-                const SizedBox(width: 14),
                 _mini(
                   Icons.event_outlined,
                   DateFormat('d MMM yyyy', 'ar').format(item.requiredDate),
@@ -119,7 +128,7 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   color: AppColors.primary,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -132,7 +141,10 @@ class _RfqsScreenState extends ConsumerState<RfqsScreen> {
     children: [
       Icon(icon, size: 15, color: AppColors.gray500),
       const SizedBox(width: 4),
-      Text(text, style: const TextStyle(fontSize: 9, color: AppColors.gray500)),
+      Text(
+        text,
+        style: const TextStyle(fontSize: 10.5, color: AppColors.gray500),
+      ),
     ],
   );
 }
@@ -162,6 +174,7 @@ class _CreateRfqScreenState extends ConsumerState<CreateRfqScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: Text(
         ['بيانات طلب العرض', 'الأصناف والمرفقات', 'المراجعة والإرسال'][_step],
@@ -184,8 +197,15 @@ class _CreateRfqScreenState extends ConsumerState<CreateRfqScreen> {
     ),
     bottomNavigationBar: _bottom(),
   );
-  Widget _steps() => Padding(
+  Widget _steps() => Container(
+    margin: const EdgeInsets.fromLTRB(16, 10, 16, 4),
     padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: Row(
       children: List.generate(
         3,
@@ -301,7 +321,7 @@ class _CreateRfqScreenState extends ConsumerState<CreateRfqScreen> {
           padding: EdgeInsets.only(top: 12, bottom: 5),
           child: Text(
             'المرفقات',
-            style: TextStyle(fontWeight: FontWeight.w800),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
         ..._rfq!.files.map(
@@ -470,7 +490,7 @@ class _CreateRfqScreenState extends ConsumerState<CreateRfqScreen> {
                   item == null ? 'إضافة صنف' : 'مراجعة الصنف',
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -637,6 +657,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
   Widget build(BuildContext context) {
     final value = ref.watch(rfqDetailProvider(widget.id));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('تفاصيل طلب عرض السعر'),
         actions: [
@@ -647,7 +668,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
         ],
       ),
       body: value.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (e, _) => Center(child: Text('$e')),
         data: (d) => RefreshIndicator(
           onRefresh: () async {
@@ -704,7 +725,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                   d.title,
                   style: const TextStyle(
                     fontSize: 17,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -713,7 +734,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
           ),
           Text(
             d.number,
-            style: const TextStyle(fontSize: 9, color: AppColors.gray400),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.gray400),
           ),
           const Divider(height: 22),
           Row(
@@ -765,7 +786,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                         : Text(
                             '${i + 1}',
                             style: TextStyle(
-                              fontSize: 8,
+                              fontSize: 9.5,
                               color: i <= current
                                   ? Colors.white
                                   : AppColors.gray500,
@@ -775,7 +796,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                   const SizedBox(height: 4),
                   Text(
                     ['مراجعة', 'عرض', 'تفاوض', 'قبول', 'طلب'][i],
-                    style: const TextStyle(fontSize: 7),
+                    style: const TextStyle(fontSize: 10.5),
                   ),
                 ],
               ),
@@ -912,7 +933,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                     Text(
                       'المقترح: ${_money(message.proposed!)} ج.م',
                       style: const TextStyle(
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.primary,
                       ),
                     ),
@@ -922,7 +943,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                       'ar',
                     ).format(message.createdAt.toLocal()),
                     style: const TextStyle(
-                      fontSize: 7,
+                      fontSize: 10.5,
                       color: AppColors.gray400,
                     ),
                   ),
@@ -965,7 +986,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
                 'reject': 'رفض عرض السعر',
                 'requote': 'طلب تعديل السعر',
               }[action]!,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -1248,7 +1269,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
           child,
@@ -1258,8 +1279,8 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
   );
   Widget _metric(String k, String v) => Column(
     children: [
-      Text(v, style: const TextStyle(fontWeight: FontWeight.w800)),
-      Text(k, style: const TextStyle(fontSize: 8, color: AppColors.gray500)),
+      Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+      Text(k, style: const TextStyle(fontSize: 9.5, color: AppColors.gray500)),
     ],
   );
   Widget _sum(String k, Object v, {bool strong = false}) => Padding(
@@ -1270,7 +1291,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
           child: Text(
             k,
             style: TextStyle(
-              fontWeight: strong ? FontWeight.w900 : FontWeight.w400,
+              fontWeight: strong ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
         ),
@@ -1278,7 +1299,7 @@ class _RfqDetailScreenState extends ConsumerState<RfqDetailScreen> {
           v is double ? '${_money(v)} ج.م' : '$v',
           style: TextStyle(
             fontSize: strong ? 17 : 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             color: strong ? AppColors.primary : null,
           ),
         ),
@@ -1317,7 +1338,7 @@ class _CatalogPickerState extends ConsumerState<_CatalogPicker> {
             const SizedBox(height: 8),
             Expanded(
               child: data.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const ListSkeleton(),
                 error: (e, _) => Center(child: Text('$e')),
                 data: (page) => ListView.builder(
                   itemCount: page.items.length,
@@ -1364,11 +1385,11 @@ class _RfqEmpty extends StatelessWidget {
             SizedBox(height: 12),
             Text(
               'لا توجد طلبات عروض أسعار',
-              style: TextStyle(fontWeight: FontWeight.w900),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
             Text(
               'أنشئ طلبًا جديدًا من ملف أو من الكتالوج',
-              style: TextStyle(fontSize: 10, color: AppColors.gray500),
+              style: TextStyle(fontSize: 11, color: AppColors.gray500),
             ),
           ],
         ),
@@ -1393,14 +1414,14 @@ class _Hint extends StatelessWidget {
       children: [
         Icon(icon, color: warning ? AppColors.warning : AppColors.gray400),
         const SizedBox(width: 8),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 10))),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 11))),
       ],
     ),
   );
 }
 
 Widget _statusChip(String s) => Chip(
-  label: Text(_statusName(s), style: const TextStyle(fontSize: 8)),
+  label: Text(_statusName(s), style: const TextStyle(fontSize: 9.5)),
   side: BorderSide.none,
   backgroundColor: _statusColor(s).withValues(alpha: .12),
 );

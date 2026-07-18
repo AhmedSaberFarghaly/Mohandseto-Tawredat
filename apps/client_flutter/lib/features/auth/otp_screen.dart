@@ -133,40 +133,58 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const Center(
+          child: CircleAvatar(
+            radius: 28,
+            backgroundColor: AppColors.primaryTint,
+            child: Icon(Icons.sms_outlined, color: AppColors.primary, size: 27),
+          ),
+        ),
+        const SizedBox(height: 18),
         if (_error != null) InlineError(_error!),
         Directionality(
           textDirection: TextDirection.ltr,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(6, (index) {
-              return SizedBox(
-                width: 48,
-                child: TextField(
-                  controller: _digits[index],
-                  focusNode: _focus[index],
-                  autofocus: index == 0 && widget.devCode == null,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  maxLength: 1,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    counterText: '',
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  onChanged: (value) {
-                    if (value.isNotEmpty && index < 5) {
-                      _focus[index + 1].requestFocus();
-                    } else if (value.isEmpty && index > 0) {
-                      _focus[index - 1].requestFocus();
-                    }
-                  },
-                ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const gap = 7.0;
+              final width = ((constraints.maxWidth - gap * 5) / 6).clamp(
+                34.0,
+                48.0,
               );
-            }),
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(6, (index) {
+                  return SizedBox(
+                    width: width,
+                    height: 56,
+                    child: TextField(
+                      controller: _digits[index],
+                      focusNode: _focus[index],
+                      autofocus: index == 0 && widget.devCode == null,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      maxLength: 1,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        counterText: '',
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      onChanged: (value) {
+                        if (value.isNotEmpty && index < 5) {
+                          _focus[index + 1].requestFocus();
+                        } else if (value.isEmpty && index > 0) {
+                          _focus[index - 1].requestFocus();
+                        }
+                      },
+                    ),
+                  );
+                }),
+              );
+            },
           ),
         ),
         const SizedBox(height: 24),
@@ -184,17 +202,26 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               : const Text('تحقق'),
         ),
         const SizedBox(height: 14),
-        TextButton(
-          onPressed: _seconds == 0 ? _resend : null,
-          child: Text(
-            _seconds == 0
-                ? 'إعادة إرسال الرمز'
-                : 'إعادة الإرسال خلال 00:${_seconds.toString().padLeft(2, '0')}',
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          decoration: BoxDecoration(
+            color: AppColors.gray50,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: TextButton.icon(
+            onPressed: _seconds == 0 ? _resend : null,
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: Text(
+              _seconds == 0
+                  ? 'إعادة إرسال الرمز'
+                  : 'إعادة الإرسال خلال 00:${_seconds.toString().padLeft(2, '0')}',
+            ),
           ),
         ),
         const SizedBox(height: 18),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        const Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Icon(Icons.shield_outlined, color: AppColors.success, size: 18),
             SizedBox(width: 6),

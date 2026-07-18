@@ -1,0 +1,10 @@
+Unhandled exception. System.InvalidOperationException: Unsafe production configuration:
+ - Jwt:Key must be a production secret of at least 48 characters.
+ - AllowedHosts must contain the public API host and cannot be '*'.
+ - Production CORS origin must be a non-loopback HTTPS URL: http://localhost:3000
+ - Production CORS origin must be a non-loopback HTTPS URL: http://localhost:8080
+ - ForwardedHeaders:KnownProxies must contain the trusted reverse-proxy IP address(es).
+ - DataProtection:KeysPath must be an absolute persistent path in production.
+   at Mohandseto.Api.Infrastructure.ProductionReadiness.ThrowIfInvalid(IConfiguration configuration, IHostEnvironment environment) in E:\Mohandseto Tawrdat\apps\api\Infrastructure\ProductionReadiness.cs:line 42
+   at Program.<Main>$(String[] args) in E:\Mohandseto Tawrdat\apps\api\Program.cs:line 193
+   at Program.<Main>(String[] args)

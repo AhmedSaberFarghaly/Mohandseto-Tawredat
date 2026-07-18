@@ -2,202 +2,466 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/account_repository.dart';
 import '../../core/theme/app_tokens.dart';
+
+String _roleLabel(String? code) => switch (code) {
+  'company_owner' => 'صاحب الشركة',
+  'purchasing_officer' => 'موظف مشتريات',
+  'company_admin' => 'مسؤول إداري',
+  'finance_manager' => 'مدير مالي',
+  'warehouse_officer' => 'مسؤول مخازن',
+  'department_manager' => 'مدير إدارة',
+  'approver' => 'مسؤول موافقات',
+  'billing_officer' => 'مسؤول فواتير',
+  'requester' => 'مستخدم مخول بالطلب',
+  _ => code ?? 'مستخدم شركة',
+};
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: const Text('حسابي')),
-    body: ref
-        .watch(accountOverviewProvider)
-        .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) =>
-              ErrorView(e, () => ref.invalidate(accountOverviewProvider)),
-          data: (o) => RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(accountOverviewProvider);
-              await ref.read(accountOverviewProvider.future);
-            },
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-              children: [
-                InkWell(
-                  onTap: () => context.push('/account/profile'),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.primaryDark],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
+    backgroundColor: AppColors.background,
+    body: SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          const _AccountHeader(),
+          Expanded(
+            child: ref
+                .watch(accountOverviewProvider)
+                .when(
+                  loading: () => const ListSkeleton(),
+                  error: (e, _) => ErrorView(
+                    e,
+                    () => ref.invalidate(accountOverviewProvider),
+                  ),
+                  data: (o) => RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(accountOverviewProvider);
+                      await ref.read(accountOverviewProvider.future);
+                    },
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 110),
                       children: [
-                        CircleAvatar(
-                          radius: 31,
-                          backgroundColor: Colors.white,
-                          child: Text(
-                            initials(o.profile.name),
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18,
+                        _ProfileHero(overview: o),
+                        const SizedBox(height: 14),
+                        const _OrdersHub(),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            MetricBox(
+                              '${o.users}',
+                              'مستخدم',
+                              Icons.group_outlined,
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            MetricBox(
+                              '${o.branches}',
+                              'فرع',
+                              Icons.apartment_outlined,
+                            ),
+                            const SizedBox(width: 8),
+                            MetricBox(
+                              '${o.invites}',
+                              'دعوة معلقة',
+                              Icons.mail_outline,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 13),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                o.profile.name,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 17,
-                                ),
-                              ),
-                              Text(
-                                o.profile.jobTitle ??
-                                    o.profile.roles.firstOrNull ??
-                                    'مستخدم شركة',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Text(
-                                o.company.name,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 9,
-                                ),
-                              ),
-                            ],
-                          ),
+                        if (o.creditLimit > 0) ...[
+                          const SizedBox(height: 14),
+                          CreditCard(limit: o.creditLimit, used: o.creditUsed),
+                        ],
+                        const SizedBox(height: 14),
+                        const _QuickCommerceActions(),
+                        const SizedBox(height: 14),
+                        const AccountGroup(
+                          title: 'إدارة حساب الشركة',
+                          items: [
+                            AccountItem(
+                              'بيانات الشركة',
+                              Icons.business_outlined,
+                              '/account/company',
+                            ),
+                            AccountItem(
+                              'المستندات والتوثيق',
+                              Icons.verified_outlined,
+                              '/account/documents',
+                            ),
+                            AccountItem(
+                              'الفروع وعناوين التوصيل',
+                              Icons.location_on_outlined,
+                              '/account/branches',
+                            ),
+                            AccountItem(
+                              'المستخدمون والصلاحيات',
+                              Icons.group_outlined,
+                              '/account/users',
+                            ),
+                          ],
                         ),
-                        const Icon(Icons.edit_outlined, color: Colors.white),
+                        const SizedBox(height: 14),
+                        const AccountGroup(
+                          title: 'التحكم المؤسسي',
+                          items: [
+                            AccountItem(
+                              'الأدوار ومصفوفة الصلاحيات',
+                              Icons.admin_panel_settings_outlined,
+                              '/account/roles',
+                            ),
+                            AccountItem(
+                              'مستويات الموافقة',
+                              Icons.rule_folder_outlined,
+                              '/account/approvals',
+                            ),
+                            AccountItem(
+                              'مراكز التكلفة',
+                              Icons.account_balance_wallet_outlined,
+                              '/account/cost-centers',
+                            ),
+                            AccountItem(
+                              'سجل نشاط النظام',
+                              Icons.history_rounded,
+                              '/account/audit',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        const AccountGroup(
+                          title: 'الفوترة والتعاقد',
+                          items: [
+                            AccountItem(
+                              'الهوية البصرية للشركة',
+                              Icons.palette_outlined,
+                              '/account/brand',
+                            ),
+                            AccountItem(
+                              'بيانات الفوترة والضرائب',
+                              Icons.receipt_long_outlined,
+                              '/account/billing',
+                            ),
+                            AccountItem(
+                              'العقود وشروط الدفع',
+                              Icons.description_outlined,
+                              '/account/contracts',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        const AccountGroup(
+                          title: 'المساعدة والإعدادات',
+                          items: [
+                            AccountItem(
+                              'الإشعارات',
+                              Icons.notifications_outlined,
+                              '/notifications',
+                            ),
+                            AccountItem(
+                              'مركز الدعم',
+                              Icons.support_agent_outlined,
+                              '/support',
+                            ),
+                            AccountItem(
+                              'الإعدادات والأمان',
+                              Icons.settings_outlined,
+                              '/settings',
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _AccountHeader extends StatelessWidget {
+  const _AccountHeader();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+    child: Row(
+      children: [
+        Text(
+          'حسابي',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const Spacer(),
+        IconButton.filledTonal(
+          tooltip: 'الإشعارات',
+          onPressed: () => context.push('/notifications'),
+          icon: const Icon(Icons.notifications_none_rounded),
+        ),
+        const SizedBox(width: 6),
+        IconButton.filledTonal(
+          tooltip: 'الإعدادات',
+          onPressed: () => context.push('/settings'),
+          icon: const Icon(Icons.settings_outlined),
+        ),
+      ],
+    ),
+  );
+}
+
+class _ProfileHero extends StatelessWidget {
+  const _ProfileHero({required this.overview});
+  final AccountOverviewModel overview;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: () => context.push('/account/profile'),
+    borderRadius: BorderRadius.circular(AppRadius.xxl),
+    child: Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0754D5), AppColors.primaryDark],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.xxl),
+        boxShadow: AppShadows.floating,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 66,
+            height: 66,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: .55),
+                width: 3,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initials(overview.profile.name),
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  overview.profile.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  overview.profile.jobTitle ??
+                      _roleLabel(overview.profile.roles.firstOrNull),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70, fontSize: 10.5),
+                ),
+                const SizedBox(height: 5),
                 Row(
                   children: [
-                    MetricBox('${o.users}', 'مستخدم', Icons.group_outlined),
-                    const SizedBox(width: 8),
-                    MetricBox('${o.branches}', 'فرع', Icons.apartment_outlined),
-                    const SizedBox(width: 8),
-                    MetricBox('${o.invites}', 'دعوة معلقة', Icons.mail_outline),
-                  ],
-                ),
-                if (o.creditLimit > 0) ...[
-                  const SizedBox(height: 12),
-                  CreditCard(limit: o.creditLimit, used: o.creditUsed),
-                ],
-                const SizedBox(height: 14),
-                const AccountGroup(
-                  title: 'حساب الشركة',
-                  items: [
-                    AccountItem(
-                      'بيانات الشركة',
-                      Icons.business_outlined,
-                      '/account/company',
+                    const Icon(
+                      Icons.verified_rounded,
+                      color: Color(0xFF7EE2A8),
+                      size: 16,
                     ),
-                    AccountItem(
-                      'مستندات الشركة',
-                      Icons.folder_copy_outlined,
-                      '/account/documents',
-                    ),
-                    AccountItem(
-                      'عناوين وفروع الشركة',
-                      Icons.location_on_outlined,
-                      '/account/branches',
-                    ),
-                    AccountItem(
-                      'مستخدمو الشركة',
-                      Icons.group_outlined,
-                      '/account/users',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const AccountGroup(
-                  title: 'التحكم المؤسسي',
-                  items: [
-                    AccountItem(
-                      'الأدوار ومصفوفة الصلاحيات',
-                      Icons.admin_panel_settings_outlined,
-                      '/account/roles',
-                    ),
-                    AccountItem(
-                      'مستويات الموافقة',
-                      Icons.rule_folder_outlined,
-                      '/account/approvals',
-                    ),
-                    AccountItem(
-                      'مراكز التكلفة',
-                      Icons.account_balance_wallet_outlined,
-                      '/account/cost-centers',
-                    ),
-                    AccountItem(
-                      'سجل نشاط مسؤولي النظام',
-                      Icons.history,
-                      '/account/audit',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const AccountGroup(
-                  title: 'الهوية والتعاقد',
-                  items: [
-                    AccountItem(
-                      'الهوية البصرية للشركة',
-                      Icons.palette_outlined,
-                      '/account/brand',
-                    ),
-                    AccountItem(
-                      'بيانات الفوترة والضرائب',
-                      Icons.receipt_long_outlined,
-                      '/account/billing',
-                    ),
-                    AccountItem(
-                      'العقود وشروط الدفع',
-                      Icons.description_outlined,
-                      '/account/contracts',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const AccountGroup(
-                  title: 'المساعدة والإعدادات',
-                  items: [
-                    AccountItem(
-                      'الإشعارات',
-                      Icons.notifications_outlined,
-                      '/notifications',
-                    ),
-                    AccountItem(
-                      'مركز الدعم',
-                      Icons.support_agent_outlined,
-                      '/support',
-                    ),
-                    AccountItem(
-                      'الإعدادات والأمان',
-                      Icons.settings_outlined,
-                      '/settings',
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        overview.company.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+          const Icon(Icons.edit_outlined, color: Colors.white, size: 22),
+        ],
+      ),
+    ),
+  );
+}
+
+class _OrdersHub extends StatelessWidget {
+  const _OrdersHub();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            const Text(
+              'طلباتي',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => context.go('/orders'),
+              child: const Text('عرض الكل'),
+            ),
+          ],
         ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            _OrderShortcut(
+              Icons.hourglass_top_rounded,
+              'قيد المراجعة',
+              AppColors.warning,
+              () => context.go('/orders'),
+            ),
+            _OrderShortcut(
+              Icons.inventory_2_outlined,
+              'قيد التجهيز',
+              AppColors.primary,
+              () => context.go('/orders'),
+            ),
+            _OrderShortcut(
+              Icons.local_shipping_outlined,
+              'في الطريق',
+              AppColors.info,
+              () => context.go('/orders'),
+            ),
+            _OrderShortcut(
+              Icons.assignment_return_outlined,
+              'المرتجعات',
+              AppColors.error,
+              () => context.push('/returns'),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+class _OrderShortcut extends StatelessWidget {
+  const _OrderShortcut(this.icon, this.label, this.color, this.onTap);
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 2),
+        child: Column(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: .1),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.gray600,
+                fontSize: 8.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _QuickCommerceActions extends StatelessWidget {
+  const _QuickCommerceActions();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      _QuickAction('المفضلة', Icons.favorite_border_rounded, '/favorites'),
+      const SizedBox(width: 8),
+      _QuickAction('الفواتير', Icons.receipt_long_outlined, '/finance'),
+      const SizedBox(width: 8),
+      _QuickAction('العروض', Icons.request_quote_outlined, '/rfqs'),
+      const SizedBox(width: 8),
+      _QuickAction('الدعم', Icons.support_agent_outlined, '/support'),
+    ],
+  );
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction(this.label, this.icon, this.route);
+  final String label, route;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: InkWell(
+      onTap: () => context.push(route),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.gray150),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 22),
+            const SizedBox(height: 5),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
@@ -226,11 +490,12 @@ class _ProfileEditorState extends ConsumerState<ProfileEditorScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('تعديل البيانات الشخصية')),
+    backgroundColor: AppColors.background,
+    appBar: AppBar(title: const Text('الملف الشخصي')),
     body: ref
         .watch(accountOverviewProvider)
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(),
           error: (e, _) =>
               ErrorView(e, () => ref.invalidate(accountOverviewProvider)),
           data: (o) {
@@ -254,23 +519,125 @@ class _ProfileEditorState extends ConsumerState<ProfileEditorScreen> {
                     () => ref.invalidate(accountBranchesProvider),
                   ),
                   data: (branches) => ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                     children: [
-                      Center(
-                        child: CircleAvatar(
-                          radius: 42,
-                          backgroundColor: AppColors.primaryTint,
-                          child: Text(
-                            initials(name.text),
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 23,
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF0754D5), AppColors.primaryDark],
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
                           ),
+                          borderRadius: BorderRadius.circular(AppRadius.xxl),
+                          boxShadow: AppShadows.floating,
+                        ),
+                        child: Row(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                CircleAvatar(
+                                  radius: 38,
+                                  backgroundColor: Colors.white,
+                                  child: Text(
+                                    initials(name.text),
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 21,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: -2,
+                                  bottom: -2,
+                                  child: Container(
+                                    width: 27,
+                                    height: 27,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    o.profile.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    o.profile.jobTitle ??
+                                        _roleLabel(o.profile.roles.firstOrNull),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.verified_rounded,
+                                        color: Color(0xFF7EE2A8),
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'حساب شركة موثّق',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 22),
+                      const Text(
+                        'البيانات الشخصية',
+                        style: TextStyle(
+                          color: AppColors.gray900,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        'تُستخدم هذه البيانات في الطلبات والفواتير والتواصل.',
+                        style: TextStyle(
+                          color: AppColors.gray500,
+                          fontSize: 10.5,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                       Field(name, 'الاسم بالكامل', icon: Icons.person_outline),
                       Field(
                         email,
@@ -319,7 +686,7 @@ class _ProfileEditorState extends ConsumerState<ProfileEditorScreen> {
                             setState(() => language = v.first),
                       ),
                       const SizedBox(height: 20),
-                      FilledButton(
+                      FilledButton.icon(
                         onPressed: saving
                             ? null
                             : () async {
@@ -346,7 +713,17 @@ class _ProfileEditorState extends ConsumerState<ProfileEditorScreen> {
                                   if (mounted) setState(() => saving = false);
                                 }
                               },
-                        child: Text(saving ? 'جارٍ الحفظ...' : 'حفظ التعديلات'),
+                        icon: saving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.check_rounded),
+                        label: Text(saving ? 'جارٍ الحفظ...' : 'حفظ التعديلات'),
                       ),
                     ],
                   ),
@@ -360,6 +737,7 @@ class CompanyAccountScreen extends ConsumerWidget {
   const CompanyAccountScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('بيانات الشركة')),
     body: ref
         .watch(accountOverviewProvider)
@@ -408,6 +786,7 @@ class AccountDocumentsScreen extends ConsumerWidget {
   const AccountDocumentsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('مستندات الشركة')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => context.push('/documents'),
@@ -438,7 +817,7 @@ class AccountDocumentsScreen extends ConsumerWidget {
                             title: Text(
                               documentName(d.type),
                               style: const TextStyle(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             subtitle: Text(
@@ -462,6 +841,7 @@ class BranchesScreen extends ConsumerWidget {
   const BranchesScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('فروع وعناوين الشركة')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => editBranch(context, ref),
@@ -496,7 +876,7 @@ class BranchesScreen extends ConsumerWidget {
                             child: Text(
                               b.name,
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -524,6 +904,7 @@ class CompanyUsersScreen extends ConsumerWidget {
   const CompanyUsersScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: const Text('مستخدمو الشركة'),
       actions: [
@@ -561,13 +942,13 @@ class CompanyUsersScreen extends ConsumerWidget {
                             color: u.active
                                 ? AppColors.primary
                                 : AppColors.gray500,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                       title: Text(
                         u.name,
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       subtitle: Text(
                         '${u.jobTitle ?? u.roles.map((r) => r.name).join('، ')}\n${u.email ?? u.phone}',
@@ -587,6 +968,7 @@ class RolesPermissionsScreen extends ConsumerWidget {
   const RolesPermissionsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('مصفوفة صلاحيات الشركة')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => editRole(context, ref),
@@ -617,7 +999,7 @@ class RolesPermissionsScreen extends ConsumerWidget {
                     ),
                     title: Text(
                       r.name,
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     subtitle: Text(
                       '${r.users} مستخدم • ${r.permissions.length} صلاحية',
@@ -639,7 +1021,7 @@ class RolesPermissionsScreen extends ConsumerWidget {
                                 (p) => Chip(
                                   label: Text(
                                     permissionLabel(p),
-                                    style: const TextStyle(fontSize: 8),
+                                    style: const TextStyle(fontSize: 9.5),
                                   ),
                                 ),
                               )
@@ -660,6 +1042,7 @@ class ApprovalSettingsScreen extends ConsumerWidget {
   const ApprovalSettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('إدارة مستويات الموافقة')),
     body: ref
         .watch(accountPoliciesProvider)
@@ -683,7 +1066,7 @@ class ApprovalSettingsScreen extends ConsumerWidget {
                                 child: Text(
                                   p.name,
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w700,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -706,7 +1089,7 @@ class ApprovalSettingsScreen extends ConsumerWidget {
                               title: Text(
                                 l.name,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               subtitle: Text(
@@ -717,9 +1100,9 @@ class ApprovalSettingsScreen extends ConsumerWidget {
                                     ? 'بدون حد'
                                     : '${money(l.limit!)} ج.م',
                                 style: const TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 10.5,
                                   color: AppColors.primary,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -744,6 +1127,7 @@ class CostCentersSettingsScreen extends ConsumerWidget {
   const CostCentersSettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('إدارة مراكز التكلفة')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => editCenter(context, ref),
@@ -778,14 +1162,14 @@ class CostCentersSettingsScreen extends ConsumerWidget {
                                   Text(
                                     c.name,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   Text(
                                     c.code,
                                     style: const TextStyle(
                                       color: AppColors.gray500,
-                                      fontSize: 9,
+                                      fontSize: 10.5,
                                     ),
                                   ),
                                 ],
@@ -794,7 +1178,7 @@ class CostCentersSettingsScreen extends ConsumerWidget {
                             Text(
                               '${money(c.budget)} ج.م',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                                 color: AppColors.primary,
                               ),
                             ),
@@ -816,12 +1200,12 @@ class CostCentersSettingsScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '${(utilization * 100).toStringAsFixed(0)}% مستخدم ومحجوز',
-                              style: const TextStyle(fontSize: 8),
+                              style: const TextStyle(fontSize: 9.5),
                             ),
                             const Spacer(),
                             Text(
                               'حد الموافقة ${c.threshold == null ? '—' : money(c.threshold!)}',
-                              style: const TextStyle(fontSize: 8),
+                              style: const TextStyle(fontSize: 9.5),
                             ),
                           ],
                         ),
@@ -840,6 +1224,7 @@ class AccountAuditScreen extends ConsumerWidget {
   const AccountAuditScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('سجل نشاط المستخدمين')),
     body: ref
         .watch(accountAuditProvider)
@@ -863,7 +1248,7 @@ class AccountAuditScreen extends ConsumerWidget {
                         ),
                         title: Text(
                           actionLabel(a.action),
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                         subtitle: Text(
                           '${a.userName ?? 'النظام'} • ${DateFormat('d MMM yyyy، h:mm a', 'ar').format(a.at.toLocal())}',
@@ -871,7 +1256,7 @@ class AccountAuditScreen extends ConsumerWidget {
                         trailing: Text(
                           a.entity,
                           style: const TextStyle(
-                            fontSize: 8,
+                            fontSize: 9.5,
                             color: AppColors.gray500,
                           ),
                         ),
@@ -887,6 +1272,7 @@ class BrandSettingsScreen extends ConsumerWidget {
   const BrandSettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('الهوية البصرية للشركة')),
     body: ref
         .watch(accountBrandProvider)
@@ -982,6 +1368,7 @@ class BillingSettingsScreen extends ConsumerWidget {
   const BillingSettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('بيانات الفوترة والضرائب')),
     body: ref
         .watch(accountBillingProvider)
@@ -1078,6 +1465,7 @@ class CompanyContractsScreen extends ConsumerWidget {
   const CompanyContractsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('العقود وشروط الدفع')),
     body: ref
         .watch(accountContractsProvider)
@@ -1132,12 +1520,12 @@ class ContractCard extends StatelessWidget {
                   children: [
                     Text(
                       contract.number,
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       '${DateFormat('d MMM yyyy', 'ar').format(contract.start)} — ${DateFormat('d MMM yyyy', 'ar').format(contract.end)}',
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10.5,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -1159,7 +1547,7 @@ class ContractCard extends StatelessWidget {
                 'ينتهي العقد خلال ${contract.remaining} يومًا',
                 style: const TextStyle(
                   color: AppColors.warning,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -1176,7 +1564,7 @@ class ContractCard extends StatelessWidget {
               padding: const EdgeInsets.only(top: 10),
               child: Text(
                 contract.summary!,
-                style: const TextStyle(fontSize: 10, color: AppColors.gray600),
+                style: const TextStyle(fontSize: 11, color: AppColors.gray600),
               ),
             ),
           const SizedBox(height: 14),
@@ -1285,7 +1673,7 @@ Future<void> editBranch(
                 b == null ? 'إضافة فرع' : 'تعديل الفرع',
                 style: const TextStyle(
                   fontSize: 19,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 12),
@@ -1388,7 +1776,7 @@ Future<void> editUser(
                 u == null ? 'إضافة مستخدم' : 'تعديل المستخدم',
                 style: const TextStyle(
                   fontSize: 19,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 10),
@@ -1414,7 +1802,7 @@ Future<void> editUser(
               const SizedBox(height: 10),
               const Text(
                 'الأدوار',
-                style: TextStyle(fontWeight: FontWeight.w900),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               ...roles.map(
                 (r) => CheckboxListTile(
@@ -1504,7 +1892,7 @@ Future<void> inviteUser(BuildContext context, WidgetRef ref) async {
           children: [
             const Text(
               'دعوة مستخدم',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             Field(name, 'الاسم'),
@@ -1600,7 +1988,7 @@ Future<void> editRole(
                 role == null ? 'إنشاء دور' : 'تعيين الصلاحيات',
                 style: const TextStyle(
                   fontSize: 19,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               if (role == null) ...[
@@ -1624,13 +2012,13 @@ Future<void> editRole(
                           title: Text(
                             p.description,
                             style: const TextStyle(
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           subtitle: Text(
                             '${p.module} • ${p.code}',
-                            style: const TextStyle(fontSize: 8),
+                            style: const TextStyle(fontSize: 9.5),
                           ),
                         ),
                       )
@@ -1700,7 +2088,7 @@ Future<void> editApproval(
             children: [
               const Text(
                 'مستويات الموافقة',
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
               ),
               const Text(
                 'اختر المسؤول والحد المالي لكل مستوى',
@@ -1719,7 +2107,7 @@ Future<void> editApproval(
                             Text(
                               '${l.sequence}. ${l.name}',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             DropdownButtonFormField<String>(
@@ -1847,7 +2235,7 @@ Future<void> editCenter(
           children: [
             Text(
               c == null ? 'إضافة مركز تكلفة' : 'تعديل مركز التكلفة',
-              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             Field(code, 'الكود'),
@@ -1937,7 +2325,7 @@ Future<void> formSheet(
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           ...fields,
@@ -1964,38 +2352,53 @@ class AccountGroup extends StatelessWidget {
   final String title;
   final List<AccountItem> items;
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+      padding: const EdgeInsets.fromLTRB(14, 15, 14, 7),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             title,
             style: const TextStyle(
-              color: AppColors.gray500,
-              fontSize: 9,
-              fontWeight: FontWeight.w800,
+              color: AppColors.gray900,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 7),
           ...items.map(
             (i) => ListTile(
               contentPadding: EdgeInsets.zero,
+              minVerticalPadding: 7,
               onTap: () => context.push(i.route),
-              leading: CircleAvatar(
-                radius: 17,
-                backgroundColor: AppColors.primaryTint,
-                child: Icon(i.icon, size: 18, color: AppColors.primary),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryTint,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(i.icon, size: 20, color: AppColors.primary),
               ),
               title: Text(
                 i.label,
                 style: const TextStyle(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 11,
                 ),
               ),
-              trailing: const Icon(Icons.chevron_right, size: 18),
+              trailing: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.gray400,
+                size: 14,
+              ),
             ),
           ),
         ],
@@ -2016,20 +2419,28 @@ class MetricBox extends StatelessWidget {
   final IconData icon;
   @override
   Widget build(BuildContext context) => Expanded(
-    child: Card(
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: AppColors.gray150),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.zero,
         child: Column(
           children: [
             Icon(icon, color: AppColors.primary, size: 20),
             const SizedBox(height: 5),
             Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
             ),
             Text(
               label,
-              style: const TextStyle(color: AppColors.gray500, fontSize: 8),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.gray500, fontSize: 9.5),
             ),
           ],
         ),
@@ -2044,7 +2455,13 @@ class CreditCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = limit <= 0 ? 0.0 : used / limit;
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: AppColors.gray150),
+        boxShadow: AppShadows.soft,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -2059,15 +2476,15 @@ class CreditCard extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'الحد الائتماني',
-                    style: TextStyle(fontWeight: FontWeight.w900),
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
                 Text(
                   '${money(limit - used)} ج.م متاح',
                   style: const TextStyle(
                     color: AppColors.success,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -2083,12 +2500,12 @@ class CreditCard extends StatelessWidget {
               children: [
                 Text(
                   'مستخدم ${money(used)}',
-                  style: const TextStyle(fontSize: 8),
+                  style: const TextStyle(fontSize: 9.5),
                 ),
                 const Spacer(),
                 Text(
                   'الإجمالي ${money(limit)}',
-                  style: const TextStyle(fontSize: 8),
+                  style: const TextStyle(fontSize: 9.5),
                 ),
               ],
             ),
@@ -2123,7 +2540,7 @@ class DetailCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
           ),
           const Divider(height: 25),
           ...rows.entries.map((e) => InfoRow(e.key, e.value)),
@@ -2146,14 +2563,14 @@ class InfoRow extends StatelessWidget {
           width: 120,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 9, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.gray500),
           ),
         ),
         Expanded(
           child: Text(
             value.isEmpty ? '—' : value,
             textAlign: TextAlign.end,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -2182,9 +2599,9 @@ class StatusChip extends StatelessWidget {
       child: Text(
         statusLabel(status),
         style: TextStyle(
-          fontSize: 7,
+          fontSize: 10.5,
           color: color,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -2211,7 +2628,7 @@ class StatusBanner extends StatelessWidget {
             'حساب الشركة ${statusLabel(status)}',
             style: const TextStyle(
               color: AppColors.success,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -2237,7 +2654,7 @@ class InfoBanner extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 9, color: AppColors.info),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.info),
           ),
         ),
       ],

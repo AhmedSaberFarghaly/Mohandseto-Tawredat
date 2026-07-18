@@ -38,6 +38,7 @@ class _InvoiceExportScreenState extends ConsumerState<InvoiceExportScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('تصدير الفواتير')),
     body: ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
@@ -56,7 +57,8 @@ class _InvoiceExportScreenState extends ConsumerState<InvoiceExportScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: AppColors.gray200),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              boxShadow: AppShadows.soft,
             ),
             child: Row(
               children: [
@@ -74,7 +76,7 @@ class _InvoiceExportScreenState extends ConsumerState<InvoiceExportScreen> {
                     children: [
                       Text(
                         range == null ? 'كل التواريخ' : _rangeLabel(),
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -253,15 +255,12 @@ class _ExportHeading extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
             ),
             const SizedBox(height: 2),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: AppColors.gray500,
-                fontSize: 11,
-              ),
+              style: const TextStyle(color: AppColors.gray500, fontSize: 11),
             ),
           ],
         ),
@@ -296,7 +295,8 @@ class _FormatCard extends StatelessWidget {
           color: selected ? AppColors.primary : AppColors.gray200,
           width: selected ? 1.5 : 1,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: selected ? AppShadows.soft : const [],
       ),
       child: Column(
         children: [
@@ -306,7 +306,7 @@ class _FormatCard extends StatelessWidget {
             color: selected ? AppColors.primary : AppColors.gray500,
           ),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           Icon(
             selected ? Icons.check_circle : Icons.circle_outlined,

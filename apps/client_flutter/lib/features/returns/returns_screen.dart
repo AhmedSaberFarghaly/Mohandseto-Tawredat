@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/return_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -19,6 +20,7 @@ class _ReturnsScreenState extends ConsumerState<ReturnsScreen> {
   Widget build(BuildContext context) {
     final result = ref.watch(returnListProvider(status));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('مركز المرتجعات')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/returns/new'),
@@ -43,7 +45,7 @@ class _ReturnsScreenState extends ConsumerState<ReturnsScreen> {
           ),
           Expanded(
             child: result.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ListSkeleton(),
               error: (e, _) => Center(child: Text('$e')),
               data: (items) => items.isEmpty
                   ? const _EmptyReturns()
@@ -79,10 +81,16 @@ class _ReturnCard extends StatelessWidget {
   const _ReturnCard({required this.item});
   final ReturnListItem item;
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.xl),
       onTap: () => context.push('/returns/${item.id}'),
       child: Padding(
         padding: const EdgeInsets.all(15),
@@ -97,12 +105,12 @@ class _ReturnCard extends StatelessWidget {
                     children: [
                       Text(
                         item.number,
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
                         'الطلب ${item.orderNumber}',
                         style: const TextStyle(
-                          fontSize: 9,
+                          fontSize: 10.5,
                           color: AppColors.gray500,
                         ),
                       ),
@@ -122,15 +130,19 @@ class _ReturnCard extends StatelessWidget {
                   size: 18,
                   color: AppColors.primary,
                 ),
-                Text(
-                  ' ${resolutionAr(item.resolution)} • ${item.itemCount} أصناف',
-                  style: const TextStyle(fontSize: 10),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    '${resolutionAr(item.resolution)} • ${item.itemCount} أصناف',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11),
+                  ),
                 ),
-                const Spacer(),
                 Text(
                   '${money(item.approvedTotal ?? item.requestedTotal)} ج.م',
                   style: const TextStyle(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
@@ -149,7 +161,7 @@ class _ReturnCard extends StatelessWidget {
                     Text(
                       ' الاستلام ${DateFormat('d MMM، h:mm a', 'ar').format(item.pickupAt!.toLocal())}',
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10.5,
                         color: AppColors.gray600,
                       ),
                     ),
@@ -191,6 +203,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: Text(
         [
@@ -204,8 +217,14 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     ),
     body: Column(
       children: [
-        Padding(
+        Container(
+          margin: const EdgeInsets.fromLTRB(16, 10, 16, 8),
           padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: AppColors.gray150),
+          ),
           child: Row(
             children: List.generate(
               5,
@@ -288,7 +307,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
   Widget _orders() => ref
       .watch(eligibleReturnsProvider)
       .when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (e, _) => Center(child: Text('$e')),
         data: (orders) {
           if (orders.isEmpty) {
@@ -313,7 +332,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                       }),
                       title: Text(
                         o.number,
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       subtitle: Text(
                         'تم الاستلام ${DateFormat('d MMMM yyyy', 'ar').format(o.deliveredAt)} • متاح حتى ${DateFormat('d MMM').format(o.eligibleUntil)}',
@@ -355,7 +374,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                   }),
                   title: Text(
                     item.name,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(
                     '${item.sku} • المتاح ${item.eligible} من ${item.ordered}',
@@ -373,7 +392,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                       ),
                       Text(
                         '${choice.quantity}',
-                        style: const TextStyle(fontWeight: FontWeight.w900),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       IconButton(
                         onPressed: choice.quantity < item.eligible
@@ -386,7 +405,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                         '${money(choice.quantity * item.unitPrice)} ج.م',
                         style: const TextStyle(
                           color: AppColors.primary,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -413,7 +432,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(fontWeight: FontWeight.w900),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 9),
                 DropdownButtonFormField(
@@ -465,7 +484,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
         padding: EdgeInsets.only(top: 6),
         child: Text(
           'الصور مطلوبة عند اختيار تالف أو مشكلة جودة • حد أقصى 5 صور',
-          style: TextStyle(fontSize: 9, color: AppColors.gray500),
+          style: TextStyle(fontSize: 10.5, color: AppColors.gray500),
         ),
       ),
       if (photos.isNotEmpty)
@@ -488,7 +507,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     children: [
       const Text(
         'ماذا تفضل؟',
-        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
       ),
       const SizedBox(height: 10),
       Row(
@@ -570,13 +589,13 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
               const SizedBox(height: 8),
               Text(
                 '${selected.length} أصناف • ${selected.values.fold<int>(0, (a, b) => a + b.quantity)} قطعة',
-                style: const TextStyle(fontWeight: FontWeight.w900),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               Text(
                 '${money(total)} ج.م',
                 style: const TextStyle(
                   fontSize: 25,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
@@ -654,11 +673,12 @@ class ReturnDetailScreen extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('تفاصيل المرتجع')),
     body: ref
         .watch(returnDetailProvider(id))
         .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(),
           error: (e, _) => Center(child: Text('$e')),
           data: (r) => RefreshIndicator(
             onRefresh: () async {
@@ -703,7 +723,7 @@ class ReturnDetailScreen extends ConsumerWidget {
                       children: [
                         const Text(
                           'المنتجات المرتجعة',
-                          style: TextStyle(fontWeight: FontWeight.w900),
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                         const Divider(),
                         ...r.items.map(
@@ -717,7 +737,7 @@ class ReturnDetailScreen extends ConsumerWidget {
                               i.name,
                               style: const TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             subtitle: Text(
@@ -730,7 +750,7 @@ class ReturnDetailScreen extends ConsumerWidget {
                             trailing: Text(
                               '${money(i.total)} ج.م',
                               style: const TextStyle(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -833,6 +853,7 @@ class _ReturnHero extends StatelessWidget {
         colors: [AppColors.primary, AppColors.primaryDark],
       ),
       borderRadius: BorderRadius.circular(20),
+      boxShadow: AppShadows.floating,
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -844,7 +865,7 @@ class _ReturnHero extends StatelessWidget {
                 item.number,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -858,8 +879,8 @@ class _ReturnHero extends StatelessWidget {
                 returnStatusAr(item.status),
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -875,12 +896,12 @@ class _ReturnHero extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 25,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         Text(
           'طلب الشراء ${item.orderNumber}',
-          style: const TextStyle(color: Colors.white70, fontSize: 9),
+          style: const TextStyle(color: Colors.white70, fontSize: 10.5),
         ),
       ],
     ),
@@ -899,7 +920,7 @@ class _ReturnTimeline extends StatelessWidget {
         children: [
           const Text(
             'تحديثات الطلب',
-            style: TextStyle(fontWeight: FontWeight.w900),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const Divider(),
           ...item.history.asMap().entries.map((x) {
@@ -944,14 +965,14 @@ class _ReturnTimeline extends StatelessWidget {
                           returnStatusAr(h.status),
                           style: const TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (h.note != null)
                           Text(
                             h.note!,
                             style: const TextStyle(
-                              fontSize: 9,
+                              fontSize: 10.5,
                               color: AppColors.gray500,
                             ),
                           ),
@@ -961,7 +982,7 @@ class _ReturnTimeline extends StatelessWidget {
                             'ar',
                           ).format(h.at.toLocal()),
                           style: const TextStyle(
-                            fontSize: 8,
+                            fontSize: 9.5,
                             color: AppColors.gray400,
                           ),
                         ),
@@ -991,7 +1012,7 @@ class _Pickup extends StatelessWidget {
         children: [
           const Text(
             'استلام المرتجع',
-            style: TextStyle(fontWeight: FontWeight.w900),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
           InfoRow(
@@ -1027,7 +1048,7 @@ class _Pickup extends StatelessWidget {
                       padding: const EdgeInsets.all(5),
                       child: Text(
                         '${item.latitude!.toStringAsFixed(4)}, ${item.longitude!.toStringAsFixed(4)}',
-                        style: const TextStyle(fontSize: 8),
+                        style: const TextStyle(fontSize: 9.5),
                       ),
                     ),
                   ),
@@ -1076,7 +1097,7 @@ class _Choice extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
           ),
         ],
       ),
@@ -1103,10 +1124,13 @@ class _Hint extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(
                 body,
-                style: const TextStyle(fontSize: 9, color: AppColors.gray600),
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  color: AppColors.gray600,
+                ),
               ),
             ],
           ),
@@ -1144,9 +1168,9 @@ class _Alert extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.w900, color: color),
+                style: TextStyle(fontWeight: FontWeight.w700, color: color),
               ),
-              Text(body, style: const TextStyle(fontSize: 10)),
+              Text(body, style: const TextStyle(fontSize: 11)),
             ],
           ),
         ),
@@ -1168,14 +1192,14 @@ class InfoRow extends StatelessWidget {
           width: 105,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 10, color: AppColors.gray500),
+            style: const TextStyle(fontSize: 11, color: AppColors.gray500),
           ),
         ),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.end,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
           ),
         ),
       ],
@@ -1198,8 +1222,8 @@ class ReturnStatusChip extends StatelessWidget {
       child: Text(
         returnStatusAr(status),
         style: TextStyle(
-          fontSize: 8,
-          fontWeight: FontWeight.w800,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
           color: color,
         ),
       ),
@@ -1224,7 +1248,7 @@ class _EmptyReturns extends StatelessWidget {
           SizedBox(height: 12),
           Text(
             'لا توجد طلبات إرجاع',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           Text(
             'يمكنك إنشاء طلب للمنتجات المستلمة خلال فترة الإرجاع',

@@ -71,11 +71,56 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
         const StepHeader(current: 3, total: 3),
         const SizedBox(height: 22),
         if (_error != null) InlineError(_error!),
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _uploaded.length == _documents.length
+                ? AppColors.successTint
+                : AppColors.infoTint,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _uploaded.length == _documents.length
+                    ? Icons.task_alt_rounded
+                    : Icons.cloud_upload_outlined,
+                color: _uploaded.length == _documents.length
+                    ? AppColors.success
+                    : AppColors.primary,
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  'تم رفع ${_uploaded.length} من ${_documents.length} مستندات مطلوبة',
+                  style: TextStyle(
+                    color: _uploaded.length == _documents.length
+                        ? AppColors.success
+                        : AppColors.info,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         ..._documents.map((document) {
           final uploaded = _uploaded[document.$1];
           final loading = _loadingType == document.$1;
-          return Card(
+          return Container(
             margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(
+                color: uploaded == null
+                    ? AppColors.gray150
+                    : AppColors.success.withValues(alpha: .25),
+              ),
+              boxShadow: AppShadows.soft,
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -119,15 +164,20 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                       ],
                     ),
                   ),
-                  TextButton(
+                  IconButton.filledTonal(
+                    tooltip: uploaded == null ? 'رفع الملف' : 'تغيير الملف',
                     onPressed: loading ? null : () => _pick(document.$1),
-                    child: loading
+                    icon: loading
                         ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(uploaded == null ? 'رفع' : 'تغيير'),
+                        : Icon(
+                            uploaded == null
+                                ? Icons.upload_rounded
+                                : Icons.refresh_rounded,
+                          ),
                   ),
                 ],
               ),

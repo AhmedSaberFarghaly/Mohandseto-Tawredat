@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/customization_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -53,9 +54,10 @@ class _CustomProductWizardScreenState
   Widget build(BuildContext context) {
     final template = ref.watch(customTemplateProvider(widget.templateId));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('تخصيص المنتج')),
       body: template.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => Center(child: Text('$error')),
         data: (t) => Stepper(
           currentStep: _step,
@@ -140,7 +142,7 @@ class _CustomProductWizardScreenState
               ),
               child: Text(
                 '$_quantity قطعة',
-                style: const TextStyle(fontWeight: FontWeight.w800),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -152,7 +154,7 @@ class _CustomProductWizardScreenState
       ),
       Text(
         'الحد الأدنى ${t.minQuantity} قطعة',
-        style: const TextStyle(color: AppColors.gray500, fontSize: 9),
+        style: const TextStyle(color: AppColors.gray500, fontSize: 10.5),
       ),
       const SizedBox(height: 14),
       _ChoiceField(
@@ -367,13 +369,13 @@ class _CustomProductWizardScreenState
           style: const TextStyle(
             color: AppColors.primary,
             fontSize: 17,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 5),
         const Text(
           'السعر تقديري ويخضع لمراجعة الملفات والخامات والكمية.',
-          style: TextStyle(color: AppColors.gray500, fontSize: 9),
+          style: TextStyle(color: AppColors.gray500, fontSize: 10.5),
         ),
         if (_submitting)
           const Padding(
@@ -489,7 +491,7 @@ class _CustomProductWizardScreenState
           children: [
             const Text(
               'شعارات الشركة المحفوظة',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             ...logos.map(
@@ -588,7 +590,10 @@ class _UploadTile extends StatelessWidget {
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.gray500, fontSize: 9),
+                  style: const TextStyle(
+                    color: AppColors.gray500,
+                    fontSize: 10.5,
+                  ),
                 ),
               ],
             ),
@@ -622,12 +627,12 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(
                 subtitle,
                 style: const TextStyle(
                   color: AppColors.gray600,
-                  fontSize: 10,
+                  fontSize: 11,
                   height: 1.5,
                 ),
               ),
@@ -652,7 +657,7 @@ class _ReviewRow extends StatelessWidget {
           width: 105,
           child: Text(
             label,
-            style: const TextStyle(color: AppColors.gray500, fontSize: 10),
+            style: const TextStyle(color: AppColors.gray500, fontSize: 11),
           ),
         ),
         Expanded(

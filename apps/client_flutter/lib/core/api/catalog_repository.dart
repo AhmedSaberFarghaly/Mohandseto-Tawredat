@@ -9,6 +9,7 @@ class CatalogCategory {
     required this.nameEn,
     required this.slug,
     required this.iconName,
+    required this.imageUrl,
     required this.productCount,
     required this.children,
   });
@@ -20,6 +21,7 @@ class CatalogCategory {
         nameEn: json['nameEn'] as String,
         slug: json['slug'] as String,
         iconName: json['iconName'] as String?,
+        imageUrl: json['imageUrl'] as String?,
         productCount: json['productCount'] as int,
         children: (json['children'] as List)
             .map(
@@ -33,8 +35,12 @@ class CatalogCategory {
   final String nameEn;
   final String slug;
   final String? iconName;
+  final String? imageUrl;
   final int productCount;
   final List<CatalogCategory> children;
+
+  /// True when the image is a real, loadable URL (not a seed placeholder).
+  bool get hasImage => imageUrl != null && !imageUrl!.startsWith('asset://');
 }
 
 class CatalogBrand {
@@ -120,6 +126,29 @@ class CatalogProduct {
   final bool isPrintable;
   final bool isFeatured;
   final bool isFavorite;
+
+  CatalogProduct withFavorite(bool value) => CatalogProduct(
+    id: id,
+    sku: sku,
+    nameAr: nameAr,
+    nameEn: nameEn,
+    slug: slug,
+    categoryName: categoryName,
+    brandName: brandName,
+    price: price,
+    compareAtPrice: compareAtPrice,
+    hasContractPrice: hasContractPrice,
+    stockStatus: stockStatus,
+    stockQty: stockQty,
+    imageUrl: imageUrl,
+    rating: rating,
+    ratingCount: ratingCount,
+    minOrderQty: minOrderQty,
+    unitName: unitName,
+    isPrintable: isPrintable,
+    isFeatured: isFeatured,
+    isFavorite: value,
+  );
 }
 
 class CatalogPage {

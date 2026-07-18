@@ -35,7 +35,7 @@ abstract final class AppColors {
   static const infoTint = Color(0xFFEFF8FF);
 
   // client app surfaces
-  static const background = Color(0xFFF8F9FB);
+  static const background = Color(0xFFFBFCFE);
   static const card = Color(0xFFFFFFFF);
 }
 
@@ -54,5 +54,16 @@ abstract final class AppRadius {
   static const md = 12.0;
   static const lg = 16.0;
   static const xl = 20.0;
+  static const xxl = 24.0;
   static const pill = 999.0;
+}
+
+abstract final class AppShadows {
+  static const soft = [
+    BoxShadow(color: Color(0x0A102846), blurRadius: 18, offset: Offset(0, 5)),
+  ];
+
+  static const floating = [
+    BoxShadow(color: Color(0x14023BAA), blurRadius: 24, offset: Offset(0, 8)),
+  ];
 }

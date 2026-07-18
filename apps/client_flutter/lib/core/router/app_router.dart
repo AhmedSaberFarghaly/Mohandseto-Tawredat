@@ -99,6 +99,24 @@ final appRouter = GoRouter(
           builder: (context, state) => const CategoriesScreen(),
         ),
         GoRoute(
+          path: '/rfqs',
+          name: 'rfqs',
+          builder: (context, state) => const RfqsScreen(),
+          routes: [
+            GoRoute(
+              path: 'new',
+              name: 'rfq-new',
+              builder: (context, state) => const CreateRfqScreen(),
+            ),
+            GoRoute(
+              path: ':id',
+              name: 'rfq-detail',
+              builder: (context, state) =>
+                  RfqDetailScreen(id: state.pathParameters['id']!),
+            ),
+          ],
+        ),
+        GoRoute(
           path: '/favorites',
           name: 'favorites',
           builder: (context, state) => const FavoritesScreen(),
@@ -365,22 +383,6 @@ final appRouter = GoRouter(
       name: 'approval-detail',
       builder: (context, state) =>
           ApprovalDetailScreen(id: state.pathParameters['id']!),
-    ),
-    GoRoute(
-      path: '/rfqs',
-      name: 'rfqs',
-      builder: (context, state) => const RfqsScreen(),
-    ),
-    GoRoute(
-      path: '/rfqs/new',
-      name: 'rfq-new',
-      builder: (context, state) => const CreateRfqScreen(),
-    ),
-    GoRoute(
-      path: '/rfqs/:id',
-      name: 'rfq-detail',
-      builder: (context, state) =>
-          RfqDetailScreen(id: state.pathParameters['id']!),
     ),
   ],
 );

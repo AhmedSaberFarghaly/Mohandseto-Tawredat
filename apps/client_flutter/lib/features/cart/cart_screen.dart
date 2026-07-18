@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
+import '../../core/api/api_client.dart';
 import '../../core/api/cart_repository.dart';
 import '../../core/theme/app_tokens.dart';
 
@@ -13,6 +16,7 @@ class CartScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('السلة (${cart.value?.itemCount ?? 0})'),
         actions: [
@@ -43,7 +47,7 @@ class CartScreen extends ConsumerWidget {
         ],
       ),
       body: cart.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -98,7 +102,7 @@ class CartScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           const Text(
             'سلتك فارغة',
-            style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 7),
           const Text(
@@ -129,6 +133,7 @@ class CartScreen extends ConsumerWidget {
     child: ListView(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 130),
       children: [
+        if (cart.items.isNotEmpty) _shippingProgress(cart),
         if (cart.items.isNotEmpty)
           ...cart.items.map((item) => _itemCard(context, ref, item)),
         if (cart.hasPriceChanges)
@@ -172,7 +177,7 @@ class CartScreen extends ConsumerWidget {
             padding: EdgeInsets.only(top: 22, bottom: 10),
             child: Text(
               'محفوظ لوقت لاحق',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ),
           ...cart.savedItems.map((item) => _itemCard(context, ref, item)),
@@ -200,20 +205,7 @@ class CartScreen extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryTint,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                  child: Icon(
-                    item.customProductRequestId == null
-                        ? Icons.inventory_2_outlined
-                        : Icons.print_outlined,
-                    color: AppColors.primary,
-                  ),
-                ),
+                _CartItemVisual(item: item),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -223,14 +215,14 @@ class CartScreen extends ConsumerWidget {
                         item.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       if (item.variantName != null)
                         Text(
                           item.variantName!,
                           style: const TextStyle(
                             color: AppColors.primary,
-                            fontSize: 10,
+                            fontSize: 11,
                           ),
                         ),
                       if (item.customProductRequestId != null)
@@ -238,7 +230,7 @@ class CartScreen extends ConsumerWidget {
                           'منتج مخصص — السعر والكمية حسب العرض',
                           style: TextStyle(
                             color: AppColors.success,
-                            fontSize: 9,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -246,7 +238,7 @@ class CartScreen extends ConsumerWidget {
                         item.sku,
                         style: const TextStyle(
                           color: AppColors.gray400,
-                          fontSize: 9,
+                          fontSize: 10.5,
                         ),
                       ),
                       if (item.priceChanged)
@@ -254,7 +246,7 @@ class CartScreen extends ConsumerWidget {
                           'كان ${_money(item.previousUnitPrice ?? 0)} وأصبح ${_money(item.unitPrice)} ج.م',
                           style: const TextStyle(
                             color: AppColors.warning,
-                            fontSize: 9,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -263,7 +255,7 @@ class CartScreen extends ConsumerWidget {
                           'المتاح الآن ${item.availableQty} فقط',
                           style: const TextStyle(
                             color: AppColors.error,
-                            fontSize: 9,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -272,7 +264,7 @@ class CartScreen extends ConsumerWidget {
                           'ملاحظة: ${item.customerNote}',
                           style: const TextStyle(
                             color: AppColors.gray500,
-                            fontSize: 9,
+                            fontSize: 10.5,
                           ),
                         ),
                     ],
@@ -282,7 +274,7 @@ class CartScreen extends ConsumerWidget {
                   '${_money(item.lineTotal)} ج.م',
                   style: const TextStyle(
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -296,24 +288,11 @@ class CartScreen extends ConsumerWidget {
               else if (!item.saved)
                 Text(
                   '${item.quantity} قطعة',
-                  style: const TextStyle(fontWeight: FontWeight.w800),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 )
               else
                 const Spacer(),
-              TextButton(
-                onPressed: () => _itemNote(context, ref, item),
-                child: const Text('ملاحظة'),
-              ),
-              TextButton(
-                onPressed: () => _mutate(
-                  context,
-                  ref,
-                  () => ref
-                      .read(cartRepositoryProvider)
-                      .save(item.id, !item.saved),
-                ),
-                child: Text(item.saved ? 'إعادة للسلة' : 'حفظ لوقت لاحق'),
-              ),
+              const Spacer(),
               IconButton(
                 tooltip: 'حذف',
                 icon: const Icon(
@@ -328,10 +307,100 @@ class CartScreen extends ConsumerWidget {
               ),
             ],
           ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 2,
+              runSpacing: 0,
+              children: [
+                TextButton.icon(
+                  onPressed: () => _itemNote(context, ref, item),
+                  icon: const Icon(Icons.edit_note_rounded, size: 18),
+                  label: const Text('إضافة ملاحظة'),
+                ),
+                TextButton.icon(
+                  onPressed: () => _mutate(
+                    context,
+                    ref,
+                    () => ref
+                        .read(cartRepositoryProvider)
+                        .save(item.id, !item.saved),
+                  ),
+                  icon: Icon(
+                    item.saved
+                        ? Icons.shopping_cart_outlined
+                        : Icons.bookmark_border_rounded,
+                    size: 17,
+                  ),
+                  label: Text(item.saved ? 'إعادة للسلة' : 'حفظ لاحقًا'),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     ),
   );
+
+  Widget _shippingProgress(CartModel cart) {
+    const target = 2000.0;
+    final progress = (cart.subtotal / target).clamp(0.0, 1.0);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: cart.eligibleForFreeShipping
+            ? AppColors.successTint
+            : AppColors.infoTint,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                cart.eligibleForFreeShipping
+                    ? Icons.check_circle_rounded
+                    : Icons.local_shipping_outlined,
+                color: cart.eligibleForFreeShipping
+                    ? AppColors.success
+                    : AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  cart.eligibleForFreeShipping
+                      ? 'مبروك، طلبك مؤهل للشحن المجاني'
+                      : 'أضف ${_money((target - cart.subtotal).clamp(0, target))} ج.م للشحن المجاني',
+                  style: TextStyle(
+                    color: cart.eligibleForFreeShipping
+                        ? AppColors.success
+                        : AppColors.info,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 9),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: Colors.white,
+              color: cart.eligibleForFreeShipping
+                  ? AppColors.success
+                  : AppColors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _quantity(BuildContext context, WidgetRef ref, CartItemModel item) =>
       Container(
@@ -356,7 +425,7 @@ class CartScreen extends ConsumerWidget {
             ),
             Text(
               '${item.quantity}',
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             IconButton(
               iconSize: 18,
@@ -409,7 +478,7 @@ class CartScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 10),
               child: Text(
                 'أضف مشتريات بقيمة ${_money(2000 - cart.subtotal)} ج.م للحصول على شحن مجاني',
-                style: const TextStyle(color: AppColors.primary, fontSize: 10),
+                style: const TextStyle(color: AppColors.primary, fontSize: 11),
               ),
             ),
         ],
@@ -433,7 +502,7 @@ class CartScreen extends ConsumerWidget {
             label,
             style: TextStyle(
               color: subdued ? AppColors.gray500 : AppColors.gray800,
-              fontWeight: strong ? FontWeight.w800 : FontWeight.w400,
+              fontWeight: strong ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
         ),
@@ -442,7 +511,7 @@ class CartScreen extends ConsumerWidget {
           style: TextStyle(
             color: free ? AppColors.primary : color,
             fontSize: strong ? 16 : 13,
-            fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
+            fontWeight: strong ? FontWeight.w700 : FontWeight.w700,
           ),
         ),
       ],
@@ -465,13 +534,13 @@ class CartScreen extends ConsumerWidget {
               children: [
                 const Text(
                   'الإجمالي',
-                  style: TextStyle(color: AppColors.gray500, fontSize: 9),
+                  style: TextStyle(color: AppColors.gray500, fontSize: 10.5),
                 ),
                 Text(
                   '${_money(cart.total)} ج.م',
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -538,7 +607,7 @@ class CartScreen extends ConsumerWidget {
       children: [
         Icon(icon, color: AppColors.warning),
         const SizedBox(width: 8),
-        Expanded(child: Text(message, style: const TextStyle(fontSize: 10))),
+        Expanded(child: Text(message, style: const TextStyle(fontSize: 11))),
         if (action != null) action,
       ],
     ),
@@ -697,7 +766,7 @@ class CartScreen extends ConsumerWidget {
               children: [
                 const Text(
                   'السلال المحفوظة',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 10),
                 if (carts.isEmpty)
@@ -743,4 +812,38 @@ class CartScreen extends ConsumerWidget {
   }
 
   String _money(double value) => NumberFormat('#,##0.00', 'ar').format(value);
+}
+
+class _CartItemVisual extends StatelessWidget {
+  const _CartItemVisual({required this.item});
+  final CartItemModel item;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Icon(
+      item.customProductRequestId == null
+          ? Icons.inventory_2_outlined
+          : Icons.print_outlined,
+      color: AppColors.primary,
+      size: 28,
+    );
+    final path = item.imageUrl;
+    return Container(
+      width: 68,
+      height: 68,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.primaryTint,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: path == null || path.startsWith('asset://')
+          ? fallback
+          : CachedNetworkImage(
+              imageUrl: path.startsWith('http') ? path : '$apiBaseUrl$path',
+              fit: BoxFit.contain,
+              placeholder: (_, _) => const Skeleton(radius: 0),
+              errorWidget: (_, _, _) => fallback,
+            ),
+    );
+  }
 }

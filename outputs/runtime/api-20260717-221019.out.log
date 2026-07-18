@@ -1,0 +1,133 @@
+[22:10:37 INF] Seeded support SLA policies and reply templates
+[22:10:37 WRN] The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+[22:10:37 INF] Now listening on: http://0.0.0.0:5199
+[22:10:37 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[22:10:37 INF] Application started. Press Ctrl+C to shut down.
+[22:10:37 INF] Hosting environment: Development
+[22:10:37 INF] Content root path: E:\Mohandseto Tawrdat\apps\api
+[22:10:55 INF] HTTP GET /health responded 200 in 1385.8431 ms
+[22:11:15 INF] HTTP GET /health/ready responded 200 in 14.1253 ms
+[22:19:22 INF] HTTP GET /api/auth/external/providers responded 200 in 92892.5115 ms
+[22:19:21 ERR] Failed to persist system error event
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Mohandseto.Api.Application.AdminMonitoring.SystemErrorCaptureMiddleware.InvokeAsync(HttpContext context) in E:\Mohandseto Tawrdat\apps\api\Application\AdminMonitoring\RuntimeMonitoring.cs:line 107
+[22:19:24 INF] HTTP GET /api/app/config responded 499 in 94467.0533 ms
+[22:20:58 INF] HTTP GET /health/ready responded 200 in 206.2730 ms
+[22:35:02 ERR] An unhandled exception has occurred while executing the request.
+Mohandseto.Api.Application.Common.ApiException: البريد الإلكتروني أو كلمة المرور غير صحيحة
+   at Mohandseto.Api.Application.Auth.AuthService.LoginWithEmailAsync(String email, String password, CancellationToken ct, LoginContext context) in E:\Mohandseto Tawrdat\apps\api\Application\Auth\AuthService.cs:line 47
+   at Mohandseto.Api.Controllers.AuthController.Login(EmailLoginDto dto, CancellationToken ct) in E:\Mohandseto Tawrdat\apps\api\Controllers\AuthController.cs:line 33
+   at lambda_method1339(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Mohandseto.Api.Application.AdminMonitoring.BlockedIpMiddleware.InvokeAsync(HttpContext context, AppDbContext db) in E:\Mohandseto Tawrdat\apps\api\Application\AdminMonitoring\RuntimeMonitoring.cs:line 89
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Diagnostics.StatusCodePagesMiddleware.Invoke(HttpContext context)
+   at Mohandseto.Api.Application.AdminMonitoring.RequestMetricsMiddleware.InvokeAsync(HttpContext context, RuntimeMetrics metrics) in E:\Mohandseto Tawrdat\apps\api\Application\AdminMonitoring\RuntimeMonitoring.cs:line 59
+   at Mohandseto.Api.Application.AdminMonitoring.SystemErrorCaptureMiddleware.InvokeAsync(HttpContext context) in E:\Mohandseto Tawrdat\apps\api\Application\AdminMonitoring\RuntimeMonitoring.cs:line 97
+   at Mohandseto.Api.Application.AdminMonitoring.SystemErrorCaptureMiddleware.InvokeAsync(HttpContext context) in E:\Mohandseto Tawrdat\apps\api\Application\AdminMonitoring\RuntimeMonitoring.cs:line 100
+   at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddlewareImpl.<Invoke>g__Awaited|10_0(ExceptionHandlerMiddlewareImpl middleware, HttpContext context, Task task)
+[22:35:03 INF] HTTP POST /api/auth/login responded 401 in 1199.1152 ms
+[22:35:11 INF] HTTP POST /api/auth/login responded 200 in 845.5221 ms
+[22:35:12 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[22:35:12 INF] HTTP GET /api/account/branches responded 200 in 209.7205 ms
+[22:35:12 INF] HTTP GET /api/catalog/categories responded 200 in 282.2778 ms
+[22:35:12 INF] HTTP GET /api/account responded 200 in 452.4174 ms
+[22:35:12 INF] HTTP GET /api/catalog/recently-viewed responded 200 in 507.1531 ms
+[22:35:12 INF] HTTP GET /api/catalog/products responded 200 in 540.1067 ms
+[22:35:12 INF] HTTP GET /api/cart responded 200 in 518.1117 ms
+[22:35:13 INF] HTTP GET /catalog/writing-ballpoint-pens.jpg responded 200 in 25.9425 ms
+[22:35:13 INF] HTTP GET /catalog/printing-laser-toner.jpg responded 200 in 7.6419 ms
+[22:35:13 INF] HTTP GET /catalog/paper-copy-paper.jpg responded 200 in 17.4730 ms
+[22:35:13 INF] HTTP GET /catalog/office-supplies-files-folders.jpg responded 200 in 48.7437 ms
+[22:35:13 INF] HTTP GET /catalog/cleaning-surface-cleaners.jpg responded 200 in 13.6710 ms
+[22:35:13 INF] HTTP GET /catalog/packaging-shipping-boxes.jpg responded 200 in 21.4182 ms
+[22:35:13 INF] HTTP GET /catalog/safety-ppe.jpg responded 200 in 25.5560 ms
+[22:35:13 INF] HTTP GET /catalog/printing-printer-ink.jpg responded 200 in 20.7565 ms
+[22:35:13 INF] HTTP GET /catalog/packaging-protective-wrap.jpg responded 200 in 2.1674 ms
+[22:35:13 INF] HTTP GET /catalog/packaging-packing-tapes.jpg responded 200 in 1.1624 ms
+[22:35:13 INF] HTTP GET /catalog/writing-correction-tools.jpg responded 200 in 34.0641 ms
+[22:35:13 INF] HTTP GET /catalog/electrical-lighting.jpg responded 200 in 14.1925 ms
+[22:35:21 INF] HTTP GET /api/catalog/categories responded 200 in 4.0300 ms
+[22:35:21 INF] HTTP GET /api/catalog/products responded 200 in 6.1475 ms
+[22:35:21 INF] HTTP GET /api/account responded 200 in 4.7801 ms
+[22:35:21 INF] HTTP GET /api/account/branches responded 200 in 2.0836 ms
+[22:35:21 INF] HTTP GET /api/catalog/recently-viewed responded 200 in 5.8249 ms
+[22:35:27 INF] HTTP GET /api/catalog/products responded 200 in 9.5365 ms
+[22:35:27 INF] HTTP GET /catalog/writing-markers.jpg responded 200 in 1.2473 ms
+[22:35:27 INF] HTTP GET /catalog/cleaning-garbage-bags.jpg responded 200 in 13.6274 ms
+[22:35:27 INF] HTTP GET /catalog/electrical-batteries.jpg responded 200 in 17.1721 ms
+[22:35:30 INF] HTTP GET /catalog/technology-data-storage.jpg responded 200 in 1.8576 ms
+[22:35:31 INF] HTTP GET /catalog/technology-networking.jpg responded 200 in 3.6751 ms
+[22:35:31 INF] HTTP GET /catalog/paper-notebooks.jpg responded 200 in 42.7904 ms
+[22:35:31 INF] HTTP GET /catalog/office-supplies-staplers-punches.jpg responded 200 in 56.2901 ms
+[22:35:31 INF] HTTP GET /catalog/tools-power-tools.jpg responded 200 in 1.0582 ms
+[22:35:33 INF] HTTP GET /catalog/tools-hand-tools.jpg responded 200 in 13.1870 ms
+[22:35:33 INF] HTTP GET /catalog/hospitality-water-beverages.jpg responded 200 in 10.2939 ms
+[22:35:36 INF] HTTP GET /api/catalog/products responded 200 in 43.5975 ms
+[22:35:36 INF] HTTP GET /catalog/office-supplies-calculators.jpg responded 200 in 105.7740 ms
+[22:35:40 INF] HTTP GET /api/orders responded 200 in 543.1924 ms
+[22:35:42 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[22:35:42 INF] HTTP GET /api/rfqs responded 200 in 375.9857 ms
+[22:35:49 INF] HTTP GET /catalog/technology-computer-accessories.jpg responded 200 in 37.5370 ms
+[22:35:49 INF] HTTP GET /catalog/furniture-office-chairs.jpg responded 200 in 13.8688 ms
+[22:35:52 INF] HTTP GET /api/catalog/products responded 200 in 6.3666 ms
+[22:35:52 INF] HTTP GET /catalog/hospitality-pantry-supplies.jpg responded 200 in 119.8276 ms
+[22:35:52 INF] HTTP GET /catalog/hospitality-hot-drinks.jpg responded 200 in 141.5761 ms
+[22:56:39 INF] HTTP GET /api/auth/external/providers responded 200 in 103.2741 ms
+[22:56:39 INF] HTTP GET /api/app/config responded 200 in 314.1822 ms
+[22:58:19 INF] HTTP POST /api/auth/otp/request responded 400 in 695.6284 ms
+[22:58:37 INF] [DEV-SMS] to +201055500111: رمز التحقق الخاص بك في مهندسيتو توريدات: 642565 — صالح لمدة 5 دقائق
+[22:58:38 INF] HTTP POST /api/auth/otp/request responded 200 in 1096.7936 ms
+[23:10:21 INF] HTTP GET /api/app/config responded 200 in 38.9647 ms
+[23:10:22 INF] HTTP GET /api/auth/external/providers responded 200 in 35.2797 ms
+[23:10:33 INF] HTTP GET /health/ready responded 200 in 1168.7009 ms
+[23:13:12 INF] [DEV-SMS] to +201055500111: رمز التحقق الخاص بك في مهندسيتو توريدات: 451915 — صالح لمدة 5 دقائق
+[23:13:12 INF] HTTP POST /api/auth/otp/request responded 200 in 958.7009 ms
+[23:14:03 INF] HTTP POST /api/auth/otp/verify responded 200 in 1612.0105 ms
+[23:14:04 INF] HTTP GET /api/company/verification-status responded 200 in 472.7657 ms
+[23:15:42 INF] HTTP GET /api/app/config responded 200 in 1.2334 ms
+[23:15:42 INF] HTTP GET /api/auth/external/providers responded 200 in 0.7830 ms
+[23:15:49 INF] [DEV-SMS] to +201012345678: رمز التحقق الخاص بك في مهندسيتو توريدات: 939126 — صالح لمدة 5 دقائق
+[23:15:49 INF] HTTP POST /api/auth/otp/request responded 200 in 115.0647 ms
+[23:17:24 INF] HTTP POST /api/auth/otp/verify responded 200 in 231.0630 ms
+[23:17:25 INF] HTTP GET /api/account responded 200 in 206.5978 ms
+[23:17:26 INF] HTTP GET /api/account/branches responded 200 in 680.4547 ms
+[23:17:26 INF] HTTP GET /api/catalog/categories responded 200 in 776.3802 ms
+[23:17:26 INF] HTTP GET /api/catalog/products responded 200 in 842.9529 ms
+[23:17:26 INF] HTTP GET /api/catalog/recently-viewed responded 200 in 843.5067 ms
+[23:17:26 INF] HTTP GET /api/cart responded 200 in 843.4405 ms
+[23:17:26 INF] HTTP GET /catalog/writing-ballpoint-pens.jpg responded 200 in 92.5418 ms
+[23:17:26 INF] HTTP GET /catalog/packaging-shipping-boxes.jpg responded 200 in 20.7504 ms
+[23:17:26 INF] HTTP GET /catalog/office-supplies-files-folders.jpg responded 200 in 107.1049 ms
+[23:17:26 INF] HTTP GET /catalog/safety-ppe.jpg responded 200 in 13.1530 ms
+[23:17:26 INF] HTTP GET /catalog/printing-laser-toner.jpg responded 200 in 57.6291 ms
+[23:17:26 INF] HTTP GET /catalog/paper-copy-paper.jpg responded 200 in 90.0546 ms
+[23:17:26 INF] HTTP GET /catalog/printing-printer-ink.jpg responded 200 in 19.4290 ms
+[23:17:26 INF] HTTP GET /catalog/cleaning-surface-cleaners.jpg responded 200 in 77.1598 ms
+[23:17:26 INF] HTTP GET /catalog/packaging-packing-tapes.jpg responded 200 in 20.8034 ms
+[23:17:27 INF] HTTP GET /catalog/packaging-protective-wrap.jpg responded 200 in 25.6043 ms
+[23:17:27 INF] HTTP GET /catalog/electrical-lighting.jpg responded 200 in 28.1882 ms
+[23:17:27 INF] HTTP GET /catalog/writing-correction-tools.jpg responded 200 in 29.9679 ms
+[23:24:00 INF] HTTP GET /api/app/config responded 200 in 2.1792 ms
+[23:24:01 INF] HTTP GET /api/auth/external/providers responded 200 in 1.7352 ms

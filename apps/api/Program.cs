@@ -227,6 +227,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("app");
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+        ctx.Context.Response.Headers.CacheControl = "public,max-age=86400",
+});
 app.UseMiddleware<BlockedIpMiddleware>();
 app.UseAuthentication();
 app.UseRateLimiter();

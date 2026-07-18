@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/widgets/skeleton.dart';
 import '../../core/api/api_client.dart';
 import '../../core/api/customization_repository.dart';
 import '../../core/api/cart_repository.dart';
@@ -35,6 +36,7 @@ class CustomRequestsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final requests = ref.watch(customRequestsProvider);
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('طلبات الطباعة والتخصيص'),
         actions: [
@@ -45,7 +47,7 @@ class CustomRequestsScreen extends ConsumerWidget {
         ],
       ),
       body: requests.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => Center(child: Text('$error')),
         data: (items) => items.isEmpty
             ? _empty(context)
@@ -76,7 +78,7 @@ class CustomRequestsScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           const Text(
             'لا توجد طلبات تخصيص بعد',
-            style: TextStyle(fontWeight: FontWeight.w800),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           const Text(
@@ -100,7 +102,13 @@ class _RequestCard extends StatelessWidget {
   const _RequestCard({required this.request});
   final CustomRequestSummary request;
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
+      border: Border.all(color: AppColors.gray150),
+      boxShadow: AppShadows.soft,
+    ),
     child: InkWell(
       onTap: () => context.push('/custom-requests/${request.id}'),
       borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -114,7 +122,7 @@ class _RequestCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     request.productName,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _StatusChip(request.status),
@@ -123,7 +131,7 @@ class _RequestCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${request.number}  •  ${DateFormat('d MMM yyyy', 'ar').format(request.createdAt.toLocal())}',
-              style: const TextStyle(color: AppColors.gray500, fontSize: 9),
+              style: const TextStyle(color: AppColors.gray500, fontSize: 10.5),
             ),
             const SizedBox(height: 12),
             ClipRRect(
@@ -142,14 +150,14 @@ class _RequestCard extends StatelessWidget {
               children: [
                 Text(
                   '${request.quantity} قطعة',
-                  style: const TextStyle(fontSize: 10),
+                  style: const TextStyle(fontSize: 11),
                 ),
                 const Spacer(),
                 Text(
                   '${NumberFormat('#,##0.00', 'ar').format(request.total)} ج.م',
                   style: const TextStyle(
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -183,9 +191,10 @@ class _CustomRequestDetailScreenState
   Widget build(BuildContext context) {
     final request = ref.watch(customRequestProvider(widget.requestId));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('تفاصيل طلب التخصيص')),
       body: request.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const ListSkeleton(),
         error: (error, _) => Center(child: Text('$error')),
         data: (r) => RefreshIndicator(
           onRefresh: () async {
@@ -246,7 +255,7 @@ class _CustomRequestDetailScreenState
                       r.productName,
                       style: const TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -254,7 +263,7 @@ class _CustomRequestDetailScreenState
                       '${r.number} • ${r.sku}',
                       style: const TextStyle(
                         color: AppColors.gray500,
-                        fontSize: 9,
+                        fontSize: 10.5,
                       ),
                     ),
                   ],
@@ -305,7 +314,7 @@ class _CustomRequestDetailScreenState
             SizedBox(width: 8),
             Text(
               'عرض السعر جاهز',
-              style: TextStyle(fontWeight: FontWeight.w800),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -315,13 +324,13 @@ class _CustomRequestDetailScreenState
           style: const TextStyle(
             color: AppColors.primary,
             fontSize: 22,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
         if (r.quoteExpiresAt != null)
           Text(
             'صالح حتى ${DateFormat('d MMM yyyy', 'ar').format(r.quoteExpiresAt!.toLocal())}',
-            style: const TextStyle(color: AppColors.gray600, fontSize: 9),
+            style: const TextStyle(color: AppColors.gray600, fontSize: 10.5),
           ),
         const SizedBox(height: 13),
         Row(
@@ -352,7 +361,7 @@ class _CustomRequestDetailScreenState
       children: [
         const Text(
           'التصميم والمعاينة',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         Card(
@@ -365,14 +374,14 @@ class _CustomRequestDetailScreenState
                   children: [
                     Text(
                       'النسخة ${version.number}',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const Spacer(),
                     Text(
                       version.title,
                       style: const TextStyle(
                         color: AppColors.gray600,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ],
@@ -390,7 +399,7 @@ class _CustomRequestDetailScreenState
                       version.changeSummary!,
                       style: const TextStyle(
                         color: AppColors.gray600,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -443,7 +452,7 @@ class _CustomRequestDetailScreenState
     children: [
       const Text(
         'متابعة الإنتاج',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 10),
       ...r.productionStages.map(
@@ -476,7 +485,7 @@ class _CustomRequestDetailScreenState
                   s.name,
                   style: TextStyle(
                     fontWeight: s.status == 'InProgress'
-                        ? FontWeight.w800
+                        ? FontWeight.w700
                         : FontWeight.w600,
                   ),
                 ),
@@ -495,7 +504,7 @@ class _CustomRequestDetailScreenState
       children: [
         const Text(
           'عينة ما قبل الإنتاج',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         Card(
@@ -508,7 +517,7 @@ class _CustomRequestDetailScreenState
                   children: [
                     Text(
                       'العينة ${sample.version}',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const Spacer(),
                     _StatusChip(sample.decision),
@@ -523,7 +532,7 @@ class _CustomRequestDetailScreenState
                       sample.note!,
                       style: const TextStyle(
                         color: AppColors.gray600,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -576,7 +585,7 @@ class _CustomRequestDetailScreenState
     children: [
       const Text(
         'الملاحظات',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
       const SizedBox(height: 8),
       ...r.comments.map(
@@ -772,7 +781,7 @@ class _StatusChip extends StatelessWidget {
         _statusLabels[status] ?? status,
         style: TextStyle(
           color: danger ? AppColors.error : AppColors.primary,
-          fontSize: 9,
+          fontSize: 10.5,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -792,7 +801,7 @@ class _Row extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(color: AppColors.gray500, fontSize: 10),
+            style: const TextStyle(color: AppColors.gray500, fontSize: 11),
           ),
         ),
         Text(

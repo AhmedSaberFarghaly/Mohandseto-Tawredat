@@ -30,6 +30,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final detail = ref.watch(productDetailProvider(widget.idOrSlug));
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('تفاصيل المنتج'),
         actions: [
@@ -63,6 +64,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   border: Border(top: BorderSide(color: AppColors.gray200)),
+                  boxShadow: AppShadows.soft,
                 ),
                 child: Row(
                   children: [
@@ -125,9 +127,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
-          child: AspectRatio(
-            aspectRatio: 1.3,
-            child: ProductVisual(product: product, large: true),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.xxl),
+              border: Border.all(color: AppColors.gray150),
+              boxShadow: AppShadows.soft,
+            ),
+            child: AspectRatio(
+              aspectRatio: 1.3,
+              child: ProductVisual(product: product, large: true),
+            ),
           ),
         ),
         Padding(
@@ -135,10 +146,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   _StockChip(status: product.stockStatus),
-                  const SizedBox(width: 7),
                   if (product.hasContractPrice)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -153,17 +166,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         'سعر خاص لشركتك',
                         style: TextStyle(
                           color: AppColors.success,
-                          fontSize: 9,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                  const Spacer(),
-                  Text(
-                    product.sku,
-                    style: const TextStyle(
-                      color: AppColors.gray400,
-                      fontSize: 9,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.gray100,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      product.sku,
+                      style: const TextStyle(
+                        color: AppColors.gray500,
+                        fontSize: 9.5,
+                      ),
                     ),
                   ),
                 ],
@@ -175,7 +197,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   fontSize: 21,
                   height: 1.35,
                   color: AppColors.gray900,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 7),
@@ -194,40 +216,46 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ' (${product.ratingCount} تقييم)',
                     style: const TextStyle(
                       color: AppColors.gray500,
-                      fontSize: 10,
+                      fontSize: 11,
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    product.brandName ?? product.categoryName,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 11,
+                  Flexible(
+                    child: Text(
+                      product.brandName ?? product.categoryName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                 ],
               ),
               const Divider(height: 28),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: 7,
+                runSpacing: 3,
                 children: [
                   Text(
                     formatter.format(unitPrice),
                     style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 27,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(bottom: 5),
                     child: Text(
                       ' ج.م / للوحدة',
-                      style: TextStyle(color: AppColors.primary, fontSize: 10),
+                      style: TextStyle(color: AppColors.primary, fontSize: 11),
                     ),
                   ),
                   if (product.compareAtPrice != null) ...[
-                    const SizedBox(width: 9),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 5),
                       child: Text(
@@ -253,7 +281,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 const SizedBox(height: 22),
                 const Text(
                   'اختر النوع / اللون',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                  style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 9),
                 Wrap(
@@ -278,7 +306,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   const Expanded(
                     child: Text(
                       'الكمية',
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                   Container(
@@ -301,7 +329,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -366,7 +394,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               'PDF - ورقة مواصفات فنية',
                               style: TextStyle(
                                 color: AppColors.gray500,
-                                fontSize: 9,
+                                fontSize: 10.5,
                               ),
                             ),
                             trailing: const Icon(
@@ -420,7 +448,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 const SizedBox(height: 24),
                 const Text(
                   'منتجات مشابهة',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
@@ -574,7 +602,7 @@ class _StockChip extends StatelessWidget {
             : 'متوفر',
         style: TextStyle(
           color: available ? AppColors.success : AppColors.error,
-          fontSize: 9,
+          fontSize: 10.5,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -604,7 +632,7 @@ class _PriceTiers extends StatelessWidget {
               'وفر أكثر مع الكميات',
               style: TextStyle(
                 color: AppColors.primary,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -677,7 +705,7 @@ class _InfoRow extends StatelessWidget {
               ),
               Text(
                 value,
-                style: const TextStyle(fontSize: 10, color: AppColors.gray500),
+                style: const TextStyle(fontSize: 11, color: AppColors.gray500),
               ),
             ],
           ),
@@ -702,7 +730,7 @@ class _ExpandableSection extends StatelessWidget {
     child: ExpansionTile(
       initiallyExpanded: true,
       shape: const Border(),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
       children: [Padding(padding: const EdgeInsets.all(14), child: child)],
     ),
   );

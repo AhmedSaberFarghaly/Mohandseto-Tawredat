@@ -19,6 +19,7 @@ class _NotificationsState extends ConsumerState<NotificationsScreen> {
   bool unread = false;
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: const Text('الإشعارات'),
       actions: [
@@ -109,12 +110,12 @@ class NotificationTile extends StatelessWidget {
         ),
         title: Text(
           item.title,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
         ),
         subtitle: Text(
           '${item.body}\n${relative(item.createdAt)}',
           maxLines: 3,
-          style: const TextStyle(fontSize: 9),
+          style: const TextStyle(fontSize: 10.5),
         ),
         isThreeLine: true,
         trailing: item.read
@@ -129,6 +130,7 @@ class NotificationPreferencesScreen extends ConsumerWidget {
   const NotificationPreferencesScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('إعدادات الإشعارات')),
     body: ref
         .watch(notificationPreferencesProvider)
@@ -240,6 +242,7 @@ class SupportHubScreen extends ConsumerWidget {
   const SupportHubScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('مركز الدعم')),
     body: ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
@@ -250,7 +253,8 @@ class SupportHubScreen extends ConsumerWidget {
             gradient: const LinearGradient(
               colors: [AppColors.primary, AppColors.primaryDark],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            boxShadow: AppShadows.floating,
           ),
           child: const Column(
             children: [
@@ -260,13 +264,13 @@ class SupportHubScreen extends ConsumerWidget {
                 'كيف يمكننا مساعدتك؟',
                 style: TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   fontSize: 18,
                 ),
               ),
               Text(
                 'فريق الدعم متاح لمتابعة طلبات شركتك',
-                style: TextStyle(color: Colors.white70, fontSize: 9),
+                style: TextStyle(color: Colors.white70, fontSize: 10.5),
               ),
             ],
           ),
@@ -367,8 +371,10 @@ class SupportAction extends StatelessWidget {
       child: Container(
         height: 88,
         decoration: BoxDecoration(
-          color: AppColors.primaryTint,
-          borderRadius: BorderRadius.circular(14),
+          color: Colors.white,
+          border: Border.all(color: AppColors.gray200),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: AppShadows.soft,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -378,7 +384,10 @@ class SupportAction extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800),
+              style: const TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -401,9 +410,9 @@ class SupportRow extends StatelessWidget {
     ),
     title: Text(
       title,
-      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
     ),
-    subtitle: Text(subtitle, style: const TextStyle(fontSize: 8)),
+    subtitle: Text(subtitle, style: const TextStyle(fontSize: 9.5)),
     trailing: const Icon(Icons.chevron_right),
   );
 }
@@ -412,6 +421,7 @@ class SupportTicketsScreen extends ConsumerWidget {
   const SupportTicketsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('قائمة التذاكر')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: () => context.push('/support/tickets/new'),
@@ -455,7 +465,7 @@ class SupportTicketsScreen extends ConsumerWidget {
                           title: Text(
                             t.subject,
                             style: const TextStyle(
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                               fontSize: 11,
                             ),
                           ),
@@ -512,6 +522,7 @@ class _CreateTicketState extends ConsumerState<CreateSupportTicketScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(
       title: Text(widget.sales ? 'محادثة مع المبيعات' : 'إنشاء تذكرة دعم'),
     ),
@@ -653,6 +664,7 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('تفاصيل التذكرة')),
     body: ref
         .watch(supportTicketProvider(widget.id))
@@ -663,8 +675,14 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
             children: [
               Container(
                 width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                 padding: const EdgeInsets.all(14),
-                color: AppColors.primaryTint,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: AppColors.gray200),
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  boxShadow: AppShadows.soft,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -673,7 +691,7 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
                         Expanded(
                           child: Text(
                             t.subject,
-                            style: const TextStyle(fontWeight: FontWeight.w900),
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
                         StatePill(t.status),
@@ -682,7 +700,7 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
                     Text(
                       '${t.number} • ${typeLabel(t.type)}',
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 10.5,
                         color: AppColors.gray500,
                       ),
                     ),
@@ -714,8 +732,8 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
                               Text(
                                 m.sender,
                                 style: TextStyle(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w900,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
                                   color: m.staff
                                       ? AppColors.gray700
                                       : Colors.white70,
@@ -724,7 +742,7 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
                               Text(
                                 m.body,
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   color: m.staff
                                       ? AppColors.gray900
                                       : Colors.white,
@@ -736,7 +754,7 @@ class _TicketDetailState extends ConsumerState<SupportTicketDetailScreen> {
                                   'ar',
                                 ).format(m.createdAt.toLocal()),
                                 style: TextStyle(
-                                  fontSize: 7,
+                                  fontSize: 10.5,
                                   color: m.staff
                                       ? AppColors.gray500
                                       : Colors.white70,
@@ -814,7 +832,7 @@ class RateSupportCard extends StatelessWidget {
       leading: const Icon(Icons.star_outline, color: AppColors.warning),
       title: Text(
         ticket.rating == null ? 'قيّم خدمة الدعم' : 'تقييمك ${ticket.rating}/5',
-        style: const TextStyle(fontWeight: FontWeight.w900),
+        style: const TextStyle(fontWeight: FontWeight.w700),
       ),
       subtitle: Text(
         ticket.rating == null
@@ -843,6 +861,7 @@ class _CallbackState extends ConsumerState<CallbackScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('طلب مكالمة')),
     body: ListView(
       padding: const EdgeInsets.all(16),
@@ -912,6 +931,7 @@ class FaqScreen extends ConsumerWidget {
   const FaqScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('الأسئلة الشائعة')),
     body: ref
         .watch(faqProvider)
@@ -927,8 +947,8 @@ class FaqScreen extends ConsumerWidget {
                       title: Text(
                         f.question,
                         style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       children: [
@@ -936,7 +956,7 @@ class FaqScreen extends ConsumerWidget {
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                           child: Text(
                             f.answer,
-                            style: const TextStyle(fontSize: 10, height: 1.8),
+                            style: const TextStyle(fontSize: 11, height: 1.8),
                           ),
                         ),
                       ],
@@ -954,6 +974,7 @@ class ContentScreen extends ConsumerWidget {
   final String slug;
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     body: ref
         .watch(contentPageProvider(slug))
         .when(
@@ -1020,6 +1041,7 @@ class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('الإعدادات')),
     body: ref
         .watch(userSettingsProvider)
@@ -1135,12 +1157,12 @@ class SettingsRow extends StatelessWidget {
     title: Text(
       title,
       style: TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w900,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
         color: danger ? AppColors.error : null,
       ),
     ),
-    subtitle: Text(subtitle, style: const TextStyle(fontSize: 8)),
+    subtitle: Text(subtitle, style: const TextStyle(fontSize: 9.5)),
     trailing: const Icon(Icons.chevron_right),
   );
 }
@@ -1166,6 +1188,7 @@ class _PasswordState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('تغيير كلمة المرور')),
     body: ListView(
       padding: const EdgeInsets.all(16),
@@ -1203,7 +1226,7 @@ class _PasswordState extends ConsumerState<ChangePasswordScreen> {
         const SizedBox(height: 8),
         const Text(
           '8 أحرف على الأقل، وحرف كبير ورقم.',
-          style: TextStyle(fontSize: 9, color: AppColors.gray500),
+          style: TextStyle(fontSize: 10.5, color: AppColors.gray500),
         ),
         const SizedBox(height: 16),
         FilledButton(
@@ -1236,6 +1259,7 @@ class TwoFactorSettingsScreen extends ConsumerWidget {
   const TwoFactorSettingsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('المصادقة الثنائية')),
     body: ref
         .watch(userSettingsProvider)
@@ -1281,6 +1305,7 @@ class SessionsScreen extends ConsumerWidget {
   const SessionsScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('الأجهزة المسجل عليها الحساب')),
     body: ref
         .watch(userSettingsProvider)
@@ -1299,7 +1324,7 @@ class SessionsScreen extends ConsumerWidget {
                     ),
                     title: Text(
                       x.device,
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     subtitle: Text(
                       'بدأت ${DateFormat('d MMM yyyy، h:mm a', 'ar').format(x.createdAt.toLocal())}\nتنتهي ${DateFormat('d MMM yyyy', 'ar').format(x.expiresAt.toLocal())}',
@@ -1353,6 +1378,7 @@ class _DeleteState extends ConsumerState<DeleteAccountScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.background,
     appBar: AppBar(title: const Text('حذف الحساب')),
     body: ref
         .watch(userSettingsProvider)
@@ -1391,7 +1417,7 @@ class _DeleteState extends ConsumerState<DeleteAccountScreen> {
                     'سيتم إيقاف الجلسات فورًا، مع فترة استرجاع 30 يومًا قبل الحذف النهائي.',
                     style: TextStyle(
                       color: AppColors.error,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -1476,14 +1502,14 @@ class AppStateView extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
           ),
           const SizedBox(height: 5),
           Text(
             message,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 9,
+              fontSize: 10.5,
               color: AppColors.gray500,
               height: 1.7,
             ),
@@ -1504,6 +1530,7 @@ class SystemRuntimeScreen extends StatelessWidget {
     final maintenance = type == 'maintenance',
         required = type == 'update-required';
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: AppStateView(
           icon: maintenance
@@ -1554,9 +1581,9 @@ class SectionLabel extends StatelessWidget {
     child: Text(
       text,
       style: const TextStyle(
-        fontSize: 9,
+        fontSize: 10.5,
         color: AppColors.gray500,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
       ),
     ),
   );
@@ -1576,7 +1603,7 @@ class StatePill extends StatelessWidget {
       ),
       child: Text(
         statusLabel(status),
-        style: TextStyle(fontSize: 7, color: c, fontWeight: FontWeight.w900),
+        style: TextStyle(fontSize: 10.5, color: c, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -1594,7 +1621,7 @@ Widget toggle(
     secondary: Icon(icon, color: AppColors.primary),
     title: Text(
       title,
-      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
     ),
   ),
 );
@@ -1692,7 +1719,7 @@ Future<void> appearanceSheet(
           children: [
             const Text(
               'اللغة والمظهر',
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             const SizedBox(height: 14),
             SegmentedButton(
@@ -1767,7 +1794,7 @@ Future<void> enableTwoFactor(BuildContext context, WidgetRef ref) async {
         children: [
           const Text(
             'أدخل رمز التحقق',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -1817,7 +1844,7 @@ Future<void> disableTwoFactor(BuildContext context, WidgetRef ref) async {
         children: [
           const Text(
             'إيقاف المصادقة الثنائية',
-            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -1872,7 +1899,7 @@ Future<void> rateTicket(
           children: [
             const Text(
               'تقييم خدمة الدعم',
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
